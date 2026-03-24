@@ -9,3 +9,4 @@ import CausalAlgebraicGeometry.GridBound
 import CausalAlgebraicGeometry.WidthBound
 import CausalAlgebraicGeometry.WidthOneProof
 import CausalAlgebraicGeometry.Hauptvermutung
+import CausalAlgebraicGeometry.ChainRestriction
