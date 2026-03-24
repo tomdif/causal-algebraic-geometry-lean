@@ -158,18 +158,84 @@ theorem trivial_chain_cover {k : Type*} [Field k] (C : CAlg k) :
     antichain. This uses König-Egerváry / the max-flow min-cut
     theorem on bipartite graphs, which is non-trivial.
 
-    For now, we state the result with the inductive step as a hypothesis. -/
+    For now, we state the result with the inductive step as a hypothesis.
+
+    Helper: cover a subset S with ≤ inducedWidth(S) chains, by induction
+    on S.card. -/
+private theorem cover_subset {k : Type*} [Field k] (C : CAlg k)
+    (h_step : ∀ (S : Finset C.Λ), S.Nonempty → inducedWidth C S > 0 →
+      ∃ (L : Finset C.Λ), L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
+        inducedWidth C (S \ L) < inducedWidth C S)
+    (n : ℕ) (S : Finset C.Λ) (hn : S.card ≤ n) :
+    ∃ chains : Finset (Finset C.Λ),
+      (∀ L ∈ chains, IsChainFS C L) ∧
+      (∀ x ∈ S, ∃ L ∈ chains, x ∈ L) ∧
+      chains.card ≤ inducedWidth C S := by
+  induction n generalizing S with
+  | zero =>
+    -- S.card ≤ 0 → S = ∅
+    have hS : S = ∅ := Finset.card_eq_zero.mp (Nat.le_zero.mp hn)
+    exact ⟨∅, fun _ h => absurd h (by simp),
+      fun x hx => absurd (hS ▸ hx) (by simp),
+      Nat.zero_le _⟩
+  | succ n ih =>
+    by_cases hne : S = ∅
+    · -- S = ∅: use 0 chains
+      exact ⟨∅, fun _ h => absurd h (by simp),
+        fun x hx => absurd (hne ▸ hx) (by simp),
+        Nat.zero_le _⟩
+    · -- S ≠ ∅: extract a chain via h_step
+      have hS_ne : S.Nonempty := by rwa [Finset.nonempty_iff_ne_empty]
+      have hW_pos : inducedWidth C S > 0 := by
+        by_contra h
+        push_neg at h
+        have := width_zero_iff_empty C S (Nat.le_zero.mp h)
+        exact hne this
+      obtain ⟨L, hLS, hLchain, hLne, hW_dec⟩ := h_step S hS_ne hW_pos
+      -- S \ L has strictly fewer elements
+      have hcard_lt : (S \ L).card < S.card := by
+        apply Finset.card_lt_card
+        constructor
+        · exact Finset.sdiff_subset
+        · intro h
+          obtain ⟨x, hx⟩ := hLne
+          have hxS : x ∈ S := hLS hx
+          have hxSL : x ∉ S \ L := fun h' => (Finset.mem_sdiff.mp h').2 hx
+          exact hxSL (h hxS)
+      have hcard_le : (S \ L).card ≤ n := by omega
+      -- By IH, cover S \ L
+      obtain ⟨chains', hchains'_chain, hchains'_cover, hchains'_card⟩ :=
+        ih (S \ L) hcard_le
+      -- Add L to the cover
+      refine ⟨insert L chains', ?_, ?_, ?_⟩
+      · -- All elements of insert L chains' are chains
+        intro M hM
+        rw [Finset.mem_insert] at hM
+        rcases hM with rfl | hM
+        · exact hLchain
+        · exact hchains'_chain M hM
+      · -- Every x ∈ S is covered
+        intro x hx
+        by_cases hxL : x ∈ L
+        · exact ⟨L, Finset.mem_insert_self L chains', hxL⟩
+        · have hxSL : x ∈ S \ L := Finset.mem_sdiff.mpr ⟨hx, hxL⟩
+          obtain ⟨M, hM, hxM⟩ := hchains'_cover x hxSL
+          exact ⟨M, Finset.mem_insert.mpr (Or.inr hM), hxM⟩
+      · -- Card bound: |insert L chains'| ≤ inducedWidth S
+        calc (insert L chains').card
+            ≤ chains'.card + 1 := Finset.card_insert_le L chains'
+          _ ≤ inducedWidth C (S \ L) + 1 := by omega
+          _ ≤ inducedWidth C S := by omega
+
 theorem dilworth_from_inductive_step {k : Type*} [Field k] (C : CAlg k)
     (h_step : ∀ (S : Finset C.Λ), S.Nonempty → inducedWidth C S > 0 →
       ∃ (L : Finset C.Λ), L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
         inducedWidth C (S \ L) < inducedWidth C S) :
     ∃ chains : Finset (Finset C.Λ),
       IsChainCover C chains ∧ chains.card ≤ width C := by
-  -- The full induction requires well-founded recursion on inducedWidth.
-  -- This is complex to formalize directly. We leave it as the single
-  -- remaining gap, with all structural components proved above.
-  -- The proof sketch: iterate h_step, collecting chains, until S = ∅.
-  -- Each step reduces inducedWidth by ≥ 1, so terminates in ≤ w steps.
-  sorry
+  obtain ⟨chains, hchain, hcover, hcard⟩ :=
+    cover_subset C h_step (Finset.univ.card) Finset.univ (le_refl _)
+  refine ⟨chains, ⟨hchain, fun x => hcover x (Finset.mem_univ x)⟩, ?_⟩
+  rwa [inducedWidth_univ] at hcard
 
 end CausalAlgebraicGeometry.Dilworth
