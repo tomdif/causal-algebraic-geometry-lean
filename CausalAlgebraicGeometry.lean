@@ -5,3 +5,4 @@ import CausalAlgebraicGeometry.ArithmeticBridge
 import CausalAlgebraicGeometry.CSpecSheaf
 import CausalAlgebraicGeometry.OrderComplexCohomology
 import CausalAlgebraicGeometry.Separation
+import CausalAlgebraicGeometry.GridBound
