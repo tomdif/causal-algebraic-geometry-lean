@@ -6,3 +6,4 @@ import CausalAlgebraicGeometry.CSpecSheaf
 import CausalAlgebraicGeometry.OrderComplexCohomology
 import CausalAlgebraicGeometry.Separation
 import CausalAlgebraicGeometry.GridBound
+import CausalAlgebraicGeometry.WidthBound
