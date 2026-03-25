@@ -7,22 +7,21 @@
   Statement: for any nonempty finite poset S with inducedWidth(S) > 0,
   there exists a chain L ⊆ S such that inducedWidth(S \ L) < inducedWidth(S).
 
-  Proof structure:
-  - Case S = A (S is itself a max antichain): any singleton {a} works
-    since width(S\{a}) ≤ |S\{a}| = w-1 < w.
-  - Case S ≠ A (|S| > width): use the C⁺/C⁻ decomposition and strong
-    induction on |S|. The full argument requires Hall's Marriage Theorem
-    to merge chain decompositions.
+  Proof strategy (standard induction on |S|, NO Hall's theorem):
+  We first prove `dilworth_full_cover`: every S can be covered by
+  ≤ inducedWidth(S) chains that are subsets of S. Then h_step follows
+  from the pigeonhole lemma (width ≤ number of covering chains).
 
-  Status: the "S is an antichain" case and width-1 case are fully proved.
-  The general non-antichain case carries a sorry, with a detailed sketch
-  of the Hall-based argument that would close it.
+  The full cover uses strong induction on |S|:
+  1. |S| = width(S): S is an antichain, covered by singleton chains.
+  2. |S| > width(S), universal element exists: remove it, IH on remainder.
+  3. |S| > width(S), no universal element: C+/C- decomposition + merge.
+     This case carries a sorry (the chain merge at the antichain A).
 -/
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Powerset
-import Mathlib.Combinatorics.Hall.Finite
 import CausalAlgebraicGeometry.CausalAlgebra
 import CausalAlgebraicGeometry.ChainRestriction
 import CausalAlgebraicGeometry.Dilworth
@@ -58,8 +57,7 @@ theorem inducedWidth_le_card {k : Type*} [Field k] (C : CAlg k)
 theorem inducedWidth_empty {k : Type*} [Field k] (C : CAlg k) :
     inducedWidth C (∅ : Finset C.Λ) = 0 := by
   have h := inducedWidth_le_card C (∅ : Finset C.Λ)
-  simp at h
-  omega
+  simp at h; omega
 
 /-! ### Width-1 case -/
 
@@ -79,56 +77,16 @@ theorem width_one_total {k : Type*} [Field k] (C : CAlg k)
     · exact ⟨h.1, h.2⟩
     · exact ⟨h.2, h.1⟩
     · exact absurd rfl hxy
-  have hle : 2 ≤ inducedWidth C S := by
+  have : 2 ≤ inducedWidth C S := by
     calc 2 = ({a, b} : Finset C.Λ).card := (Finset.card_pair hne).symm
-      _ ≤ inducedWidth C S := by
-          apply antichain_card_le_inducedWidth C S
-          · intro x hx; simp at hx; rcases hx with rfl | rfl <;> assumption
-          · exact hAC
+      _ ≤ inducedWidth C S :=
+          antichain_card_le_inducedWidth C S _ (by intro x hx; simp at hx; rcases hx with rfl | rfl <;> assumption) hAC
   omega
-
-/-- For width 1: S itself is a chain, so L = S works. -/
-theorem dilworth_step_width_one {k : Type*} [Field k] (C : CAlg k)
-    (S : Finset C.Λ) (hne : S.Nonempty) (hw : inducedWidth C S = 1) :
-    ∃ L : Finset C.Λ, L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
-      inducedWidth C (S \ L) < inducedWidth C S := by
-  refine ⟨S, Finset.Subset.refl S, width_one_total C S hw, hne, ?_⟩
-  rw [Finset.sdiff_self, hw]
-  have := inducedWidth_empty C
-  omega
-
-/-! ### The "S is an antichain" case -/
-
-/-- If S is an antichain and nonempty, removing any element decreases width.
-    (The hypotheses hanti and hw are not used; only hcard and hne suffice.) -/
-theorem dilworth_step_antichain {k : Type*} [Field k] (C : CAlg k)
-    (S : Finset C.Λ) (hne : S.Nonempty)
-    (_hanti : IsAntichain C S) (hcard : S.card = inducedWidth C S)
-    (_hw : inducedWidth C S > 0) :
-    ∃ L : Finset C.Λ, L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
-      inducedWidth C (S \ L) < inducedWidth C S := by
-  obtain ⟨x, hx⟩ := hne
-  refine ⟨{x}, Finset.singleton_subset_iff.mpr hx, ?_, ⟨x, Finset.mem_singleton.mpr rfl⟩, ?_⟩
-  · -- {x} is a chain (singleton)
-    intro a ha b hb
-    simp only [Finset.mem_singleton] at ha hb
-    rw [ha, hb]; left; exact C.le_refl _
-  · -- width(S \ {x}) < width(S) because width ≤ card and |S\{x}| < |S| = width
-    have h1 : inducedWidth C (S \ {x}) ≤ (S \ {x}).card := inducedWidth_le_card C _
-    have h2 : (S \ {x}).card < S.card := by
-      apply Finset.card_lt_card
-      constructor
-      · exact Finset.sdiff_subset
-      · intro h
-        have hxSx : x ∈ S \ {x} := h hx
-        rw [Finset.mem_sdiff] at hxSx
-        exact hxSx.2 (Finset.mem_singleton.mpr rfl)
-    omega
 
 /-! ### Every element is comparable to some max antichain element -/
 
 /-- If A is a maximum antichain in S and x ∈ S \ A, then x is comparable
-    to some element of A. (Otherwise A ∪ {x} is a larger antichain.) -/
+    to some element of A. -/
 theorem comparable_to_max_antichain {k : Type*} [Field k] (C : CAlg k)
     (S A : Finset C.Λ) (hAS : A ⊆ S) (hA : IsAntichain C A)
     (hmax : A.card = inducedWidth C S)
@@ -136,7 +94,6 @@ theorem comparable_to_max_antichain {k : Type*} [Field k] (C : CAlg k)
     ∃ a ∈ A, C.le a x ∨ C.le x a := by
   by_contra h
   push_neg at h
-  -- x is incomparable to every element of A, so insert x A is an antichain
   have hAx : IsAntichain C (insert x A) := by
     intro a ha b hb hab
     rw [Finset.mem_insert] at ha hb
@@ -145,87 +102,252 @@ theorem comparable_to_max_antichain {k : Type*} [Field k] (C : CAlg k)
     · exact ⟨(h b hb).2, (h b hb).1⟩
     · exact h a ha
     · exact hA a ha b hb hab
-  have hcard : (insert x A).card = A.card + 1 :=
-    Finset.card_insert_of_notMem hxA
-  have hle : (insert x A).card ≤ inducedWidth C S := by
-    apply antichain_card_le_inducedWidth C S
-    · intro y hy
-      rw [Finset.mem_insert] at hy
-      rcases hy with rfl | hy
-      · exact hxS
-      · exact hAS hy
-    · exact hAx
+  have hle : (insert x A).card ≤ inducedWidth C S :=
+    antichain_card_le_inducedWidth C S _
+      (by intro y hy; rw [Finset.mem_insert] at hy; rcases hy with rfl | hy; exact hxS; exact hAS hy) hAx
+  have := Finset.card_insert_of_notMem hxA
   omega
+
+/-! ### Existence of a max antichain witnessing width -/
+
+/-- There exists an antichain in S achieving the maximum width. -/
+theorem exists_max_antichain {k : Type*} [Field k] (C : CAlg k)
+    (S : Finset C.Λ) (hw : inducedWidth C S > 0) :
+    ∃ A : Finset C.Λ, A ⊆ S ∧ IsAntichain C A ∧ A.card = inducedWidth C S := by
+  have hne_pow : S.powerset.Nonempty := ⟨∅, Finset.empty_mem_powerset S⟩
+  set f : Finset C.Λ → ℕ := fun A =>
+    if ∀ a ∈ A, ∀ b ∈ A, a ≠ b → ¬ C.le a b ∧ ¬ C.le b a then A.card else 0
+  have hdef : inducedWidth C S = Finset.sup S.powerset f := rfl
+  obtain ⟨A, hA_mem, hA_val⟩ := Finset.exists_mem_eq_sup S.powerset hne_pow f
+  have hAS : A ⊆ S := Finset.mem_powerset.mp hA_mem
+  rw [hdef] at hw; rw [hA_val] at hw
+  simp only [f] at hw ⊢
+  split_ifs at hw with hAC
+  · exact ⟨A, hAS, hAC, by rw [hdef, hA_val]; simp only [f, if_pos hAC]⟩
+  · omega
+
+/-! ### Key lemma: removing an element in every max antichain -/
+
+/-- If every antichain of size w in S contains m, then width(S \ {m}) < w. -/
+theorem width_decreases_when_in_every_antichain {k : Type*} [Field k] (C : CAlg k)
+    (S : Finset C.Λ) (m : C.Λ) (hw : inducedWidth C S > 0)
+    (h_in_every : ∀ B : Finset C.Λ, B ⊆ S → IsAntichain C B →
+      B.card = inducedWidth C S → m ∈ B) :
+    inducedWidth C (S \ {m}) < inducedWidth C S := by
+  by_contra hle
+  push_neg at hle
+  have hmono : inducedWidth C (S \ {m}) ≤ inducedWidth C S :=
+    Dilworth.inducedWidth_mono C _ _ Finset.sdiff_subset
+  have heq : inducedWidth C (S \ {m}) = inducedWidth C S := le_antisymm hmono hle
+  obtain ⟨B, hBS', hBanti, hBcard⟩ := exists_max_antichain C (S \ {m}) (by omega)
+  have hmB := h_in_every B (Finset.Subset.trans hBS' Finset.sdiff_subset) hBanti (by omega)
+  exact absurd hmB (by
+    intro hmB'; have := hBS' hmB'
+    rw [Finset.mem_sdiff] at this; exact this.2 (Finset.mem_singleton.mpr rfl))
+
+/-! ### Pigeonhole: chain cover bounds width -/
+
+/-- If S is covered by k chains (each a subset of S), then width(S) ≤ k. -/
+theorem width_le_cover_card {k : Type*} [Field k] (C : CAlg k)
+    (S : Finset C.Λ) (chains : Finset (Finset C.Λ))
+    (hchains : ∀ L ∈ chains, IsChainFS C L)
+    (hcover : ∀ x ∈ S, ∃ L ∈ chains, x ∈ L) :
+    inducedWidth C S ≤ chains.card := by
+  unfold inducedWidth
+  apply Finset.sup_le
+  intro B hB_mem
+  split_ifs with hBanti
+  · -- B is an antichain in S. Each b ∈ B is in some chain L.
+    -- Two elements of B can't share a chain (antichain vs chain).
+    -- So |B| ≤ |chains| by a counting argument.
+    have hBS := Finset.mem_powerset.mp hB_mem
+    -- For each chain L, B ∩ L has ≤ 1 element
+    have hone : ∀ L ∈ chains, (B.filter (fun b => b ∈ L)).card ≤ 1 := by
+      intro L hL
+      by_contra hgt; push_neg at hgt
+      have hne : (B.filter (fun b => b ∈ L)).Nonempty := by
+        rw [Finset.nonempty_iff_ne_empty]; intro hempty
+        rw [hempty, Finset.card_empty] at hgt; omega
+      obtain ⟨a, ha⟩ := hne
+      rw [Finset.mem_filter] at ha
+      have : ∃ b ∈ B.filter (fun b => b ∈ L), b ≠ a := by
+        by_contra h'; push_neg at h'
+        have : B.filter (fun b => b ∈ L) ⊆ {a} := fun x hx => Finset.mem_singleton.mpr (h' x hx)
+        have := Finset.card_le_card this; simp at this; omega
+      obtain ⟨b, hb, hab⟩ := this
+      rw [Finset.mem_filter] at hb
+      have hchain := hchains L hL
+      rcases hchain a ha.2 b hb.2 with hle | hle
+      · exact (hBanti a ha.1 b hb.1 (Ne.symm hab)).1 hle
+      · exact (hBanti a ha.1 b hb.1 (Ne.symm hab)).2 hle
+    calc B.card
+        ≤ (chains.biUnion (fun L => B.filter (fun b => b ∈ L))).card := by
+          apply Finset.card_le_card
+          intro b hb
+          rw [Finset.mem_biUnion]
+          obtain ⟨L, hL, hbL⟩ := hcover b (hBS hb)
+          exact ⟨L, hL, Finset.mem_filter.mpr ⟨hb, hbL⟩⟩
+      _ ≤ chains.sum (fun L => (B.filter (fun b => b ∈ L)).card) :=
+          Finset.card_biUnion_le
+      _ ≤ chains.sum (fun _ => 1) := Finset.sum_le_sum hone
+      _ = chains.card := by simp
+  · exact Nat.zero_le _
+
+/-! ### Full chain cover (Dilworth decomposition) -/
+
+/-- **Full Dilworth cover**: S can be covered by ≤ inducedWidth(S) chains,
+    each a subset of S.
+
+    Proved by strong induction on |S|:
+    - |S| = width: singleton chains (S is antichain).
+    - |S| > width, universal element: remove it, IH, add {m}.
+    - |S| > width, no universal element: C+/C- merge (sorry). -/
+theorem dilworth_full_cover {k : Type*} [Field k] (C : CAlg k) :
+    ∀ (n : ℕ) (S : Finset C.Λ), S.card ≤ n →
+    ∃ chains : Finset (Finset C.Λ),
+      (∀ L ∈ chains, L ⊆ S ∧ IsChainFS C L) ∧
+      (∀ x ∈ S, ∃ L ∈ chains, x ∈ L) ∧
+      chains.card ≤ inducedWidth C S := by
+  intro n
+  induction n with
+  | zero =>
+    intro S hS
+    have : S = ∅ := Finset.card_eq_zero.mp (Nat.le_zero.mp hS)
+    exact ⟨∅, fun _ h => absurd h (by simp), fun x hx => absurd (this ▸ hx) (by simp), Nat.zero_le _⟩
+  | succ n ih =>
+    intro S hScard
+    by_cases hS_empty : S = ∅
+    · exact ⟨∅, fun _ h => absurd h (by simp), fun x hx => absurd (hS_empty ▸ hx) (by simp), Nat.zero_le _⟩
+    have hS_ne : S.Nonempty := Finset.nonempty_iff_ne_empty.mpr hS_empty
+    have hS_w : inducedWidth C S > 0 := by
+      obtain ⟨x, hx⟩ := hS_ne
+      have hanti_sing : IsAntichain C ({x} : Finset C.Λ) := by
+        intro a ha b hb hab
+        simp only [Finset.mem_singleton] at ha hb
+        subst ha; subst hb; exact absurd rfl hab
+      have : 1 ≤ inducedWidth C S :=
+        antichain_card_le_inducedWidth C S _ (Finset.singleton_subset_iff.mpr hx) hanti_sing
+      simp at this; omega
+    -- Case 1: |S| = width(S) → S is antichain
+    by_cases hcard : S.card = inducedWidth C S
+    · have hanti : IsAntichain C S := by
+        by_contra hna
+        have : inducedWidth C S < S.card := by
+          unfold inducedWidth
+          rw [Finset.sup_lt_iff (by omega : (0 : ℕ) < S.card)]
+          intro A hA_mem; split_ifs with hAC
+          · by_contra hle; push_neg at hle
+            exact hna (Finset.eq_of_subset_of_card_le (Finset.mem_powerset.mp hA_mem) hle ▸ hAC)
+          · omega
+        omega
+      refine ⟨S.image (fun x => ({x} : Finset C.Λ)), ?_, ?_, ?_⟩
+      · intro L hL
+        simp only [Finset.mem_image] at hL; obtain ⟨x, hx, rfl⟩ := hL
+        exact ⟨Finset.singleton_subset_iff.mpr hx,
+          fun a ha b hb => by simp at ha hb; rw [ha, hb]; left; exact C.le_refl _⟩
+      · intro x hx
+        exact ⟨{x}, Finset.mem_image.mpr ⟨x, hx, rfl⟩, Finset.mem_singleton.mpr rfl⟩
+      · calc (S.image _).card ≤ S.card := Finset.card_image_le
+          _ = inducedWidth C S := hcard
+    -- Case 2: |S| > width(S)
+    have hS_gt : S.card > inducedWidth C S := by
+      have := inducedWidth_le_card C S; omega
+    -- Sub-case 2a: ∃ element in every max antichain
+    by_cases h_univ : ∃ m ∈ S, ∀ B : Finset C.Λ, B ⊆ S → IsAntichain C B →
+      B.card = inducedWidth C S → m ∈ B
+    · obtain ⟨m, hm, hm_univ⟩ := h_univ
+      have hw_dec := width_decreases_when_in_every_antichain C S m hS_w hm_univ
+      have hcard_le : (S \ {m}).card ≤ n := by
+        have : (S \ {m}).card < S.card := by
+          apply Finset.card_lt_card
+          exact ⟨Finset.sdiff_subset, fun h =>
+            absurd (Finset.mem_singleton.mpr rfl) (Finset.mem_sdiff.mp (h hm)).2⟩
+        omega
+      obtain ⟨chains', hch', hcov', hcard'⟩ := ih (S \ {m}) hcard_le
+      refine ⟨insert {m} chains', ?_, ?_, ?_⟩
+      · intro L hL
+        rw [Finset.mem_insert] at hL
+        rcases hL with rfl | hL
+        · exact ⟨Finset.singleton_subset_iff.mpr hm,
+            fun a ha b hb => by simp at ha hb; rw [ha, hb]; left; exact C.le_refl _⟩
+        · obtain ⟨hLS, hLchain⟩ := hch' L hL
+          exact ⟨Finset.Subset.trans hLS Finset.sdiff_subset, hLchain⟩
+      · intro x hx
+        by_cases hxm : x = m
+        · exact ⟨{m}, Finset.mem_insert_self _ _, hxm ▸ Finset.mem_singleton.mpr rfl⟩
+        · obtain ⟨L, hL, hxL⟩ := hcov' x (Finset.mem_sdiff.mpr ⟨hx, Finset.mem_singleton.not.mpr hxm⟩)
+          exact ⟨L, Finset.mem_insert.mpr (Or.inr hL), hxL⟩
+      · calc (insert {m} chains').card
+            ≤ chains'.card + 1 := Finset.card_insert_le _ _
+          _ ≤ inducedWidth C (S \ {m}) + 1 := by omega
+          _ ≤ inducedWidth C S := by omega
+    · -- Sub-case 2b: no element is in every max antichain.
+      -- C+/C- decomposition with merge at the max antichain A.
+      --
+      -- The mathematical argument:
+      -- Take max antichain A. Define C+ = {x ∈ S : ∃ a ∈ A, a ≤ x},
+      -- C- = {x ∈ S : ∃ a ∈ A, x ≤ a}. Then:
+      -- (1) A ⊆ C+ ∩ C-  (by reflexivity)
+      -- (2) C+ ∪ C- = S  (by comparable_to_max_antichain)
+      -- (3) ¬(C+ = S ∧ C- = S)  (would force S = A, contradicting |S| > w)
+      -- (4) At least one of C+, C- is a proper subset.
+      --
+      -- If BOTH are proper: |C+| < |S| and |C-| < |S|.
+      -- IH gives w-chain covers of C+ and C-.
+      -- For each chain L+ in the C+ cover containing a ∈ A, and
+      -- chain L- in the C- cover containing the same a:
+      --   - a is minimum of L+ (all other elements are strictly above a)
+      --   - a is maximum of L- (all other elements are strictly below a)
+      --   - So L- ∪ L+ is a chain (connected through a).
+      -- This gives w chains covering C+ ∪ C- = S.
+      --
+      -- If only one is proper (say C- ⊊ S, C+ = S):
+      -- IH on C- gives w chains covering C-. Elements of S \ C- are in C+ \ C-.
+      -- Each such element is above some a ∈ A. It can be appended to the
+      -- chain containing a (since it's above a and comparable to chain elements).
+      -- This extends the C- cover to cover all of S with w chains.
+      --
+      -- Both sub-cases require ~100 lines of Lean for the chain matching
+      -- and merging formalization. This is the single remaining sorry.
+      sorry
 
 /-! ### The Dilworth inductive step -/
 
-/-- **Dilworth inductive step** (general case):
-    For any nonempty S with inducedWidth(S) > 0, there exists a chain
-    L ⊆ S such that inducedWidth(S \ L) < inducedWidth(S).
+/-- **Dilworth inductive step**: For any nonempty S with inducedWidth(S) > 0,
+    there exists a chain L ⊆ S such that inducedWidth(S \ L) < inducedWidth(S).
 
-    The proof handles three cases:
-    1. width(S) = 1: S is a chain, take L = S.
-    2. |S| = width(S): S is a max antichain, take L = {x} for any x.
-    3. |S| > width(S): the hard case requiring Hall's theorem.
-
-    Case 3 uses the C⁺/C⁻ decomposition:
-    Let A be a max antichain of size w. Define
-      C⁺ = {x ∈ S : ∃ a ∈ A, a ≤ x}
-      C⁻ = {x ∈ S : ∃ a ∈ A, x ≤ a}
-    By `comparable_to_max_antichain`, S = C⁺ ∪ C⁻.
-    If C⁺ = S = C⁻, then every x ∈ S \ A satisfies a ≤ x ≤ a' for
-    some a, a' ∈ A. Since A is an antichain, a = a', so x = a ∈ A,
-    contradicting x ∉ A. Hence |S| = |A| = width(S), handled by case 2.
-    Otherwise C⁺ ⊊ S or C⁻ ⊊ S. WLOG |C⁺| < |S|. Then width(C⁺) = w
-    and by IH, C⁺ has a w-chain decomposition. Similarly for C⁻.
-    Hall's theorem (Finset.all_card_le_biUnion_card_iff_existsInjective')
-    merges these at A. Any one chain from the cover satisfies the width
-    decrease by pigeonhole. -/
+    Follows from `dilworth_full_cover` and `width_le_cover_card`. -/
 theorem dilworth_inductive_step {k : Type*} [Field k] (C : CAlg k)
     (S : Finset C.Λ) (hne : S.Nonempty) (hw : inducedWidth C S > 0) :
     ∃ L : Finset C.Λ, L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
       inducedWidth C (S \ L) < inducedWidth C S := by
-  -- Case 1: width = 1 → S is a chain, take L = S
-  by_cases hw1 : inducedWidth C S = 1
-  · exact dilworth_step_width_one C S hne hw1
-  -- Case 2: S.card = inducedWidth(S) → S is a max antichain
-  by_cases hcard : S.card = inducedWidth C S
-  · -- S must be an antichain: if not, every antichain A ⊆ S has |A| < |S|,
-    -- so inducedWidth < |S|, contradicting hcard.
-    have hanti : IsAntichain C S := by
-      by_contra hna
-      have : inducedWidth C S < S.card := by
-        unfold inducedWidth
-        rw [Finset.sup_lt_iff (by omega : (0 : ℕ) < S.card)]
-        intro A hA_mem
-        split_ifs with hAC
-        · -- A is an antichain, A ⊆ S. If A = S then S is an antichain.
-          by_contra hle
-          push_neg at hle
-          have hAS := Finset.mem_powerset.mp hA_mem
-          have := Finset.eq_of_subset_of_card_le hAS hle
-          rw [this] at hAC
-          exact hna hAC
-        · omega
-      omega
-    exact dilworth_step_antichain C S hne hanti hcard hw
-  -- Case 3: |S| > width(S) — the hard case.
-  -- We know |S| ≠ width(S) and |S| ≥ width(S) (by inducedWidth_le_card),
-  -- so |S| > width(S). S has more elements than its max antichain.
-  --
-  -- The proof proceeds by strong induction on |S|. Let A be a max antichain.
-  -- Define C⁺ = {x ∈ S : ∃ a ∈ A, a ≤ x}, C⁻ = {x ∈ S : ∃ a ∈ A, x ≤ a}.
-  -- Since |S| > |A|, either C⁺ or C⁻ is a strict subset of S (proved by
-  -- the antisymmetry + antichain argument above). By IH on the smaller set,
-  -- get a chain whose removal decreases width. This chain also works in S
-  -- since C⁺ ⊆ S (width(S \ L) ≤ width(C⁺ \ L) only if C⁺ = S; otherwise
-  -- need the full merge via Hall's theorem).
-  --
-  -- The sorry below captures this Hall-based merge step. The mathematical
-  -- argument is sound but requires ~100-150 lines of additional Lean code
-  -- to formalize the C⁺/C⁻ partition, the IH application to both halves,
-  -- and the Hall-based chain matching across the antichain A.
-  sorry
+  obtain ⟨chains, hch, hcov, hcard⟩ := dilworth_full_cover C S.card S (le_refl _)
+  -- Pick a chain containing some element of S
+  obtain ⟨x, hx⟩ := hne
+  obtain ⟨L, hL_mem, hxL⟩ := hcov x hx
+  obtain ⟨hLS, hLchain⟩ := hch L hL_mem
+  refine ⟨L, hLS, hLchain, ⟨x, hxL⟩, ?_⟩
+  -- The remaining chains cover S \ L
+  have hcov' : ∀ y ∈ S \ L, ∃ M ∈ chains.erase L, y ∈ M := by
+    intro y hy
+    rw [Finset.mem_sdiff] at hy
+    obtain ⟨M, hM, hyM⟩ := hcov y hy.1
+    have hML : M ≠ L := by
+      intro heq; rw [heq] at hyM; exact hy.2 hyM
+    exact ⟨M, Finset.mem_erase.mpr ⟨hML, hM⟩, hyM⟩
+  -- So width(S \ L) ≤ |chains \ {L}| = |chains| - 1
+  have hch' : ∀ M ∈ chains.erase L, IsChainFS C M := by
+    intro M hM; exact (hch M (Finset.mem_erase.mp hM).2).2
+  have hwidth : inducedWidth C (S \ L) ≤ (chains.erase L).card :=
+    width_le_cover_card C (S \ L) (chains.erase L) hch' hcov'
+  have herase_card : (chains.erase L).card = chains.card - 1 :=
+    Finset.card_erase_of_mem hL_mem
+  -- chains.card ≤ w, so (chains.erase L).card ≤ w - 1
+  -- width(S \ L) ≤ w - 1 < w
+  have hchains_pos : chains.card ≥ 1 := by
+    have : chains.Nonempty := ⟨L, hL_mem⟩
+    exact Finset.Nonempty.card_pos this
+  omega
 
 /-- The Dilworth inductive step, packaged for `dilworth_from_inductive_step`. -/
 theorem dilworth_step_hypothesis {k : Type*} [Field k] (C : CAlg k) :
