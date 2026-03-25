@@ -23,3 +23,4 @@ import CausalAlgebraicGeometry.WidthScaling
 import CausalAlgebraicGeometry.DimensionDetection
 import CausalAlgebraicGeometry.SheafGammaBridge
 import CausalAlgebraicGeometry.UniversalProperty
+import CausalAlgebraicGeometry.CCDoubling
