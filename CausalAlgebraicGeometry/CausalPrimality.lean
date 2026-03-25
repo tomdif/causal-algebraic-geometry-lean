@@ -18,8 +18,10 @@
   - `CSpec`: the set of all causally prime ideals
   - `CSpec.closed_points_eq_elements`: Recovery Theorem — the closed
     points of CSpec biject with the original causal set elements
-  - `nc_primality_collapses`: for incomparable α, β, every causal
-    matrix M has M(α,β) = 0 (the collapse mechanism)
+  - `causal_matrix_entry_zero_of_incomparable`: for incomparable α, β,
+    every causal matrix M has M(α,β) = 0 (the pointwise mechanism)
+  - `nc_primality_collapses`: the zero ideal {0} is NOT NC-prime in
+    any causal algebra with incomparable elements (the real collapse)
 -/
 import Mathlib.Order.Basic
 import Mathlib.Data.Fintype.Basic
@@ -189,16 +191,95 @@ noncomputable def width {k : Type*} [Field k] (C : CAlg k) : ℕ :=
     then S.card else 0)
 
 /-- For incomparable α, β: every causal matrix M has M(α, β) = 0.
-    This is the mechanism that collapses standard NC primality for
-    causal algebras with incomparable elements.
-
-    Proof: M is causal means M(a,b) = 0 when ¬(a ≤ b). Since α ∥ β,
-    in particular ¬(α ≤ β), so M(α, β) = 0. -/
-theorem nc_primality_collapses {k : Type*} [Field k]
+    This is the pointwise mechanism underlying the NC primality collapse. -/
+theorem causal_matrix_entry_zero_of_incomparable {k : Type*} [Field k]
     (C : CAlg k) (α β : C.Λ) (h : AreIncomparable C α β)
     (M : C.Λ → C.Λ → k) (hM : IsCausalMatrix C M) :
     M α β = 0 :=
   hM α β h.1
+
+/-- Matrix multiplication for causal matrices (α → α → k). -/
+def matMul {k : Type*} [Field k] (C : CAlg k)
+    (M N : C.Λ → C.Λ → k) : C.Λ → C.Λ → k :=
+  fun i j => ∑ γ : C.Λ, M i γ * N γ j
+
+/-- The zero matrix. -/
+def zeroMat {k : Type*} [Field k] (C : CAlg k) : C.Λ → C.Λ → k :=
+  fun _ _ => 0
+
+/-- An ideal I (a set of causal matrices) is **NC-prime** if it is proper
+    and for all causal a, b not in I, there exists a causal matrix M
+    with a · M · b ∉ I.
+
+    Standard NC primality tests ALL pairs of algebra elements outside
+    the ideal, including idempotents for causally unrelated events —
+    which always produce zero products in a causal algebra. -/
+def IsNCPrime {k : Type*} [Field k] (C : CAlg k)
+    (I : Set (C.Λ → C.Λ → k)) : Prop :=
+  zeroMat C ∈ I ∧  -- I contains 0 (it's an ideal)
+  I ≠ Set.univ ∧   -- I is proper
+  ∀ a b, IsCausalMatrix C a → IsCausalMatrix C b →
+    a ∉ I → b ∉ I →
+    ∃ M : C.Λ → C.Λ → k, IsCausalMatrix C M ∧
+      matMul C (matMul C a M) b ∉ I
+
+/-- The idempotent eα is not the zero matrix. -/
+theorem idempotent_ne_zero {k : Type*} [Field k] (C : CAlg k)
+    (α : C.Λ) : idempotent C α ≠ zeroMat C := by
+  intro h
+  have := congr_fun (congr_fun h α) α
+  simp [idempotent, zeroMat] at this
+
+/-- For incomparable α, β: the product eα · M · eβ = 0 for every
+    causal matrix M. This is because the (i,j) entry of eα · M · eβ
+    is M(α,β) · δ(i,α) · δ(j,β), which vanishes since M(α,β) = 0. -/
+theorem idempotent_sandwich_zero {k : Type*} [Field k]
+    (C : CAlg k) (α β : C.Λ) (h : AreIncomparable C α β)
+    (M : C.Λ → C.Λ → k) (hM : IsCausalMatrix C M) :
+    matMul C (matMul C (idempotent C α) M) (idempotent C β) = zeroMat C := by
+  have hMαβ : M α β = 0 := causal_matrix_entry_zero_of_incomparable C α β h M hM
+  ext i j
+  simp only [matMul, zeroMat, idempotent]
+  apply Finset.sum_eq_zero
+  intro γ₂ _
+  -- The outer factor is ite (γ₂ = β ∧ j = β) 1 0
+  by_cases hγ₂j : γ₂ = β ∧ j = β
+  · -- γ₂ = β, j = β: outer factor is 1, need inner sum = 0
+    rw [if_pos hγ₂j, mul_one]
+    apply Finset.sum_eq_zero
+    intro γ₁ _
+    by_cases hiγ₁ : i = α ∧ γ₁ = α
+    · rw [if_pos hiγ₁, one_mul, hiγ₁.2, hγ₂j.1, hMαβ]
+    · rw [if_neg hiγ₁, zero_mul]
+  · -- outer factor is 0
+    rw [if_neg hγ₂j, mul_zero]
+
+/-- **NC primality collapse**: if the causal algebra has incomparable
+    elements α ∥ β, then the zero ideal {0} is NOT NC-prime.
+
+    The witness is the pair (eα, eβ): both are nonzero matrices
+    (hence not in {0}), but eα · M · eβ = 0 ∈ {0} for every causal
+    matrix M. This means no M can separate them, violating the
+    NC-prime condition.
+
+    Consequence: the standard NC spectrum Spec_NC has at most one point
+    for any causal algebra of width ≥ 2, motivating the replacement
+    by the causal spectrum CSpec. -/
+theorem nc_primality_collapses {k : Type*} [Field k]
+    (C : CAlg k) (α β : C.Λ) (h : AreIncomparable C α β) :
+    ¬ IsNCPrime C {M : C.Λ → C.Λ → k | M = zeroMat C} := by
+  intro ⟨_, _, hprime⟩
+  have hα : idempotent C α ∉ {M | M = zeroMat C} := by
+    simp only [Set.mem_setOf_eq]
+    exact idempotent_ne_zero C α
+  have hβ : idempotent C β ∉ {M | M = zeroMat C} := by
+    simp only [Set.mem_setOf_eq]
+    exact idempotent_ne_zero C β
+  obtain ⟨M, hMcausal, hM⟩ := hprime _ _ (idempotent_isCausal C α)
+    (idempotent_isCausal C β) hα hβ
+  apply hM
+  simp only [Set.mem_setOf_eq]
+  exact idempotent_sandwich_zero C α β h M hMcausal
 
 /-! ### Topology on CSpec -/
 

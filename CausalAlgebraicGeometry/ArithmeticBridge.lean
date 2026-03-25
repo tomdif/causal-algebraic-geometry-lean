@@ -1,16 +1,14 @@
 /-
-  LayerD/ArithmeticBridge.lean — The divisibility lattice as a causal set
+  ArithmeticBridge.lean — The divisibility lattice as a causal algebra
 
-  Section 6 of the causal-algebraic geometry framework:
-  The positive integers ordered by divisibility (ℤ⁺, |) form a locally
-  finite partial order — a causal set in the formal sense.
-
-  Main results:
-  - `divCAlg n`: the causal algebra of divisors of n
-  - `mu_prime`, `mu_one`: key values of μ from Mathlib
-  - `moebius_sum_divisors`: Σ_{d|n} μ(d) = [n=1]
-  - `primeUpset_complement_convex`: primes give causally prime ideals
-  - `arithmetic_bridge_summary`: the complete bridge theorem
+  This file constructs the divisibility causal algebra and connects it to
+  Mathlib's number-theoretic Möbius function. The Möbius function identities
+  (`mu_one`, `mu_prime`, `mu_ne_zero_iff`, `mu_of_squarefree`,
+  `moebius_times_zeta_eq_one`) are thin wrappers around Mathlib lemmas.
+  The novel content is the CSpec construction:
+  - `divCAlg`: the causal algebra of divisors of n
+  - `primeUpset_complement_convex`: complement of a prime upset is causally convex
+  - `prime_gives_CSpec_point`: primes give CSpec points of divCAlg
 -/
 import Mathlib.NumberTheory.ArithmeticFunction.Moebius
 import Mathlib.Combinatorics.Enumerative.IncidenceAlgebra
@@ -133,18 +131,11 @@ theorem prime_gives_CSpec_point (n p : ℕ) (hn : 0 < n) (hp : p.Prime)
 
 /-! ### The complete arithmetic bridge -/
 
-/-- The **arithmetic bridge theorem**: the divisibility poset satisfies
-    all four conditions connecting causal-algebraic geometry to classical
-    number theory.
+/-- Summary of the arithmetic bridge: the divisibility lattice is a causal
+    algebra, Mathlib's Möbius identities apply, and primes give CSpec points.
 
-    1. (ℤ⁺, |) is a causal set ✓ (divCAlg)
-    2. μ * ζ = 1 in the arithmetic function ring ✓ (moebius_times_zeta_eq_one)
-    3. Σ_{d|n} μ(d) = [n=1] ✓ (moebius_sum_divisors)
-    4. Primes give causally prime ideals in CSpec ✓ (prime_gives_CSpec_point)
-
-    The divisibility lattice is a causal algebra, and its Mobius function
-    matches the number-theoretic one. The causal-algebraic framework
-    naturally includes the divisibility lattice as a special case. -/
+    Components 1–4 are Mathlib re-exports; component 5 (`prime_gives_CSpec_point`)
+    is the novel contribution of this file. -/
 theorem arithmetic_bridge (n : ℕ) (hn : 0 < n) :
     -- μ * ζ = 1
     (ArithmeticFunction.moebius * ↑ArithmeticFunction.zeta = 1) ∧

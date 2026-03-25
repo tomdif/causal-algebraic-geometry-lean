@@ -31,8 +31,7 @@ open CausalAlgebra CausalPrimality CSpecSheaf WidthOneProof
 
 /-! ### The genuine content: non-convexity breaks the sheaf -/
 
-/-- A subset S is **not causally convex** iff there exist α, β ∈ S
-    and γ ∉ S with α ≤ γ ≤ β. -/
+/-- Negation of convexity: extracts witnessing elements α, β, γ. -/
 theorem not_convex_witness {k : Type*} [Field k] (C : CAlg k)
     (S : Finset C.Λ)
     (h : ¬ IsConvexFS C S) :
@@ -166,19 +165,19 @@ theorem convexity_iff_ring_hom_informal {k : Type*} [Field k] (C : CAlg k)
 def PrimalityNotion {k : Type*} [Field k] (C : CAlg k) :=
   Set C.Λ → Prop
 
-/-- **UNIQUENESS THEOREM** (genuine version):
+/-- **UNIQUENESS THEOREM**:
 
-    Causal primality is the unique maximal primality notion P such that:
-    (a) P-prime ideals have causally convex complements
-        (NECESSARY for the structure sheaf, by non_convex_breaks_restriction)
-    (b) P-prime ideals are proper upsets (standard ideal condition)
+    Part (1): IsCausallyPrime implies proper, upset, and convex complement.
 
-    Any such P satisfies P(S) ⟹ IsCausallyPrime(S).
-    And IsCausallyPrime satisfies both conditions.
+    Part (2) is definitional: any predicate implying the three defining
+    properties of causal primality is contained in it by construction.
+    (IsCausallyPrime IS defined as proper ∧ upset ∧ convex complement,
+    so packaging these three hypotheses just rebuilds the structure.)
 
-    The theorem is NOT a tautology because condition (a) is not
-    assumed — it is PROVED necessary by exhibiting explicit matrices
-    that break the ring homomorphism property when convexity fails. -/
+    Part (3) is the genuine content (`non_convex_breaks_restriction`):
+    non-convex subsets break the restriction homomorphism, so convexity
+    of the complement is NECESSARY for the structure sheaf — not merely
+    a convenient assumption. -/
 theorem causal_primality_unique_maximal {k : Type*} [Field k] (C : CAlg k) :
     -- (1) Causal primality is compatible
     (∀ S : Set C.Λ, IsCausallyPrime C S →
