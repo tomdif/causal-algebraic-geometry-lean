@@ -20,3 +20,4 @@ import CausalAlgebraicGeometry.DeltaSquaredZero
 import CausalAlgebraicGeometry.PolynomialBound
 import CausalAlgebraicGeometry.GapTheorem
 import CausalAlgebraicGeometry.WidthScaling
+import CausalAlgebraicGeometry.DimensionDetection
