@@ -16,3 +16,4 @@ import CausalAlgebraicGeometry.CausalScheme
 
 import CausalAlgebraicGeometry.ConvexFactorization
 import CausalAlgebraicGeometry.BalancedBound
+import CausalAlgebraicGeometry.DeltaSquaredZero
