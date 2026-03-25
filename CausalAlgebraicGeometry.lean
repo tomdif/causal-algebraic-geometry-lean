@@ -15,3 +15,4 @@ import CausalAlgebraicGeometry.Uniqueness
 import CausalAlgebraicGeometry.CausalScheme
 import CausalAlgebraicGeometry.PhysicsForced
 import CausalAlgebraicGeometry.ConvexFactorization
+import CausalAlgebraicGeometry.BalancedBound
