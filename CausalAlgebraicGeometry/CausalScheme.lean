@@ -111,10 +111,12 @@ theorem sheaf_determined {k : Type*} [Field k] (C : CAlg k) :
 
 /-! ### Rigidity: everything determined by the poset -/
 
-/-- **The cohomology is determined by the poset (dim 2 case).**
+/-- **The cohomology is determined by the poset.**
     The coboundary operator δ is defined from the face maps dᵢ,
     which are defined from the chain structure of the poset.
-    We verify δ² = 0 for 2-chains (the dimension-2 case). -/
+    δ² = 0 is proved in full generality (DeltaSquaredZero.lean)
+    via a sign-flipping involution on the double sum. Here we
+    state the concrete dim-2 case. -/
 theorem cohomology_determined {k : Type*} [Field k] (C : CAlg k) :
     -- δ² = 0 is a consequence of the poset structure alone
     ∀ (f : OrderComplexCohomology.Cochain C) (a b c : C.Λ),
@@ -266,7 +268,7 @@ theorem gamma_field_independent {k : Type*} [Field k] (C : CAlg k) :
 
     1. CSpec is determined (uniqueness of causal primality)
     2. The sheaf is determined (convexity is necessary for restriction)
-    3. δ² = 0 verified for dimensions 2 and 3 (simplicial identity proved)
+    3. δ² = 0 proved in full generality (DeltaSquaredZero.lean)
     4. γ is a combinatorial invariant of the poset (field-independent by rfl)
     5. The poset is recoverable from CSpec (injective on comparable elements,
        fully injective for T₀ posets)
