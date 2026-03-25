@@ -139,7 +139,7 @@ def IsTotalOrder {k : Type*} [Field k] (C : CAlg k) : Prop :=
     the empty set), so γ approaches 1. -/
 -- Helper: in a total order, a nonempty finset has min and max elements.
 -- We prove this by strong induction on cardinality.
-private lemma exists_min_of_total {k : Type*} [Field k]
+lemma exists_min_of_total {k : Type*} [Field k]
     (C : CAlg k) (hT : IsTotalOrder C) :
     ∀ (l : List C.Λ), l ≠ [] →
       ∃ a ∈ l, ∀ x ∈ l, C.le a x := by
@@ -164,7 +164,7 @@ private lemma exists_min_of_total {k : Type*} [Field k]
           · exact hay
           · exact hmin x hx⟩
 
-private lemma exists_max_of_total {k : Type*} [Field k]
+lemma exists_max_of_total {k : Type*} [Field k]
     (C : CAlg k) (hT : IsTotalOrder C) :
     ∀ (l : List C.Λ), l ≠ [] →
       ∃ b ∈ l, ∀ x ∈ l, C.le x b := by
@@ -189,7 +189,7 @@ private lemma exists_max_of_total {k : Type*} [Field k]
           · exact C.le_refl _
           · exact C.le_trans x b _ (hmax x hx) hby⟩
 
-private lemma finset_has_min {k : Type*} [Field k]
+lemma finset_has_min {k : Type*} [Field k]
     (C : CAlg k) (hT : IsTotalOrder C)
     (S : Finset C.Λ) (hS : S.Nonempty) :
     ∃ a ∈ S, ∀ x ∈ S, C.le a x := by
@@ -199,7 +199,7 @@ private lemma finset_has_min {k : Type*} [Field k]
   exact ⟨a, Finset.mem_toList.mp ha, fun x hx =>
     hmin x (Finset.mem_toList.mpr hx)⟩
 
-private lemma finset_has_max {k : Type*} [Field k]
+lemma finset_has_max {k : Type*} [Field k]
     (C : CAlg k) (hT : IsTotalOrder C)
     (S : Finset C.Λ) (hS : S.Nonempty) :
     ∃ b ∈ S, ∀ x ∈ S, C.le x b := by

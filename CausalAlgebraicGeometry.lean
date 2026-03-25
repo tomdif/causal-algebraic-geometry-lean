@@ -14,3 +14,4 @@ import CausalAlgebraicGeometry.Dilworth
 import CausalAlgebraicGeometry.Uniqueness
 import CausalAlgebraicGeometry.CausalScheme
 import CausalAlgebraicGeometry.PhysicsForced
+import CausalAlgebraicGeometry.ConvexFactorization
