@@ -144,6 +144,27 @@ theorem coboundary_sq_zero_dim2 {k : Type*} [Field k] (C : CAlg k)
   rw [coboundary_on_edge, coboundary_on_edge, coboundary_on_edge]
   ring
 
+/-! ### Simplicial identity -/
+
+/-- The **simplicial identity** for list deletion:
+    erasing index i then index j (with i ≤ j) gives the same result
+    as erasing index j+1 then index i. This is the key algebraic
+    identity underlying δ² = 0 in all dimensions. -/
+theorem eraseIdx_eraseIdx_of_le {α : Type*} (l : List α) (i j : ℕ)
+    (hij : i ≤ j) :
+    (l.eraseIdx i).eraseIdx j = (l.eraseIdx (j + 1)).eraseIdx i := by
+  induction l generalizing i j with
+  | nil => simp [List.eraseIdx]
+  | cons a t ih =>
+    cases i with
+    | zero => simp [List.eraseIdx]
+    | succ i' =>
+      cases j with
+      | zero => omega
+      | succ j' =>
+        simp only [List.eraseIdx]; congr 1
+        exact ih i' j' (by omega)
+
 /-! ### Cocycles and H⁰ -/
 
 /-- A **cocycle** is a cochain in the kernel of δ: δf = 0 on all chains. -/

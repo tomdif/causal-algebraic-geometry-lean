@@ -199,6 +199,26 @@ theorem rigidity_recovery {k : Type*} [Field k] (C : CAlg k)
     IsCausallyPrime C (principalUpset C α) :=
   closedPoint_isCausallyPrime C α h_not_max
 
+/-! ### Recovery injectivity -/
+
+/-- The closed-point map α ↦ ↑α is **injective on comparable elements**.
+    If α ≤ β and α ≠ β, then principalUpset(α) ≠ principalUpset(β).
+
+    Proof: β ∈ ↑α (since α ≤ β, α ≠ β) but β ∉ ↑β (since β = β).
+
+    Note: the map is NOT injective on incomparable elements in general.
+    Two incomparable elements with the same strict future (e.g., in
+    {a,b,c} with a < c, b < c, a ∥ b) map to the same CSpec point.
+    Injectivity on the full poset requires a "future-distinguishing"
+    (T₀) hypothesis. -/
+theorem closedPoint_injective_on_comparable {k : Type*} [Field k]
+    (C : CAlg k) (α β : C.Λ) (hle : C.le α β) (hne : α ≠ β) :
+    principalUpset C α ≠ principalUpset C β := by
+  intro h
+  have hβ_in : β ∈ principalUpset C α := ⟨hle, hne⟩
+  have hβ_not : β ∉ principalUpset C β := fun ⟨_, hne'⟩ => hne' rfl
+  exact hβ_not (h ▸ hβ_in)
+
 /-! ### What this means -/
 
 /-- **SUMMARY OF RIGIDITY**: The causal scheme construction
