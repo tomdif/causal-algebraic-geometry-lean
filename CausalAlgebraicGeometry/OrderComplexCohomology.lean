@@ -144,6 +144,25 @@ theorem coboundary_sq_zero_dim2 {k : Type*} [Field k] (C : CAlg k)
   rw [coboundary_on_edge, coboundary_on_edge, coboundary_on_edge]
   ring
 
+/-- δ¹ evaluated on a 4-element chain (tetrahedron). -/
+theorem coboundary_on_tetra {k : Type*} [Field k] (C : CAlg k)
+    (f : Cochain C) (a b c d : C.Λ) :
+    coboundary C f [a, b, c, d] =
+      f [b, c, d] - f [a, c, d] + f [a, b, d] - f [a, b, c] := by
+  simp only [coboundary, faceMap, List.length]
+  simp only [show Finset.range 4 = {0, 1, 2, 3} from by ext; simp [Finset.mem_range]; omega]
+  simp [pow_succ, pow_zero, List.eraseIdx]
+  ring
+
+/-- **δ² = 0 for 3-chains** (the dimension-3 case, 4-element lists). -/
+theorem coboundary_sq_zero_dim3 {k : Type*} [Field k] (C : CAlg k)
+    (f : Cochain C) (a b c d : C.Λ) :
+    coboundary C (coboundary C f) [a, b, c, d] = 0 := by
+  rw [coboundary_on_tetra]
+  rw [coboundary_on_triangle, coboundary_on_triangle,
+      coboundary_on_triangle, coboundary_on_triangle]
+  ring
+
 /-! ### Simplicial identity -/
 
 /-- The **simplicial identity** for list deletion:

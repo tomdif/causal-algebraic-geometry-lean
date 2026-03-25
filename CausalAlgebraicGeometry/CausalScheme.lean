@@ -219,6 +219,43 @@ theorem closedPoint_injective_on_comparable {k : Type*} [Field k]
   have hβ_not : β ∉ principalUpset C β := fun ⟨_, hne'⟩ => hne' rfl
   exact hβ_not (h ▸ hβ_in)
 
+/-! ### Full recovery injectivity (with T₀ hypothesis) -/
+
+/-- A poset is **future-distinguishing (T₀)** if distinct elements
+    have distinct strict futures. -/
+def IsFutureDistinguishing {k : Type*} [Field k] (C : CAlg k) : Prop :=
+  ∀ α β : C.Λ, α ≠ β → principalUpset C α ≠ principalUpset C β
+
+/-- For T₀ posets, the closed-point map is **fully injective**:
+    distinct elements give distinct CSpec points. Combined with
+    closedPoint_isCausallyPrime (each gives a CSpec point), this
+    gives a genuine embedding of the poset into CSpec. -/
+theorem closedPoint_injective_T0 {k : Type*} [Field k] (C : CAlg k)
+    (hT0 : IsFutureDistinguishing C) :
+    Function.Injective (fun α : C.Λ => principalUpset C α) :=
+  fun _ _ h => by by_contra hne; exact hT0 _ _ hne h
+
+/-! ### γ is field-independent -/
+
+/-- The number of convex subsets depends only on (Λ, ≤), not on k.
+    We prove this by exhibiting field-free definitions that equal
+    the CAlg-based ones by `rfl`. -/
+def numConvexPure (Λ : Type*) [Fintype Λ] [DecidableEq Λ]
+    (le : Λ → Λ → Prop) [DecidableRel le] : ℕ :=
+  (Finset.univ.powerset : Finset (Finset Λ)).filter (fun S =>
+    ∀ α ∈ S, ∀ β ∈ S, ∀ γ : Λ, le α γ → le γ β → γ ∈ S) |>.card
+
+def numIntPure (Λ : Type*) [Fintype Λ] [DecidableEq Λ]
+    (le : Λ → Λ → Prop) [DecidableRel le] : ℕ :=
+  Finset.univ.filter (fun p : Λ × Λ => le p.1 p.2) |>.card
+
+/-- γ is independent of the field k: the CAlg-based counts equal
+    the field-free versions definitionally. -/
+theorem gamma_field_independent {k : Type*} [Field k] (C : CAlg k) :
+    NoetherianRatio.numCausallyConvex C = numConvexPure C.Λ C.le ∧
+    NoetherianRatio.numIntervals C = numIntPure C.Λ C.le :=
+  ⟨rfl, rfl⟩
+
 /-! ### What this means -/
 
 /-- **SUMMARY OF RIGIDITY**: The causal scheme construction
@@ -229,9 +266,10 @@ theorem closedPoint_injective_on_comparable {k : Type*} [Field k]
 
     1. CSpec is determined (uniqueness of causal primality)
     2. The sheaf is determined (convexity is necessary for restriction)
-    3. δ² = 0 is verified for 2-chains (dim 2 case)
-    4. γ is a combinatorial invariant of the poset
-    5. The poset is recoverable from CSpec (via closed points)
+    3. δ² = 0 verified for dimensions 2 and 3 (simplicial identity proved)
+    4. γ is a combinatorial invariant of the poset (field-independent by rfl)
+    5. The poset is recoverable from CSpec (injective on comparable elements,
+       fully injective for T₀ posets)
 
     The construction has no free parameters: given a poset and a field,
     all components are determined. Poset isomorphisms preserve causal
