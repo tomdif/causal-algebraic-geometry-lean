@@ -170,8 +170,42 @@ theorem rigidity_forward {k : Type*} [Field k] (C₁ C₂ : CAlg k)
     (f : C₁.Λ → C₂.Λ) (hf : IsPosetIso C₁ C₂ f) :
     ∀ S : Set C₁.Λ, IsCausallyPrime C₁ S →
       IsCausallyPrime C₂ (f '' S) := by
-  sorry -- Set-theoretic transport of upset + proper + convex along bijection.
-        -- Mathematically trivial; Lean formalization is boilerplate.
+  intro S hS
+  have hf_inj := hf.1.1
+  have hf_surj := hf.1.2
+  constructor
+  · -- Proper: f(S) ≠ univ
+    intro h_eq
+    apply hS.proper
+    ext x; constructor
+    · intro _; exact Set.mem_univ x
+    · intro _
+      have : f x ∈ f '' S := h_eq ▸ Set.mem_univ _
+      obtain ⟨y, hy, hfy⟩ := this
+      exact hf_inj hfy ▸ hy
+  · -- Upset: if f(a) ∈ f(S) and f(a) ≤₂ b, then b ∈ f(S)
+    intro a b ⟨a', ha', hfa'⟩ hab
+    obtain ⟨b', hfb'⟩ := hf_surj b
+    have hab' : C₁.le a' b' := (hf.2 a' b').mpr (hfa' ▸ hfb' ▸ hab)
+    exact ⟨b', hS.upset a' b' ha' hab', hfb'⟩
+  · -- Complement convex: if x,y ∉ f(S) and x ≤₂ γ ≤₂ y, then γ ∉ f(S)
+    intro x y γ hx hy hxγ hγy
+    simp only [Set.mem_compl_iff, Set.mem_image] at hx hy ⊢
+    -- hx: ¬∃ a, a ∈ S ∧ f a = x. hy: similar.
+    intro ⟨γ', hγ'S, hfγ'⟩
+    -- γ' ∈ S and f(γ') = γ.
+    -- Get preimages of x and y
+    obtain ⟨x', hfx'⟩ := hf_surj x
+    obtain ⟨y', hfy'⟩ := hf_surj y
+    -- x' ∉ S (since f(x') = x ∉ f(S) for injective f)
+    have hx'_not : x' ∉ S := fun hx'S => hx ⟨x', hx'S, hfx'⟩
+    -- y' ∉ S
+    have hy'_not : y' ∉ S := fun hy'S => hy ⟨y', hy'S, hfy'⟩
+    -- x' ≤₁ γ' ≤₁ y'
+    have hx'γ' : C₁.le x' γ' := (hf.2 x' γ').mpr (hfx' ▸ hfγ' ▸ hxγ)
+    have hγ'y' : C₁.le γ' y' := (hf.2 γ' y').mpr (hfγ' ▸ hfy' ▸ hγy)
+    -- By convexity of Sᶜ in C₁: γ' ∉ S
+    exact hS.complement_convex x' y' γ' hx'_not hy'_not hx'γ' hγ'y' hγ'S
 
 /-- The Recovery direction: CSpec determines the poset. -/
 theorem rigidity_recovery {k : Type*} [Field k] (C : CAlg k)
