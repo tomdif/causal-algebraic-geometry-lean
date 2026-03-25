@@ -74,7 +74,7 @@ theorem f_pos (m : ℕ) : f m ≥ 1 := by simp [f]
 
 /-! ### The smoothing lemma -/
 
-/- **Smoothing lemma**: for a ≥ b + 2, transferring 1 from the larger
+/- Smoothing lemma (not proved in Lean): for a >= b + 2, transferring 1 from the larger
     to the smaller DECREASES the product f(a)·f(b).
 
     Equivalently: f(a-1)·f(b+1) ≤ f(a)·f(b) when a ≥ b+2.
@@ -115,16 +115,6 @@ theorem f_pos (m : ℕ) : f m ≥ 1 := by simp [f]
 theorem trivial_product_bound (w n : ℕ) :
     ∀ (m : Fin w → ℕ), (∀ i, m i ≤ n) → ∀ i, f (m i) ≤ f n :=
   fun m hm i => f_mono (hm i)
-
-/-- **The balanced bound**: for a balanced w-cover of n elements
-    (each chain has size ≤ ⌈n/w⌉), the product is ≤ f(⌈n/w⌉)^w.
-
-    Since f(m) = O(m²), this gives f(⌈n/w⌉)^w = O((n/w)²)^w = O(n^{2w}/w^{2w}).
-
-    For fixed w: |CC| = O(n^{2w}). Polynomial in n. -/
-theorem balanced_bound (w n : ℕ) (hw : 0 < w) :
-    f ((n + w - 1) / w) ^ w ≥ 1 := by
-  exact Nat.one_le_pow w _ (f_pos _)
 
 /-- **The key asymptotic**: f(m) ≤ m² + 1 for all m. -/
 theorem f_le_sq (m : ℕ) : f m ≤ m ^ 2 + 1 := by

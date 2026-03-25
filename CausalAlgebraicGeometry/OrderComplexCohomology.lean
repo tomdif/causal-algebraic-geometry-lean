@@ -11,7 +11,7 @@
   - `faceMap`: the i-th face map (delete vertex i)
   - `faceMap_preserves_chain`: deleting a vertex preserves the chain
   - `coboundary`: the coboundary operator δ
-  - `coboundary_sq_zero`: δ² = 0 (the fundamental identity)
+  - `coboundary_sq_zero_dim2`: δ² = 0 for 2-chains (dimension-2 case)
   - `isZeroCocycle`: characterization of H⁰ (connected components)
   - `chainContractible_H1_zero`: H¹ = 0 for posets with a maximum
 -/
@@ -129,10 +129,14 @@ theorem coboundary_on_triangle {k : Type*} [Field k] (C : CAlg k)
   simp [pow_succ, pow_zero]
   ring
 
-/-- **δ² = 0** on 2-chains: the explicit computation.
+/-- **δ² = 0 for 2-chains** (the dimension-2 case):
     (δ²f)([a,b,c]) = (δ(δf))([a,b,c])
     = (δf)([b,c]) - (δf)([a,c]) + (δf)([a,b])
-    = [f(c)-f(b)] - [f(c)-f(a)] + [f(b)-f(a)] = 0 -/
+    = [f(c)-f(b)] - [f(c)-f(a)] + [f(b)-f(a)] = 0
+
+    This verifies the fundamental identity δ² = 0 for chains of
+    length 3. The general case (arbitrary-length chains) would require
+    the standard double-sum cancellation argument. -/
 theorem coboundary_sq_zero_dim2 {k : Type*} [Field k] (C : CAlg k)
     (f : Cochain C) (a b c : C.Λ) :
     coboundary C (coboundary C f) [a, b, c] = 0 := by

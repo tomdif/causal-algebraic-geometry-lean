@@ -6,8 +6,9 @@
     For any finite poset C of width w, the Noetherian ratio satisfies
     γ(C) ≤ 2^w.
 
-  Verified computationally for ALL partial orders on ≤ 5 elements
-  (968 posets checked, zero violations).
+  Verified computationally in Python for ALL partial orders on ≤ 5
+  elements (968 posets checked, zero violations). The Lean file below
+  verifies specific named posets only (via native_decide).
 
   Consequences:
   - Chains (w=1): γ ≤ 2 ✓ (actual: γ → 1)
@@ -130,8 +131,9 @@ theorem width_bound_fork :
     the number of causally convex subsets satisfies |CC(C)| ≤ 2^w · |Int(C)|,
     equivalently γ(C) ≤ 2^w.
 
-    Verified for ALL partial orders on ≤ 5 elements (968 posets, 0 violations).
-    Verified above for all key witness posets.
+    Verified in Python for ALL partial orders on ≤ 5 elements (968 posets,
+    0 violations). Verified in Lean (via native_decide) for the specific
+    named posets above.
 
     Proof sketch (not yet formalized):
     By Dilworth's theorem, C decomposes into w chains C₁, ..., C_w.

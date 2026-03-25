@@ -2,32 +2,26 @@
   CausalScheme.lean — The rigid causal scheme
 
   A causal scheme is the analog of a scheme in algebraic geometry,
-  but for causal structures. Unlike classical schemes, where choices
-  are made (which ring, which localization), a causal scheme is
-  COMPLETELY DETERMINED by two inputs:
+  but for causal structures. Given a finite partial order (C, ≤) and
+  a field k, the causal scheme packages:
 
-    1. A finite partial order (C, ≤)
-    2. A field k
+    1. The causal algebra CAlg(k, Λ, ≤)
+    2. The spectrum CSpec (causally prime ideals)
+    3. The structure sheaf (corner algebras on convex opens)
+    4. The cohomology (coboundary on the order complex)
+    5. The Noetherian ratio γ
 
-  Everything else — the algebra, the spectrum, the structure sheaf,
-  the cohomology, the Noetherian ratio — is FORCED. No degrees of
-  freedom. No choices. No parameters.
-
-  This is the rigidity theorem: the functor
-
-    (Poset, Field) → CausalScheme
-
-  is an EMBEDDING. Two causal schemes are isomorphic iff the
-  underlying posets are isomorphic.
+  All five components are determined by the poset and field -- there
+  are no additional choices in the construction.
 
   Main results:
-  - `CausalScheme`: the crisp definition (5 components, all determined)
+  - `CausalSchemeData`: the definition (5 components)
   - `causalScheme_of_poset`: the construction from a poset + field
-  - `spectrum_determined`: CSpec is determined by the poset
-  - `sheaf_determined`: the structure sheaf is determined by CSpec
-  - `cohomology_determined`: δ and H* are determined by the poset
-  - `gamma_determined`: the Noetherian ratio is determined by the poset
-  - `rigidity`: isomorphic causal schemes ↔ isomorphic posets
+  - `spectrum_determined`: CSpec is the unique maximal compatible notion
+  - `sheaf_determined`: non-convex subsets break the structure sheaf
+  - `cohomology_determined`: delta^2 = 0 for 2-chains (dim 2 case)
+  - `rigidity_forward`: poset isomorphisms preserve causal primality
+  - `rigidity_recovery`: CSpec determines the poset (via closed points)
 -/
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Fintype.Basic
@@ -117,10 +111,10 @@ theorem sheaf_determined {k : Type*} [Field k] (C : CAlg k) :
 
 /-! ### Rigidity: everything determined by the poset -/
 
-/-- **The cohomology is determined by the poset.**
+/-- **The cohomology is determined by the poset (dim 2 case).**
     The coboundary operator δ is defined from the face maps dᵢ,
     which are defined from the chain structure of the poset.
-    No choices. -/
+    We verify δ² = 0 for 2-chains (the dimension-2 case). -/
 theorem cohomology_determined {k : Type*} [Field k] (C : CAlg k) :
     -- δ² = 0 is a consequence of the poset structure alone
     ∀ (f : OrderComplexCohomology.Cochain C) (a b c : C.Λ),
@@ -128,19 +122,10 @@ theorem cohomology_determined {k : Type*} [Field k] (C : CAlg k) :
         (OrderComplexCohomology.coboundary C f) [a, b, c] = 0 :=
   fun f a b c => OrderComplexCohomology.coboundary_sq_zero_dim2 C f a b c
 
-/-- **The Noetherian ratio is determined by the poset.**
-    γ depends only on the comparability structure of (Λ, ≤).
-    No field k appears in its definition. -/
-theorem gamma_determined_by_poset {k₁ k₂ : Type*} [Field k₁] [Field k₂]
-    (C₁ : CAlg k₁) (C₂ : CAlg k₂)
-    -- Same index set and order
-    (h_eq : C₁.Λ = C₂.Λ)
-    (h_le : ∀ a b : C₁.Λ, C₁.le a b ↔ C₂.le (h_eq ▸ a) (h_eq ▸ b)) :
-    -- Same number of convex subsets and intervals
-    -- (γ is independent of the field k)
-    True := trivial  -- The statement is: γ is a combinatorial invariant
-                     -- of the poset, not the field. This is immediate
-                     -- from the definitions (no k appears in counting).
+/- Note: the Noetherian ratio γ = |CC|/|Int| is a combinatorial invariant
+   of the poset (Λ, ≤). The field k does not appear in the counting of
+   convex subsets or intervals. This is immediate from the definitions
+   in NoetherianRatio.lean. -/
 
 /-! ### The rigidity theorem -/
 
@@ -216,21 +201,22 @@ theorem rigidity_recovery {k : Type*} [Field k] (C : CAlg k)
 
 /-! ### What this means -/
 
-/-- **SUMMARY OF RIGIDITY**: The causal scheme functor
+/-- **SUMMARY OF RIGIDITY**: The causal scheme construction
 
       (finite poset, field) ↦ (CAlg, CSpec, Sheaf, H*, γ)
 
     is characterized by:
 
-    1. CSpec is FORCED (uniqueness of causal primality)
-    2. The sheaf is FORCED (convexity ⟺ ring homomorphism)
-    3. The cohomology is FORCED (δ from face maps)
-    4. γ is FORCED (combinatorial invariant of the poset)
-    5. The poset is RECOVERABLE from CSpec (Recovery Theorem)
+    1. CSpec is determined (uniqueness of causal primality)
+    2. The sheaf is determined (convexity is necessary for restriction)
+    3. δ² = 0 is verified for 2-chains (dim 2 case)
+    4. γ is a combinatorial invariant of the poset
+    5. The poset is recoverable from CSpec (via closed points)
 
-    Therefore: the construction has ZERO degrees of freedom.
-    It is an embedding of posets into algebraic-geometric objects.
-    Two causal schemes agree iff the underlying posets agree. -/
+    The construction has no free parameters: given a poset and a field,
+    all components are determined. Poset isomorphisms preserve causal
+    primality (rigidity_forward), and closed points of CSpec recover
+    the original poset elements (rigidity_recovery). -/
 theorem zero_degrees_of_freedom {k : Type*} [Field k] (C : CAlg k) :
     -- The spectrum is forced (unique maximal compatible notion)
     (∀ P : PrimalityNotion C,

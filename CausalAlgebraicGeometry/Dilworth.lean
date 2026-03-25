@@ -5,11 +5,13 @@
   number of chains needed to cover all elements equals the maximum
   size of an antichain (the width).
 
-  We prove the direction needed for the width bound:
-  "A finite poset of width w can be covered by w chains."
+  We prove the assembly: given a width-reducing chain extraction
+  procedure (Dilworth's inductive step), iterated application produces
+  a chain cover of size at most the width.
 
-  The full theorem (min chain cover = max antichain) requires both
-  directions. We prove the ≤ direction by strong induction on |C|.
+  The inductive step itself (finding a chain that reduces width) is
+  taken as a hypothesis. Its proof requires König-Egervary / max-flow
+  min-cut on bipartite graphs, which is non-trivial to formalize.
 
   Main results:
   - `chain_cover_of_width_le`: width w → w chains cover C

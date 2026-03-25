@@ -18,8 +18,8 @@
   - `CSpec`: the set of all causally prime ideals
   - `CSpec.closed_points_eq_elements`: Recovery Theorem — the closed
     points of CSpec biject with the original causal set elements
-  - `CSpec.nc_primality_collapses`: proof that standard NC primality
-    gives at most 1 point for width ≥ 2
+  - `nc_primality_collapses`: for incomparable α, β, every causal
+    matrix M has M(α,β) = 0 (the collapse mechanism)
 -/
 import Mathlib.Order.Basic
 import Mathlib.Data.Fintype.Basic
@@ -188,11 +188,12 @@ noncomputable def width {k : Type*} [Field k] (C : CAlg k) : ℕ :=
     if (∀ a ∈ S, ∀ b ∈ S, a ≠ b → ¬ C.le a b ∧ ¬ C.le b a)
     then S.card else 0)
 
-/-- Standard NC primality fails for causal algebras of width ≥ 2.
+/-- For incomparable α, β: every causal matrix M has M(α, β) = 0.
+    This is the mechanism that collapses standard NC primality for
+    causal algebras with incomparable elements.
 
-    If α ∥ β (incomparable), then eα · M · eβ = 0 for any causal
-    matrix M. The product eα(α,γ) · M(γ,δ) · eβ(δ,β) is nonzero only
-    when γ = α and δ = β, giving M(α,β) = 0 since ¬(α ≤ β). -/
+    Proof: M is causal means M(a,b) = 0 when ¬(a ≤ b). Since α ∥ β,
+    in particular ¬(α ≤ β), so M(α, β) = 0. -/
 theorem nc_primality_collapses {k : Type*} [Field k]
     (C : CAlg k) (α β : C.Λ) (h : AreIncomparable C α β)
     (M : C.Λ → C.Λ → k) (hM : IsCausalMatrix C M) :

@@ -125,6 +125,40 @@ theorem interval_injective {k : Type*} [Field k]
   exact ⟨C.le_antisymm a₁ a₂ ha₂_in.1 ha₁_in.1,
          C.le_antisymm b₁ b₂ hb₁_in.2 hb₂_in.2⟩
 
+/-- **γ ≥ 1**: the number of causally convex subsets is at least the
+    number of intervals. Since every interval [a,b] is causally convex
+    (interval_isCausallyConvex) and distinct intervals give distinct
+    convex subsets (interval_injective), intervals inject into the set
+    of convex subsets. Therefore numCausallyConvex ≥ numIntervals.
+
+    Note: this is stated as numIntervals ≤ numCausallyConvex (the
+    natural-number form of γ ≥ 1). The actual ratio γ = nC/nI ≥ 1
+    follows immediately. -/
+theorem gamma_ge_one {k : Type*} [Field k] (C : CAlg k) :
+    numIntervals C ≤ numCausallyConvex C := by
+  -- Each comparable pair (a,b) with a ≤ b maps to intervalFinset C a b,
+  -- which is causally convex (interval_isCausallyConvex). The map is
+  -- injective (interval_injective). So the number of intervals is at
+  -- most the number of convex subsets.
+  simp only [numIntervals, numCausallyConvex]
+  apply Finset.card_le_card_of_injOn
+    (fun p : C.Λ × C.Λ => intervalFinset C p.1 p.2)
+  · -- Each interval is convex
+    intro p hp
+    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_coe,
+      Finset.mem_univ, true_and] at hp ⊢
+    constructor
+    · exact Finset.mem_powerset.mpr (Finset.filter_subset _ _)
+    · intro α hα β hβ γ hαγ hγβ
+      simp only [intervalFinset, Finset.mem_filter, Finset.mem_univ, true_and] at hα hβ ⊢
+      exact ⟨C.le_trans p.1 α γ hα.1 hαγ, C.le_trans γ β p.2 hγβ hβ.2⟩
+  · -- The map is injective on comparable pairs
+    intro p hp q hq heq
+    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_coe,
+      Finset.mem_univ, true_and] at hp hq
+    have ⟨h1, h2⟩ := interval_injective C p.1 p.2 q.1 q.2 hp hq heq
+    exact Prod.ext h1 h2
+
 /-! ### Total orders are Noetherian (γ = 1) -/
 
 /-- A causal set is a **total order** if every pair is comparable. -/

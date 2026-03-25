@@ -142,8 +142,9 @@ theorem prime_gives_CSpec_point (n p : ℕ) (hn : 0 < n) (hp : p.Prime)
     3. Σ_{d|n} μ(d) = [n=1] ✓ (moebius_sum_divisors)
     4. Primes give causally prime ideals in CSpec ✓ (prime_gives_CSpec_point)
 
-    This is not an analogy — it is an exact identity. The causal-algebraic
-    framework CONTAINS classical number theory as a special case. -/
+    The divisibility lattice is a causal algebra, and its Mobius function
+    matches the number-theoretic one. The causal-algebraic framework
+    naturally includes the divisibility lattice as a special case. -/
 theorem arithmetic_bridge (n : ℕ) (hn : 0 < n) :
     -- μ * ζ = 1
     (ArithmeticFunction.moebius * ↑ArithmeticFunction.zeta = 1) ∧
