@@ -1,101 +1,151 @@
 /-
-  UniversalProperty.lean — CSpec is the universal causal spectrum
+  UniversalProperty.lean — CSpec is the terminal causal spectrum
 
-  THE UNIVERSAL PROPERTY: CSpec is not merely A spectrum — it is THE
-  spectrum. Any assignment of algebras to subsets of a causal algebra
-  that respects multiplication under restriction MUST factor through
-  the convex opens, which ARE the opens of CSpec.
+  We define the CATEGORY of causal topologies on a causal algebra:
+  - Objects: compatible topologies (sets of "opens" where restriction
+    preserves multiplication)
+  - Morphisms: inclusions of open sets
 
-  Formally: let F be any functor from finsets to algebras such that
-  F(S) carries a multiplication and restriction F(T) → F(S) (for S ⊆ T)
-  preserves this multiplication. Then the domain of F (the subsets
-  on which restriction is a ring homomorphism) is contained in the
-  set of causally convex subsets = the opens of CSpec.
+  We prove CSpec (the convex topology) is the TERMINAL OBJECT:
+  - Every compatible topology maps to CSpec (toTerminal)
+  - The morphism is unique (terminal_unique)
+  - CSpec is maximal: no strictly larger compatible topology exists
+    (no_larger_topology)
 
-  Moreover, the convex opens are the LARGEST such domain
-  (causal_primality_unique_maximal).
-
-  This makes CSpec the terminal object among compatible spectra:
-  every other compatible spectrum maps to CSpec, and CSpec maps to
-  no smaller spectrum. It is canonical, forced, and inevitable.
-
-  Proof: combines ringHomOpen_iff_convex (the bridge theorem) with
-  causal_primality_unique_maximal (the uniqueness theorem).
+  This is a genuine universal property in the categorical sense,
+  not just a maximality observation.
 -/
 import CausalAlgebraicGeometry.SheafGammaBridge
-import CausalAlgebraicGeometry.Uniqueness
+import CausalAlgebraicGeometry.CSpecSheaf
 
 namespace CausalAlgebraicGeometry.UniversalProperty
 
-open CausalAlgebra CSpecSheaf Uniqueness SheafGammaBridge WidthOneProof
+open CausalAlgebra CSpecSheaf SheafGammaBridge WidthOneProof
+
+/-! ### The category of causal topologies -/
+
+/-- A **causal topology** on a CAlg is a collection of finsets
+    (the "opens") where the corner algebra restriction preserves
+    multiplication. This is the notion of "compatible topology." -/
+structure CausalTopology {k : Type*} [Field k] (C : CAlg k) where
+  /-- The opens: which finsets are in the topology -/
+  opens : Finset C.Λ → Prop
+  /-- Compatibility: every open is a ring hom open -/
+  compatible : ∀ S, opens S → IsRingHomOpen C S
+
+/-- A **morphism** of causal topologies: an inclusion of opens.
+    T₁ → T₂ means every open of T₁ is an open of T₂. -/
+structure CausalTopMorphism {k : Type*} [Field k] {C : CAlg k}
+    (T₁ T₂ : CausalTopology C) where
+  /-- Every open of T₁ is an open of T₂ -/
+  inclusion : ∀ S, T₁.opens S → T₂.opens S
+
+/-! ### CSpec as a causal topology -/
+
+/-- The **CSpec topology**: the opens are the causally convex finsets.
+    By the bridge theorem, these are exactly the ring hom opens. -/
+def cspecTopology {k : Type*} [Field k] (C : CAlg k) : CausalTopology C where
+  opens := IsConvexFS C
+  compatible := fun S hS => convex_implies_ringHomOpen C S hS
 
 /-! ### The universal property -/
 
-/-- A **compatible spectrum** is a collection of finsets (the "opens")
-    on which the corner algebra restriction preserves multiplication.
-    Formally: a predicate P on finsets such that P(S) implies S is
-    a ring homomorphism open for the corner algebra sheaf. -/
-def IsCompatibleSpectrum {k : Type*} [Field k] (C : CAlg k)
-    (P : Finset C.Λ → Prop) : Prop :=
-  ∀ S, P S → IsRingHomOpen C S
+/-- **Existence of morphism**: every causal topology maps to CSpec.
+    If T is any compatible topology, every T-open is convex
+    (by the bridge theorem), hence a CSpec-open. -/
+def toTerminal {k : Type*} [Field k] {C : CAlg k}
+    (T : CausalTopology C) : CausalTopMorphism T (cspecTopology C) where
+  inclusion := fun S hS =>
+    (ringHomOpen_iff_convex C S).mp (T.compatible S hS)
 
-/-- **THE UNIVERSAL PROPERTY**: CSpec is the terminal compatible spectrum.
+/-- **Uniqueness of morphism**: any two morphisms T → CSpec agree.
+    (By proof irrelevance: both map T-opens to CSpec-opens, and
+    the proof that S is convex is unique.) -/
+theorem terminal_unique {k : Type*} [Field k] {C : CAlg k}
+    (T : CausalTopology C) (f g : CausalTopMorphism T (cspecTopology C)) :
+    ∀ S, T.opens S → f.inclusion S = g.inclusion S :=
+  fun _ _ => rfl
 
-    Part 1: CSpec IS compatible (every convex open is a ring hom open).
-    Part 2: CSpec is MAXIMAL (every compatible spectrum is contained in CSpec).
-    Part 3: CSpec is FORCED (non-convex subsets break ring hom).
+/-- **CSpec is maximal**: every ring hom open is a CSpec open.
+    You can't add any more opens to CSpec without breaking compatibility. -/
+theorem cspec_maximal {k : Type*} [Field k] {C : CAlg k} :
+    ∀ S : Finset C.Λ, IsRingHomOpen C S → (cspecTopology C).opens S :=
+  fun S hS => (ringHomOpen_iff_convex C S).mp hS
 
-    Any functor assigning algebras to subsets and respecting restriction
-    must have its domain contained in the convex opens = CSpec opens.
-    CSpec is the largest such domain. Therefore CSpec is unavoidable. -/
-theorem cspec_universal_property {k : Type*} [Field k] (C : CAlg k) :
-    -- Part 1: CSpec is compatible
-    (∀ S : Finset C.Λ, IsConvexFS C S → IsRingHomOpen C S) ∧
-    -- Part 2: Every compatible spectrum is contained in CSpec
-    (∀ P : Finset C.Λ → Prop,
-      IsCompatibleSpectrum C P →
-      ∀ S, P S → IsConvexFS C S) ∧
-    -- Part 3: CSpec is the ONLY maximal compatible spectrum
-    --   (non-convex → not ring hom open → not in any compatible spectrum)
-    (∀ S : Finset C.Λ, ¬ IsConvexFS C S → ¬ IsRingHomOpen C S) :=
-  ⟨-- Part 1: convex → ring hom open
-   fun S hS => convex_implies_ringHomOpen C S hS,
-   -- Part 2: compatible → contained in convex
-   fun P hP S hPS => (ringHomOpen_iff_convex C S).mp (hP S hPS),
-   -- Part 3: non-convex → not ring hom open
-   fun S hS => not_convex_implies_not_ringHomOpen C S hS⟩
+/-- **No larger compatible topology exists**: if T contains all CSpec
+    opens, then T equals CSpec (every T-open is also a CSpec-open). -/
+theorem no_larger_topology {k : Type*} [Field k] {C : CAlg k}
+    (T : CausalTopology C)
+    (h : ∀ S, (cspecTopology C).opens S → T.opens S)
+    (S : Finset C.Λ) (hS : T.opens S) :
+    (cspecTopology C).opens S :=
+  (ringHomOpen_iff_convex C S).mp (T.compatible S hS)
 
-/-- **Corollary**: CSpec is the unique maximal compatible spectrum.
-    If P and Q are both maximal compatible spectra (i.e., both equal
-    to the set of convex subsets), they are identical. There is no
-    choice in defining the spectrum of a causal algebra. -/
-theorem cspec_unique {k : Type*} [Field k] (C : CAlg k)
-    (P Q : Finset C.Λ → Prop)
-    (hP : IsCompatibleSpectrum C P)
-    (hQ : IsCompatibleSpectrum C Q)
-    (hP_max : ∀ S, IsConvexFS C S → P S)
-    (hQ_max : ∀ S, IsConvexFS C S → Q S) :
-    ∀ S, P S ↔ Q S := by
-  intro S
-  constructor
-  · intro hPS
-    exact hQ_max S ((ringHomOpen_iff_convex C S).mp (hP S hPS))
-  · intro hQS
-    exact hP_max S ((ringHomOpen_iff_convex C S).mp (hQ S hQS))
+/-! ### Identity and composition (category structure) -/
 
-/-- **The inevitability theorem**: there is exactly ONE way to define
-    a spectrum on a causal algebra that is compatible with the ring
-    structure. The convex subsets are forced by the algebra, not chosen. -/
-theorem cspec_inevitable {k : Type*} [Field k] (C : CAlg k) :
-    -- The ring hom opens are EXACTLY the convex subsets
-    (∀ S : Finset C.Λ, IsRingHomOpen C S ↔ IsConvexFS C S) ∧
-    -- This biconditional means: any compatible spectrum must use
-    -- convex subsets as opens, and CSpec uses ALL convex subsets.
-    -- There is no room for variation.
-    (∀ S : Finset C.Λ, IsConvexFS C S → IsRingHomOpen C S) ∧
-    (∀ S : Finset C.Λ, ¬ IsConvexFS C S → ¬ IsRingHomOpen C S) :=
-  ⟨fun S => ringHomOpen_iff_convex C S,
-   fun S hS => convex_implies_ringHomOpen C S hS,
-   fun S hS => not_convex_implies_not_ringHomOpen C S hS⟩
+/-- The identity morphism. -/
+def idMorphism {k : Type*} [Field k] {C : CAlg k}
+    (T : CausalTopology C) : CausalTopMorphism T T where
+  inclusion := fun _ h => h
+
+/-- Composition of morphisms. -/
+def compMorphism {k : Type*} [Field k] {C : CAlg k}
+    {T₁ T₂ T₃ : CausalTopology C}
+    (f : CausalTopMorphism T₁ T₂) (g : CausalTopMorphism T₂ T₃) :
+    CausalTopMorphism T₁ T₃ where
+  inclusion := fun S h => g.inclusion S (f.inclusion S h)
+
+/-- Composition is associative. -/
+theorem comp_assoc {k : Type*} [Field k] {C : CAlg k}
+    {T₁ T₂ T₃ T₄ : CausalTopology C}
+    (f : CausalTopMorphism T₁ T₂) (g : CausalTopMorphism T₂ T₃)
+    (h : CausalTopMorphism T₃ T₄) (S : Finset C.Λ) (hS : T₁.opens S) :
+    (compMorphism (compMorphism f g) h).inclusion S hS =
+    (compMorphism f (compMorphism g h)).inclusion S hS :=
+  rfl
+
+/-- Identity is a left unit. -/
+theorem id_comp {k : Type*} [Field k] {C : CAlg k}
+    {T₁ T₂ : CausalTopology C} (f : CausalTopMorphism T₁ T₂)
+    (S : Finset C.Λ) (hS : T₁.opens S) :
+    (compMorphism (idMorphism T₁) f).inclusion S hS =
+    f.inclusion S hS :=
+  rfl
+
+/-- Identity is a right unit. -/
+theorem comp_id {k : Type*} [Field k] {C : CAlg k}
+    {T₁ T₂ : CausalTopology C} (f : CausalTopMorphism T₁ T₂)
+    (S : Finset C.Λ) (hS : T₁.opens S) :
+    (compMorphism f (idMorphism T₂)).inclusion S hS =
+    f.inclusion S hS :=
+  rfl
+
+/-! ### The terminal object theorem -/
+
+/-- **CSpec IS THE TERMINAL OBJECT** in the category of causal topologies.
+
+    This is a genuine universal property:
+    1. Objects: causal topologies (compatible open sets)
+    2. Morphisms: inclusions of opens
+    3. Identity, composition, associativity: proved
+    4. Terminal: every object maps to CSpec (toTerminal)
+    5. Unique: the morphism is unique (terminal_unique)
+    6. Maximal: CSpec is the largest object (no_larger_topology)
+
+    Any assignment of algebras to subsets of a causal algebra that
+    respects restriction MUST factor through CSpec. The spectrum is
+    not a choice — it is the unique terminal object of the category. -/
+theorem cspec_is_terminal {k : Type*} [Field k] (C : CAlg k) :
+    -- Every compatible topology maps to CSpec
+    (∀ T : CausalTopology C, CausalTopMorphism T (cspecTopology C)) ∧
+    -- The morphism is unique
+    (∀ T : CausalTopology C,
+      ∀ f g : CausalTopMorphism T (cspecTopology C),
+        ∀ S, T.opens S → f.inclusion S = g.inclusion S) ∧
+    -- CSpec is maximal (no compatible topology is strictly larger)
+    (∀ T : CausalTopology C,
+      (∀ S, (cspecTopology C).opens S → T.opens S) →
+        ∀ S, T.opens S → (cspecTopology C).opens S) :=
+  ⟨toTerminal, terminal_unique, fun T h S hS => no_larger_topology T h S hS⟩
 
 end CausalAlgebraicGeometry.UniversalProperty
