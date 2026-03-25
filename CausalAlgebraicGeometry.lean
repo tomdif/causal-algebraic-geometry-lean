@@ -22,3 +22,4 @@ import CausalAlgebraicGeometry.GapTheorem
 import CausalAlgebraicGeometry.WidthScaling
 import CausalAlgebraicGeometry.DimensionDetection
 import CausalAlgebraicGeometry.SheafGammaBridge
+import CausalAlgebraicGeometry.UniversalProperty
