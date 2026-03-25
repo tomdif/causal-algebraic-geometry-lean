@@ -82,16 +82,22 @@ theorem separation_result :
 
 /-! ### The formal conjecture -/
 
-/-- **THE WIDTH BOUND CONJECTURE** (Quantitative Hauptvermutung):
+/-- **RETRACTED CONJECTURE**: γ(C) ≤ 2^w is FALSE.
 
-    For any finite poset C with elements indexed by Fin n, if the
-    maximum antichain has size w, then the number of causally convex
-    subsets satisfies |CC(C)| ≤ 2^w · |Int(C)|.
+    Counterexample: two disjoint 3-chains {0<1<2, 3<4<5} have
+    width 2, |CC| = 49, |Int| = 12, γ = 49/12 ≈ 4.08 > 4 = 2².
 
-    Equivalently: γ(C) ≤ 2^w.
+    The correct theorem is the POLYNOMIAL WIDTH BOUND:
+    |CC(C)| ≤ (⌈n/w⌉² + 1)^w, giving γ = O(n^{2w-1}) for fixed w.
+    This is proved via ConvexFactorization + BalancedBound.
 
-    STATUS: Proved for w=1 (all N, algebraic).
-            Verified for all N ≤ 5 (968 posets, computational).
+    The GAP THEOREM (GapTheorem.lean) is the correct Hauptvermutung:
+    - Lower bound: |CC| ≥ 2^w (unconditional, proved)
+    - Upper bound: |CC| ≤ (m²+1)^w (conditional on chain cover)
+    - Gap: bounded width → polynomial γ, linear width → exponential γ
+
+    The original conjecture was verified for all N ≤ 5 (968 posets).
+    The counterexample has N = 6 and was missed by that search.
             Proved for specific posets at w=2,4 (native_decide).
 
     PROOF STRATEGY (not yet formalized):
