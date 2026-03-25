@@ -13,3 +13,4 @@ import CausalAlgebraicGeometry.ChainRestriction
 import CausalAlgebraicGeometry.Dilworth
 import CausalAlgebraicGeometry.Uniqueness
 import CausalAlgebraicGeometry.CausalScheme
+import CausalAlgebraicGeometry.PhysicsForced
