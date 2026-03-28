@@ -4,7 +4,7 @@ Formal verification of the mathematical framework developed in the accompanying 
 
 ## Codebase
 
-**46 files, 11,019 lines.** One `sorry` remains (`crossing_pairs_bound` in `RhoEquals16.lean` for m ≥ 9), affecting only the exact value ρ₂ = 16. The dimension law, tiling inequality, and all structural results are sorry-free.
+**46 files, 11,019 lines.** One sorry on the critical path (`dominatingPairs_ge_catalan` in `RhoEquals16.lean` for m ≥ 9), affecting only the exact value ρ₂ = 16. Thirteen additional sorries exist in standalone LGV lattice path files (`LGV.lean`, `LGVInvolution.lean`, `LGVLatticePath.lean`, `LindstromReflection.lean`) that are not imported by any other module. The dimension law, tiling inequality, and all structural results are sorry-free.
 
 Build: `lake build` (~3,100 jobs, Lean 4 v4.28.0, Mathlib v4.28.0).
 
@@ -31,7 +31,7 @@ For all d ≥ 2 and m ≥ 1: the number of order-convex subsets of [m]^d satisfi
 - **Tiling inequality**: `numConvexDim d m ^ ac.card ≤ numConvexDim d (k * m)` for any antichain `ac` of [k]^d
 - **Exponential lower bound**: `2 ^ m ≤ numConvexDim d m`
 
-Combined with the antichain bound A(k,d) = Θ(k^{d-1}), these establish log |CC([m]^d)| = Θ(m^{d-1}).
+Together with the upper bound, these give the inequalities needed for the dimension law. The asymptotic statement log |CC([m]^d)| = Θ(m^{d-1}) follows from these bounds combined with the antichain size A(k,d) = Θ(k^{d-1}), but the limit existence is not itself a single Lean theorem.
 
 ### Growth constant ρ₂ = 16 (TightUpperBound.lean, GrowthRateIs16.lean — 0 sorry in new files)
 
@@ -39,7 +39,7 @@ Combined with the antichain bound A(k,d) = Θ(k^{d-1}), these establish log |CC(
 - `numGridConvex_le_choose_sq`: |CC([m]²)| ≤ C(2m, m)²
 - `growth_constant_eq_neg_log_sixteen`: the Fekete limit equals −log 16
 
-Inherits one sorry from `RhoEquals16.lean` (the Catalan lower bound at m ≥ 9).
+Inherits one sorry from `RhoEquals16.lean` (`dominatingPairs_ge_catalan` at m ≥ 9).
 
 ### Wilson loop (GaugeConnection.lean — 0 sorry)
 
@@ -73,7 +73,7 @@ Inherits one sorry from `RhoEquals16.lean` (the Catalan lower bound at m ≥ 9).
 
 ## Axiom Audit
 
-All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorryAx` dependency is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `crossing_pairs_bound`.
+All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorryAx` dependency is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `dominatingPairs_ge_catalan`.
 
 ## Building
 
