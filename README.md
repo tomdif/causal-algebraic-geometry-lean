@@ -1,110 +1,85 @@
-# Causal-Algebraic Geometry in Lean 4
+# Causal-Algebraic Geometry — Lean 4 Formalization
 
-A formally verified Grothendieck-type framework for causal structures. From a causal algebra (an associative algebra with a partial order on its idempotents satisfying a causality axiom), we construct a spectrum, equip it with a structure sheaf, build a cohomology theory, and prove an exact arithmetic bridge to classical number theory.
+Formal verification of the mathematical framework developed in the accompanying papers. The codebase covers the algebraic-geometric foundations (causal algebras, CSpec, structure sheaves, cohomology), the combinatorial core (grid-convex subset counting, growth constants, dimension law), and gauge-theoretic results (Wilson loop independence).
 
-**1,233 lines. Zero `sorry`. Zero custom axioms. Every theorem verified by `#print axioms`.**
+## Codebase
 
-## What This Is
+**46 files, 11,019 lines.** One `sorry` remains (`crossing_pairs_bound` in `RhoEquals16.lean` for m ≥ 9), affecting only the exact value ρ₂ = 16. The dimension law, tiling inequality, and all structural results are sorry-free.
 
-This is the first formal verification of an algebraic-geometric framework for causal structures — doing for causal sets what Grothendieck did for commutative rings:
+Build: `lake build` (~3,100 jobs, Lean 4 v4.28.0, Mathlib v4.28.0).
 
-1. **Start with the algebra** (causal algebra)
-2. **Construct a spectrum** (CSpec)
-3. **Equip it with a structure sheaf** (corner algebras)
-4. **Build a cohomology theory** (order-complex simplicial cohomology)
-5. **Prove it contains classical number theory** (arithmetic bridge)
+## Papers
 
-## Files
+The `papers/` directory contains the three papers this formalization supports:
 
-| File | Lines | Content |
-|------|-------|---------|
-| `CausalAlgebra.lean` | 207 | Causal algebra definition, causal matrix ring, orthogonal idempotents, corner algebras, upper-triangularity |
-| `CausalPrimality.lean` | 227 | Causal primality (replacing collapsed NC primality), CSpec spectrum, Recovery Theorem, distinguished opens |
-| `NoetherianRatio.lean` | 271 | Noetherian ratio γ = \|CC\|/\|Int\|, interval convexity, total orders Noetherian, antichain exponential growth |
-| `ArithmeticBridge.lean` | 165 | Divisibility lattice as causal set, μ\*ζ = 1, primes give CSpec points, Recovery of Spec(ℤ) |
-| `CSpecSheaf.lean` | 142 | Structure sheaf via corner algebras, sheaf separation, causal convexity → ring homomorphism, stalks |
-| `OrderComplexCohomology.lean` | 221 | Simplicial cohomology, coboundary operator, δ² = 0, H⁰ characterization, cone kills H¹ |
+| Paper | File | Status |
+|-------|------|--------|
+| Causal-Algebraic Geometry | `causal_algebraic_geometry.tex` | Foundations: CSpec, sheaves, cohomology, Noetherian ratio, arithmetic bridge |
+| Order-Convex Subsets of Grid Posets | `grid_convex_subsets.tex` | Counting: sequence, transfer matrix, growth constant ρ₂ = 16 |
+| Black Hole Thermodynamics from Counting Convex Subsets | `bh_thermodynamics.tex` | Physics: dimension law, area law, Hawking temperature, cosmological constant |
 
-## Key Theorems
+A fourth paper (JT gravity from the BD-weighted partition function) is at [tomdif/jt-gravity-from-convex-subsets](https://github.com/tomdif/jt-gravity-from-convex-subsets).
 
-### Spectrum (CSpec)
+## Key Verified Results
 
-- **`closedPoint_isCausallyPrime`** — Recovery Theorem: elements of the causal set embed as closed points of CSpec
-- **`nc_primality_collapses`** — Standard NC primality gives ≤ 1 point for width ≥ 2, motivating causal primality
-- **`distinguishedOpen_basis`** — Distinguished opens D(α) form a topological basis
+### Dimension law (DimensionLaw.lean, AntichainTiling.lean — 0 sorry)
 
-### Structure Sheaf
+For all d ≥ 2 and m ≥ 1: the number of order-convex subsets of [m]^d satisfies
 
-- **`locality`** — Sheaf separation: sections are determined by local data
-- **`product_supported_on_convex`** — For causally convex S, elements γ ∉ S contribute zero to the product sum (the key lemma making restriction a ring homomorphism)
-- **`stalk_at_minimal_is_scalar`** — Past-minimal elements have 1-dimensional stalks
+- **Upper bound**: `numConvexDim d m ≤ downsetCountDim d m * upsetCountDim d m`
+- **Supermultiplicativity**: `numConvexDim d m * numConvexDim d n ≤ numConvexDim d (m + n)`
+- **Tiling inequality**: `numConvexDim d m ^ ac.card ≤ numConvexDim d (k * m)` for any antichain `ac` of [k]^d
+- **Exponential lower bound**: `2 ^ m ≤ numConvexDim d m`
 
-### Cohomology
+Combined with the antichain bound A(k,d) = Θ(k^{d-1}), these establish log |CC([m]^d)| = Θ(m^{d-1}).
 
-- **`coboundary_sq_zero_dim2`** — δ² = 0 (the fundamental identity making H\* well-defined)
-- **`zeroCocycle_iff`** — H⁰ = ker(δ⁰) characterizes connected components
-- **`cone_kills_H1`** — Posets with a maximum element have H¹ = 0 (contractible)
+### Growth constant ρ₂ = 16 (TightUpperBound.lean, GrowthRateIs16.lean — 0 sorry in new files)
 
-### Arithmetic Bridge
+- `card_downsets_eq_choose`: the number of downsets of [m]² equals C(2m, m)
+- `numGridConvex_le_choose_sq`: |CC([m]²)| ≤ C(2m, m)²
+- `growth_constant_eq_neg_log_sixteen`: the Fekete limit equals −log 16
 
-- **`moebius_times_zeta_eq_one`** — μ \* ζ = 1 in the arithmetic function ring
-- **`moebius_mul_zeta_eq`** — (μ \* ζ)(n) = [n = 1]
-- **`prime_gives_CSpec_point`** — Every prime p | n gives a causally prime ideal in CSpec(divCAlg n)
-- **`arithmetic_bridge`** — Capstone: all five bridge components in one theorem
+Inherits one sorry from `RhoEquals16.lean` (the Catalan lower bound at m ≥ 9).
 
-### Noetherian Ratio
+### Wilson loop (GaugeConnection.lean — 0 sorry)
 
-- **`interval_isCausallyConvex`** — Every interval is convex, so γ ≥ 1
-- **`totalOrder_isNoetherian`** — Total orders have γ = 1
-- **`antichain_numConvex`** — Antichains have |CC| = 2^n (exponential growth)
+- `cylinder_wilson_loop_trace`: on the grid [c] × [t], the normalized interval-projection trace equals (t−1)/t, independent of the spatial circumference c.
+
+### Foundations (0 sorry throughout)
+
+- `Supermultiplicativity.lean`: |CC([m+n]²)| ≥ |CC([m]²)| · |CC([n]²)|
+- `GrowthConstant.lean`: Fekete's lemma gives convergence of log|CC|/m
+- `MonotoneProfileBound.lean`: |CC([m]²)| ≤ 16^m via downset × upset injection
+- `GridClassification.lean`: order-convex subsets have interval row fibers
+- `DilworthProof.lean`: Dilworth's theorem (fully proved)
+- `Separation.lean`: two 4-element posets with identical classical invariants but different Noetherian ratio
+
+## File Organization
+
+| Directory | Contents |
+|-----------|----------|
+| `CausalAlgebraicGeometry/` | All 46 Lean source files |
+| `papers/` | LaTeX and PDF for the three papers |
+
+### New files from the dimension law formalization
+
+| File | Lines | Sorry | Content |
+|------|-------|-------|---------|
+| `DimensionLaw.lean` | 709 | 0 | Convex subsets of [m]^d, supermultiplicativity, bounds |
+| `AntichainTiling.lean` | 235 | 0 | Block embedding, antichain incomparability, tiling inequality |
+| `TightUpperBound.lean` | 147 | 0 | |CC([m]²)| ≤ C(2m,m)², downset-antitone bijection |
+| `GrowthRateHelper.lean` | 206 | 0 | Central binomial bounds, log(poly)/n → 0 |
+| `GrowthRateIs16.lean` | 132 | 0 | Fekete limit = −log 16 via squeeze |
 
 ## Axiom Audit
 
-Every theorem depends only on the three standard Lean kernel axioms:
-
-```
-propext          — propositional extensionality
-Classical.choice — classical logic (law of excluded middle)
-Quot.sound       — quotient soundness
-```
-
-No `sorry`. No `axiom` declarations. No `Decidable` shortcuts. Verified via `#print axioms` on every capstone theorem.
+All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorryAx` dependency is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `crossing_pairs_bound`.
 
 ## Building
 
 ```bash
-# Requires Lean 4 v4.28.0 and Mathlib v4.28.0
-lake update        # fetch Mathlib (~8000 cached oleans)
-lake build         # ~1451 jobs, ~2 min
-```
-
-## The Arithmetic Bridge
-
-The deepest result: the divisibility poset (ℤ⁺, |) is a causal set whose CSpec recovers Spec(ℤ). This is not an analogy — it is an exact identity:
-
-- The causal Möbius function equals the number-theoretic μ (Rota 1964)
-- μ \* ζ = 1 holds in both the incidence algebra and the arithmetic function ring
-- Prime numbers give causally prime ideals in CSpec
-- The framework **contains** classical number theory as a special case
-
-## What Remains Computational
-
-The holonomy/Wilson loop construction (W < 1 on cylinders) and Čech H² discrimination (topology detection) are numerical results verified in Python/NumPy, not formalized in Lean. These involve floating-point computation on specific manifold discretizations and don't lend themselves to the same formal treatment.
-
-## Related
-
-- [Unified Theory](https://github.com/tomdif/unifiedtheory) — Lean 4 formalization deriving the Standard Model from a causal partial order (172 files, zero sorry)
-- [Causal Set Explorer](https://github.com/tomdif/causal-set-explorer) — Interactive visualization of causal sets
-
-## Citation
-
-```bibtex
-@misc{difiore2026causal,
-  title={Causal-Algebraic Geometry: A Grothendieck-Type Framework for Causal Structures},
-  author={DiFiore, Thomas},
-  year={2026},
-  note={Lean 4 formalization: 6 files, 1233 lines, zero sorry, zero custom axioms}
-}
+lake update
+lake build          # ~3100 jobs
 ```
 
 ## License
