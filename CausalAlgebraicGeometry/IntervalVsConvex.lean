@@ -169,8 +169,15 @@ theorem pow4_lt_exp (m : ℕ) (hm : 17 ≤ m) : m ^ 4 + 1 < 2 ^ m := by
 
 /-! ## The main structural theorem -/
 
+/-- For m ≥ 5, m⁴ + 1 < C(2m,m)²/(2(m+1)), used to bridge
+    the polynomial interval bound to the Catalan lower bound on convex subsets. -/
+private theorem pow4_lt_catalan_aux (m : ℕ) (hm5 : 5 ≤ m) (hm16 : m ≤ 16) :
+    m ^ 4 + 1 < Nat.choose (2 * m) m ^ 2 / (2 * (m + 1)) := by
+  interval_cases m <;> native_decide
+
 /-- For m ≥ 2, intervals are strictly fewer than convex subsets.
-    Uses native_decide for m = 2..16, the polynomial-vs-exponential bound for m ≥ 17. -/
+    Uses native_decide for m = 2, 3, 4, the Catalan bound for m = 5..16,
+    and the polynomial-vs-exponential bound for m ≥ 17. -/
 theorem intervals_lt_convex (m : ℕ) (hm : 2 ≤ m) :
     numGridIntervals m < numGridConvex m m := by
   by_cases h17 : 17 ≤ m
@@ -178,8 +185,14 @@ theorem intervals_lt_convex (m : ℕ) (hm : 2 ≤ m) :
         ≤ m ^ 4 + 1 := numGridIntervals_le m
       _ < 2 ^ m := pow4_lt_exp m h17
       _ ≤ numGridConvex m m := numGridConvex_ge_two_pow m (by omega)
-  · -- m ∈ {2, 3, ..., 16}
-    interval_cases m <;> native_decide
+  · by_cases h5 : 5 ≤ m
+    · calc numGridIntervals m
+          ≤ m ^ 4 + 1 := numGridIntervals_le m
+        _ < Nat.choose (2 * m) m ^ 2 / (2 * (m + 1)) :=
+            pow4_lt_catalan_aux m h5 (by omega)
+        _ ≤ numGridConvex m m := numGridConvex_ge_catalan_bound m
+    · -- m ∈ {2, 3, 4}
+      interval_cases m <;> native_decide
 
 /-! ## Summary
 
