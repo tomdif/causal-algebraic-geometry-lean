@@ -11,7 +11,7 @@
 
   This is the discrete analogue of "flat geometry minimizes the Euclidean action."
 
-  One sorry remains: bd_action_eq_iff_full forward direction (equality characterization).
+  Zero sorry. All results fully proved.
   All combinatorial lemmas (hLinks_eq_card_sub_rows, vLinks_le_n_mul_rows_sub_one,
   bd_action_ge) are fully proved.
 -/
@@ -610,35 +610,171 @@ theorem bd_action_ge {m n : ℕ} {S : Finset (Fin m × Fin n)}
   nlinarith [mul_nonneg (show (0 : Int) ≤ (m : Int) - R from by linarith)
              (show (0 : Int) ≤ (n : Int) - 1 from by linarith)]
 
-/-- Equality iff S is the full grid: the reverse direction. -/
-theorem bd_action_eq_iff_full {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
+/-- Equality iff S is the full grid (for m, n ≥ 2).
+    Note: for m = 1 or n = 1, uniqueness fails (single points also achieve the bound).
+    The reverse direction holds for all m, n ≥ 1. -/
+theorem bd_action_eq_iff_full {m n : ℕ} (hm : 2 ≤ m) (hn : 2 ≤ n)
     {S : Finset (Fin m × Fin n)}
     (hS : IsGridConvex m n S) (hne : S.Nonempty) :
     bdAction m n S = -((m : Int) - 1) * ((n : Int) - 1) + 1 ↔ S = fullGrid m n := by
   constructor
   · intro heq
-    -- Equality forces all rows nonempty and all fibers full.
-    -- Note: FALSE as stated when m = 1 or n = 1.
-    -- Verified computationally for small cases (full_grid_unique_min_3).
-    sorry
-  · intro heq; rw [heq]; exact bd_action_fullGrid m n hm hn
+    -- Step 1: Extract R, V and their relationship
+    have heq' := heq
+    rw [bd_action_eq_rows_sub_vlinks hS hne] at heq'
+    have hvl := vLinks_le_n_mul_rows_sub_one hne
+    have hr : (nonemptyRows m n S).card ≤ m :=
+      (Finset.card_le_card (Finset.filter_subset _ _)).trans
+        (by rw [Finset.card_univ, Fintype.card_fin])
+    have hrows_pos : 0 < (nonemptyRows m n S).card := by
+      obtain ⟨⟨i, j⟩, hij⟩ := hne
+      exact Finset.card_pos.mpr ⟨i, Finset.mem_filter.mpr ⟨Finset.mem_univ _, j, hij⟩⟩
+    -- Step 2: R = m
+    have hR_eq : (nonemptyRows m n S).card = m := by
+      by_contra hne_R
+      have hR_lt : (nonemptyRows m n S).card < m := lt_of_le_of_ne hr hne_R
+      have hvl_nat : (vLinks m n S).card ≤ n * ((nonemptyRows m n S).card - 1) := hvl
+      set R := (nonemptyRows m n S).card with hR_def
+      set V := (vLinks m n S).card with hV_def
+      zify [hrows_pos, show n ≤ n * R from Nat.le_mul_of_pos_right n hrows_pos,
+            show 1 ≤ n from by omega, show 1 ≤ m from by omega] at hvl_nat hr hR_lt
+      nlinarith [show (2 : Int) ≤ n from by omega]
+    -- Step 3: V = n * (m - 1)
+    have hV_eq : (vLinks m n S).card = n * (m - 1) := by
+      have hvl' : (vLinks m n S).card ≤ n * (m - 1) := by
+        have h := hvl; rw [hR_eq] at h; exact h
+      -- From heq': R - V = -(m-1)(n-1) + 1 and R = m, solve for V
+      have hR_int : ((nonemptyRows m n S).card : Int) = m := by exact_mod_cast hR_eq
+      have hge : n * (m - 1) ≤ (vLinks m n S).card := by
+        zify [show 1 ≤ m from by omega, hrows_pos] at hvl'
+        zify [show 1 ≤ m from by omega, hrows_pos]
+        nlinarith
+      omega
+    -- Step 4: Each column has exactly m - 1 vertical links
+    have hcol_eq : ∀ j : Fin n, (vLinksCol m n S j).card = m - 1 := by
+      intro j
+      have hle : (vLinksCol m n S j).card ≤ m - 1 := by
+        have h := vLinksCol_card_le m n S j hne; rw [hR_eq] at h; exact h
+      have hle_all : ∀ j' : Fin n, (vLinksCol m n S j').card ≤ m - 1 := by
+        intro j'; have h := vLinksCol_card_le m n S j' hne; rw [hR_eq] at h; exact h
+      have hsum : ∑ j' : Fin n, (vLinksCol m n S j').card = n * (m - 1) := by
+        have h1 : (Finset.univ.biUnion (vLinksCol m n S)).card =
+            ∑ j' : Fin n, (vLinksCol m n S j').card :=
+          Finset.card_biUnion (fun a _ b _ hab => vLinksCol_disjoint m n S a b hab)
+        rw [← h1, ← vLinks_eq_biUnion_cols, hV_eq]
+      by_contra hne_j
+      have hlt : (vLinksCol m n S j).card < m - 1 := Nat.lt_of_le_of_ne hle hne_j
+      have : ∑ j' : Fin n, (vLinksCol m n S j').card < n * (m - 1) :=
+        calc ∑ j' : Fin n, (vLinksCol m n S j').card
+            < ∑ _j' : Fin n, (m - 1) :=
+              Finset.sum_lt_sum (fun j' _ => hle_all j') ⟨j, Finset.mem_univ _, hlt⟩
+          _ = n * (m - 1) := by simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+      omega
+    -- Step 5: Every row i < m-1 is a source of a vLink in every column
+    have hvlink_all : ∀ (i : Fin m) (j : Fin n), i.val + 1 < m →
+        ∃ p ∈ vLinksCol m n S j, p.1.1 = i := by
+      intro i j hi
+      have hinj : Set.InjOn (fun p : (Fin m × Fin n) × (Fin m × Fin n) => p.1.1)
+          (vLinksCol m n S j : Set _) := by
+        intro ⟨⟨i1, j1⟩, b1⟩ h1 ⟨⟨i2, j2⟩, b2⟩ h2 heqi
+        rw [Finset.mem_coe] at h1 h2
+        simp only [vLinksCol, Finset.mem_filter] at h1 h2
+        have hv1 := mem_vLinks'.mp h1.1
+        have hv2 := mem_vLinks'.mp h2.1
+        have hi12 : i1 = i2 := heqi
+        have hj12 : j1 = j2 := h1.2.trans h2.2.symm
+        subst hi12; subst hj12
+        have hb1eq : b1.1 = b2.1 := Fin.ext (by
+          have := hv1.2.2.1; have := hv2.2.2.1; omega)
+        have hb2eq : b1.2 = b2.2 := hv1.2.2.2.symm.trans hv2.2.2.2
+        exact Prod.ext rfl (Prod.ext hb1eq hb2eq)
+      have himg_card : ((vLinksCol m n S j).image (fun p => p.1.1)).card = m - 1 := by
+        rw [Finset.card_image_of_injOn hinj, hcol_eq]
+      have himg_sub : (vLinksCol m n S j).image (fun p => p.1.1) ⊆
+          Finset.univ.filter (fun k : Fin m => k.val + 1 < m) := by
+        intro k hk
+        rw [Finset.mem_image] at hk
+        obtain ⟨⟨a, b⟩, hmem, hkeq⟩ := hk
+        simp only [vLinksCol, Finset.mem_filter] at hmem
+        have hv := mem_vLinks'.mp hmem.1
+        simp only [Prod.fst] at hkeq; subst hkeq
+        exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, by
+          have := b.1.isLt; have := hv.2.2.1; omega⟩
+      have htarget_card : (Finset.univ.filter (fun k : Fin m => k.val + 1 < m)).card = m - 1 := by
+        -- The complement is just the singleton {⟨m-1, _⟩}
+        have hcompl : (Finset.univ.filter (fun k : Fin m => ¬(k.val + 1 < m))).card = 1 := by
+          have : Finset.univ.filter (fun k : Fin m => ¬(k.val + 1 < m)) = {⟨m - 1, by omega⟩} := by
+            ext k; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton,
+              Fin.ext_iff]; omega
+          rw [this, Finset.card_singleton]
+        have := Finset.card_filter_add_card_filter_not
+          (s := (Finset.univ : Finset (Fin m))) (p := fun k => k.val + 1 < m)
+        rw [Finset.card_univ, Fintype.card_fin] at this; omega
+      have himg_eq := Finset.eq_of_subset_of_card_le himg_sub
+        (by rw [himg_card, htarget_card])
+      have hmem_i : i ∈ (vLinksCol m n S j).image (fun p => p.1.1) := by
+        rw [himg_eq]; exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hi⟩
+      rw [Finset.mem_image] at hmem_i
+      exact hmem_i
+    -- Step 6: All (i, j) in S by Nat induction on row index
+    have hall : ∀ (i : Fin m) (j : Fin n), (i, j) ∈ S := by
+      have h0 : ∀ j : Fin n, ((⟨0, by omega⟩ : Fin m), j) ∈ S := by
+        intro j
+        obtain ⟨⟨a, b⟩, hp, hpeq⟩ := hvlink_all ⟨0, by omega⟩ j (by simp; omega)
+        simp only [vLinksCol, Finset.mem_filter] at hp
+        have hv := mem_vLinks'.mp hp.1
+        have ha1 : a.1 = (⟨0, by omega⟩ : Fin m) := hpeq
+        have ha2 : a.2 = j := hp.2
+        have : a = ((⟨0, by omega⟩ : Fin m), j) := Prod.ext ha1 ha2
+        rw [this] at hv; exact hv.1
+      intro i j
+      suffices ∀ (k : ℕ) (hk : k < m), ((⟨k, hk⟩ : Fin m), j) ∈ S from this i.val i.isLt
+      intro k hk
+      induction k with
+      | zero => exact h0 j
+      | succ k' ih =>
+        have hk' : k' < m := by omega
+        obtain ⟨⟨a, b⟩, hp, hpeq⟩ := hvlink_all ⟨k', hk'⟩ j (by simp; omega)
+        simp only [vLinksCol, Finset.mem_filter] at hp
+        have hv := mem_vLinks'.mp hp.1
+        have ha1 : a.1 = (⟨k', hk'⟩ : Fin m) := hpeq
+        have ha2 : a.2 = j := hp.2
+        have hb1 : b.1.val = k' + 1 := by
+          have := hv.2.2.1; simp [ha1] at this; omega
+        have hb2 : b.2 = j := by rw [← ha2]; exact hv.2.2.2.symm
+        have hbeq : (b : Fin m × Fin n) = ((⟨k' + 1, hk⟩ : Fin m), j) :=
+          Prod.ext (Fin.ext hb1) hb2
+        rw [hbeq] at hv
+        exact hv.2.1
+    -- Step 7: S = fullGrid m n
+    have hmem : ∀ x : Fin m × Fin n, x ∈ S := fun ⟨i, j⟩ => hall i j
+    have hcard : S.card = Fintype.card (Fin m × Fin n) := by
+      apply le_antisymm
+      · rw [← Finset.card_univ]; exact Finset.card_le_card (Finset.subset_univ _)
+      · exact Finset.card_le_card (fun x _ => hmem x)
+    show S = fullGrid m n; change S = Finset.univ
+    exact Finset.eq_univ_of_card S hcard
+  · intro heq; rw [heq]; exact bd_action_fullGrid m n (by omega) (by omega)
 
-/-! ## Summary
+/-- Uniqueness kernel-verified for [3]². -/
+theorem bd_action_unique_3 :
+    ∀ S ∈ (fullGrid 3 3).powerset, S.Nonempty → IsGridConvex 3 3 S →
+      bdAction 3 3 S = bdAction 3 3 (fullGrid 3 3) → S = fullGrid 3 3 :=
+  full_grid_unique_min_3
 
-  The discrete positive energy theorem states that flat spacetime (the full grid)
-  minimizes the Benincasa-Dowker action among all nonempty convex subsets:
+/-! ## Summary: The discrete positive energy theorem
 
-    S_BD(S) ≥ -(m-1)(n-1) + 1 = S_BD([m]×[n])
+  Flat spacetime (the full grid [m]×[n]) is the global minimizer of the
+  Benincasa-Dowker action S_BD among all nonempty convex subsets.
 
-  Fully proved: bd_action_fullGrid, bd_action_ge (modulo two combinatorial lemmas),
-  rowHLinks_eq_card_sub_one, consec_pairs_Icc, interval_consec_pairs.
+  Fully proved (zero sorry):
+  - bd_action_fullGrid: S_BD([m]×[n]) = -(m-1)(n-1) + 1  [all m,n ≥ 1]
+  - bd_action_ge: S_BD(S) ≥ -(m-1)(n-1) + 1  [all nonempty convex S, all m,n]
+  - bdActionRen_nonneg: renormalized action ≥ 0  [all m,n]
 
-  Remaining sorries (3):
-  - hLinks_eq_card_sub_rows: partition argument (leftmost-in-row vs has-predecessor)
-  - vLinks_le_n_mul_rows_sub_one: injection into source-rows × columns
-  - bd_action_eq_iff_full forward direction: equality characterization
-
-  All three are verified computationally for small cases via native_decide.
+  Zero sorry remaining. All results fully proved including:
+  - bd_action_eq_iff_full: equality ⟺ S = full grid  [m,n ≥ 2]
+    Also kernel-verified for m = n = 3 via full_grid_unique_min_3.
 -/
 
 end CausalAlgebraicGeometry.BDAction
