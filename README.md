@@ -73,7 +73,7 @@ Inherits one sorry from `RhoEquals16.lean` (`dominatingPairs_ge_catalan` at m â‰
 
 ## Axiom Audit
 
-All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorryAx` dependency is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `dominatingPairs_ge_catalan`.
+All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorry` dependency (which appears as `sorryAx` in `#print axioms` output) is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `dominatingPairs_ge_catalan`.
 
 ## Building
 
