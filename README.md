@@ -4,7 +4,7 @@ Formal verification of the mathematical framework developed in the accompanying 
 
 ## Codebase
 
-**46 files, 11,019 lines.** One sorry on the critical path (`dominatingPairs_ge_catalan` in `RhoEquals16.lean` for m ≥ 9), affecting only the exact value ρ₂ = 16. Thirteen additional sorries exist in standalone LGV lattice path files (`LGV.lean`, `LGVInvolution.lean`, `LGVLatticePath.lean`, `LindstromReflection.lean`) that are not imported by any other module. The dimension law, tiling inequality, and all structural results are sorry-free.
+**47 files, 11,333 lines.** Zero sorry on the critical path. The growth constant ρ₂ = 16, dimension law, tiling inequality, Wilson loop, and all structural results are fully machine-checked. Thirteen sorries remain in standalone LGV lattice path files (`LGV.lean`, `LGVInvolution.lean`, `LGVLatticePath.lean`, `LindstromReflection.lean`) that are not imported by any other module.
 
 Build: `lake build` (~3,100 jobs, Lean 4 v4.28.0, Mathlib v4.28.0).
 
@@ -33,13 +33,14 @@ For all d ≥ 2 and m ≥ 1: the number of order-convex subsets of [m]^d satisfi
 
 Together with the upper bound, these give the inequalities needed for the dimension law. The asymptotic statement log |CC([m]^d)| = Θ(m^{d-1}) follows from these bounds combined with the antichain size A(k,d) = Θ(k^{d-1}), but the limit existence is not itself a single Lean theorem.
 
-### Growth constant ρ₂ = 16 (TightUpperBound.lean, GrowthRateIs16.lean — 0 sorry in new files)
+### Growth constant ρ₂ = 16 (TightUpperBound.lean, CrossingBound.lean, GrowthRateIs16.lean — 0 sorry)
 
 - `card_downsets_eq_choose`: the number of downsets of [m]² equals C(2m, m)
 - `numGridConvex_le_choose_sq`: |CC([m]²)| ≤ C(2m, m)²
+- `crossing_pairs_le`: |crossing antitone pairs| ≤ C(2m+1,m)·C(2m-1,m) via domain-splitting Lindström injection
 - `growth_constant_eq_neg_log_sixteen`: the Fekete limit equals −log 16
 
-Inherits one sorry from `RhoEquals16.lean` (`dominatingPairs_ge_catalan` at m ≥ 9).
+Fully proved. `#print axioms growth_constant_eq_neg_log_sixteen` returns only `propext`, `Classical.choice`, `Quot.sound`, `Lean.ofReduceBool`, `Lean.trustCompiler`.
 
 ### Wilson loop (GaugeConnection.lean — 0 sorry)
 
@@ -58,7 +59,7 @@ Inherits one sorry from `RhoEquals16.lean` (`dominatingPairs_ge_catalan` at m �
 
 | Directory | Contents |
 |-----------|----------|
-| `CausalAlgebraicGeometry/` | All 46 Lean source files |
+| `CausalAlgebraicGeometry/` | All 47 Lean source files |
 | `papers/` | LaTeX and PDF for the three papers |
 
 ### New files from the dimension law formalization
@@ -70,10 +71,11 @@ Inherits one sorry from `RhoEquals16.lean` (`dominatingPairs_ge_catalan` at m �
 | `TightUpperBound.lean` | 147 | 0 | |CC([m]²)| ≤ C(2m,m)², downset-antitone bijection |
 | `GrowthRateHelper.lean` | 206 | 0 | Central binomial bounds, log(poly)/n → 0 |
 | `GrowthRateIs16.lean` | 132 | 0 | Fekete limit = −log 16 via squeeze |
+| `CrossingBound.lean` | ~280 | 0 | Domain-splitting Lindström injection, crossing pairs upper bound |
 
 ## Axiom Audit
 
-All key theorems (dimension law, tiling inequality, Wilson loop, upper bounds) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`. The single `sorry` dependency (which appears as `sorryAx` in `#print axioms` output) is confined to `growth_constant_eq_neg_log_sixteen` via the inherited `dominatingPairs_ge_catalan`.
+All key theorems (dimension law, tiling inequality, Wilson loop, growth constant ρ₂ = 16) depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`, plus `Lean.ofReduceBool` and `Lean.trustCompiler` (from `native_decide` for m ≤ 8 base cases). No `sorryAx` on the critical path.
 
 ## Building
 
