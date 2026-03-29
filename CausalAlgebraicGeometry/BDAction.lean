@@ -203,17 +203,55 @@ theorem full_grid_unique_min_3 :
     ∀ S ∈ (fullGrid 3 3).powerset, S.Nonempty → IsGridConvex 3 3 S →
       bdAction 3 3 S = bdAction 3 3 (fullGrid 3 3) → S = fullGrid 3 3 := by native_decide
 
-/-! ## Summary
+/-! ## The renormalized BD action -/
 
-  The Benincasa-Dowker action S_BD(S) = |S| - |links(S)| is minimized by the full grid
-  (flat geometry). This is the discrete analogue of "flat Euclidean space minimizes the
-  Einstein-Hilbert action" in the path integral formulation of gravity.
+/-- The renormalized BD action: S_BD^ren(S) = S_BD(S) - S_BD(full grid).
+    This is the discrete analogue of ∫R√g (zero for flat space, positive for curved). -/
+def bdActionRen (m n : ℕ) (hm : 0 < m) (hn : 0 < n) (S : Finset (Fin m × Fin n)) : Int :=
+  bdAction m n S - bdAction m n (fullGrid m n)
 
-  Verified by kernel computation for m = 2, 3, 4.
+/-- The renormalized action of the full grid is zero. -/
+theorem bdActionRen_fullGrid (m n : ℕ) (hm : 0 < m) (hn : 0 < n) :
+    bdActionRen m n hm hn (fullGrid m n) = 0 := by
+  unfold bdActionRen; omega
 
-  The saddle point structure means that the partition function
-  Z(β) = Σ_S exp(-β · S_BD(S)) is dominated by the full grid at large β,
-  providing a dynamical (not just kinematic) selection of flat geometry.
+/-- Renormalized action is nonneg on [2]². -/
+theorem bdActionRen_nonneg_2 :
+    ∀ S ∈ (fullGrid 2 2).powerset, S.Nonempty → IsGridConvex 2 2 S →
+      0 ≤ bdActionRen 2 2 (by omega) (by omega) S := by
+  intro S hS hne hconv
+  unfold bdActionRen
+  have := full_grid_min_bd_2 S hS hne hconv
+  omega
+
+/-- Renormalized action is nonneg on [3]². -/
+theorem bdActionRen_nonneg_3 :
+    ∀ S ∈ (fullGrid 3 3).powerset, S.Nonempty → IsGridConvex 3 3 S →
+      0 ≤ bdActionRen 3 3 (by omega) (by omega) S := by
+  intro S hS hne hconv
+  unfold bdActionRen
+  have := full_grid_min_bd_3 S hS hne hconv
+  omega
+
+/-! ## Summary: The discrete positive energy theorem
+
+  Proved results:
+  1. S_BD([m]×[n]) = -(m-1)(n-1) + 1 for all m, n ≥ 1  [general formula]
+  2. S_BD([m]²) = -(m-1)² + 1  [square case]
+  3. Full grid minimizes S_BD on [2]² and [3]²  [kernel-verified]
+  4. Full grid is the UNIQUE minimizer on [3]²  [kernel-verified]
+  5. S_BD^ren(full grid) = 0  [flat space has zero curvature action]
+  6. S_BD^ren(S) ≥ 0 on [2]² and [3]²  [discrete positive energy]
+
+  The general minimality theorem
+    ∀ nonempty convex S ⊆ [m]×[n], S_BD(S) ≥ -(m-1)(n-1) + 1
+  follows from the row-fiber decomposition:
+    S_BD = |{nonempty rows}| - |vLinks|
+    |vLinks| ≤ n · (|{nonempty rows}| - 1)
+    ⟹ S_BD ≥ 1 - (m-1)(n-1)
+  The first identity uses the fact that row fibers of convex sets are intervals
+  (proved in GridClassification.lean). The general proof requires formalizing
+  the row-wise link decomposition, which is work in progress.
 -/
 
 end CausalAlgebraicGeometry.BDAction
