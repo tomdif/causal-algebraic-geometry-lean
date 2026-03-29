@@ -57,11 +57,18 @@
   PHYSICS BRIDGE (assumed, not proved from combinatorics)
   ════════════════════════════════════════════════════
 
-  ❗ A. Stationarity ⇒ identical boundary slices
-        "A static equilibrium has the same spatial geometry at both
-        temporal endpoints." This is a PHYSICAL ASSUMPTION about what
-        equilibrium means. The cylinder theorem proves the CONSEQUENCE
-        (identical endpoints → full cylinder) but not the PREMISE.
+  ❗ A. Stationarity for BLACK HOLES (partially derived)
+        DERIVED: the VACUUM is stationary — the full cylinder minimizes
+        S_BD among ALL 3D convex subsets (CylinderOptimal.lean). So the
+        partition function at large β selects a time-translation invariant
+        configuration. Vacuum stationarity is a theorem.
+
+        NOT DERIVED: that a BLACK HOLE interior C × [t] with C ⊊ [m]^{d-1}
+        minimizes S_BD among 3D convex subsets with "spatial boundary C."
+        This would require proving cylinders are optimal within their
+        boundary class, which is an open problem.
+
+        Status: vacuum stationarity = theorem; BH stationarity = assumption.
 
   ❗ B. β = 8πm (inverse Hawking temperature = temporal extent)
         This identifies the partition function parameter β with the
