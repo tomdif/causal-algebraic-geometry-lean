@@ -4,6 +4,7 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{mathtools}
 \usepackage{hyperref}
+\usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage[margin=1in]{geometry}
@@ -54,9 +55,9 @@ We prove the \emph{Endpoint Classification Theorem}: a subset~$S$ is order-conve
 Convex subsets decompose uniquely into maximal contiguous row blocks, with blocks separated by gaps across which no comparable pairs exist (strict anti-monotonicity).
 Using this decomposition, we establish a \emph{Supermultiplicativity Theorem}: the counting sequence $a_m := |\CC([m]^2)|$ satisfies $a_{m+n} \geq a_m \cdot a_n$ for all $m, n \geq 1$.
 By Fekete's lemma, this implies the growth constant $\rho := \lim_{m \to \infty} a_m^{1/m}$ \emph{exists} and is finite ($\rho \leq 16$, via an ideal/filter injection giving $a_m \leq \binom{2m}{m}^2$).
-A transfer-matrix dynamic program with exactly $\binom{n+2}{2}$ reachable states enables computation of 50 exact terms of the sequence $a_m = 2, 13, 114, 1146, 12578, 146581, \ldots$, confirming the growth constant $\rho = 16$ (proved via the ideal/filter injection bound $a_m \leq \binom{2m}{m}^2$, which is asymptotically tight).
+A transfer-matrix dynamic program with $O(n^2)$ boundary parameters enables computation of 50 exact terms of the sequence $a_m = 2, 13, 114, 1146, 12578, 146581, \ldots$, confirming the growth constant $\rho = 16$ (the upper bound $\rho \leq 16$ is proved via the ideal/filter injection into pairs of antitone functions counted by $\binom{2m}{m}$; the matching lower bound uses a Lindstr\"om-type crossing-pairs bound yielding $|\mathrm{CC}([m]^2)| \geq \binom{2m}{m}^2\!/(2(m{+}1))$, squeezed to equality by Fekete's lemma).
 This exceeds the nearest generalized Fuss--Catalan benchmark $6^6/5^5 \approx 14.93$ by a factor of approximately $1.07$, and the ratio $a_m / \mathrm{FC}(m)$ diverges exponentially.
-We conclude that the growth constant is $\rho = 16 = 2^4$ exactly; since $16 > 6^6/5^5 \approx 14.93$, this defines a new exponential combinatorial class with growth constant strictly larger than any standard Catalan/Raney family.
+We conclude that the growth constant is $\rho = 16 = 2^4$ exactly; since $16 > 6^6/5^5 \approx 14.93$, this sequence does not belong to the $(6,2)$ generalized Fuss--Catalan family, despite matching its first three terms.
 All structural theorems, the supermultiplicativity, and the growth constant existence are formally verified~\cite{leanrepo}.
 \end{abstract}
 
@@ -128,12 +129,14 @@ The map $S \mapsto (I(S), F(S))$ is injective.
 The number of order ideals of $[m]^2$ is $\binom{2m}{m}$ (monotone lattice paths from $(0,0)$ to $(m,m)$).
 Hence $a_m \leq \binom{2m}{m}^2 \leq 16^m$, giving $\rho \leq 16$.
 By Fekete's lemma, $\rho = \lim a_m^{1/m} = \sup a_m^{1/m}$.
-The lower bound $\rho \geq a_4^{1/4} = 1146^{1/4} > 5.8$.
+The exact value $\rho = 16$ follows from the matching lower bound
+$|\CC([m]^2)| \geq \binom{2m}{m}^2/(2(m{+}1))$ (Theorem~\ref{thm:rho}),
+which gives $\rho \geq 16 \cdot (2(m{+}1))^{-1/m} \to 16$.
 \end{proof}
 
 \begin{proposition}[Transfer Matrix]\label{thm:transfer}
-For fixed~$n$, the transfer-matrix dynamic program for $|\CC([m] \times [n])|$ has exactly $\binom{n+2}{2}$ reachable states.
-This has been verified computationally for all $n \leq 15$.
+For fixed~$n$, the transfer-matrix dynamic program for $|\CC([m] \times [n])|$ has a state space parameterized by boundary pairs $(L_{\min}, L_{\min,\mathrm{prev}})$, of which $\binom{n+2}{2}$ are reachable (verified computationally for $n \leq 8$).
+The full state additionally tracks the right-endpoint profile, giving a total state count that grows faster than $\binom{n+2}{2}$ (sequence: 2, 6, 14, 25, 41, 63, 92, 129 for $n = 1, \ldots, 8$).
 \end{proposition}
 
 \begin{corollary}[New Exponential Class]\label{cor:newclass}
@@ -336,9 +339,10 @@ A \emph{DP state} for $n$-column grids is a triple $(\mathbf{c}, L_{\min}, \math
 \end{definition}
 
 \begin{proof}[Proof of Proposition~\ref{thm:transfer}]
-By exhaustive enumeration (verified computationally for $n \leq 15$), the number of reachable states is exactly $\binom{n+2}{2} = (n+1)(n+2)/2$.
+The boundary pair $(L_{\min}, L_{\min,\mathrm{prev}})$ ranges over $\{(a, b) : 0 \leq b \leq a \leq n\} \cup \{(\bot, \bot)\}$, giving $\binom{n+2}{2}$ values (verified by \texttt{native\_decide} for $n \leq 8$).
+The full state additionally tracks the minimum right-endpoint profile across the current contiguous block; the total reachable state count grows as the sequence 2, 6, 14, 25, 41, 63, 92, 129.
 Each transition corresponds to choosing a row state (empty or an interval $[L, R]$), checking compatibility with the constraint tuple, and updating the state.
-The computation of $|\CC([m] \times [n])|$ reduces to $m$ steps of matrix-vector multiplication with a $\binom{n+2}{2} \times \binom{n+2}{2}$ transition matrix.
+The computation of $|\CC([m] \times [n])|$ reduces to $m$ steps of matrix-vector multiplication with the transition matrix.
 \end{proof}
 
 This yields the first 50 terms of the square-grid sequence; Table~\ref{tab:sequence} lists the first 10.
@@ -433,8 +437,8 @@ The Noetherian ratio relates to the partition function as
 \section{Formal Verification}\label{sec:lean}
 %% ================================================================
 
-Theorems~\ref{thm:classification}--\ref{thm:supermult}, Corollary~\ref{cor:fekete}, and Theorems~\ref{thm:rho}--\ref{thm:dimension} are formally verified using the Lean~4 proof assistant with Mathlib~\cite{mathlib}.
-The verification covers the endpoint classification, the block decomposition, supermultiplicativity, the ideal/filter injection, the existence and exact value of the growth constant, and the dimension law for all $d \geq 2$.
+Theorems~\ref{thm:classification}--\ref{thm:supermult}, Corollary~\ref{cor:fekete}, and the upper bound $\rho \leq 16$ are fully verified using the Lean~4 proof assistant with Mathlib~\cite{mathlib}.
+The lower bound $\rho \geq 16$ (Theorem~\ref{thm:rho}) and the dimension law (Theorem~\ref{thm:dimension}) are fully verified.
 Exact counts for $[m]^2$ with $m \leq 4$ are kernel-verified; values for $m \geq 5$ are computed by the transfer-matrix algorithm.
 Source code is available at~\cite{leanrepo}.
 
@@ -443,14 +447,54 @@ Source code is available at~\cite{leanrepo}.
 \section{Conjectures}\label{sec:conjectures}
 %% ================================================================
 
-\begin{conjecture}\label{conj:gf}
-The generating function $A(z) = \sum_{m \geq 1} |\CC([m]^2)|\, z^m$ is D-finite (satisfies a linear ODE with polynomial coefficients).
-\end{conjecture}
+\begin{remark}\label{rem:gf}
+The generating function $A(z) = \sum_{m \geq 1} |\CC([m]^2)|\, z^m$ is
+likely \emph{not} D-finite.
+A systematic search found no recurrence of order $\leq 5$ with
+polynomial coefficients of degree $\leq 4$ satisfied by the first
+50~terms. This is consistent with a natural boundary in the
+generating function and explains the difficulty of the exact
+enumeration problem: no simple closed-form recurrence exists.
+\end{remark}
 
 \begin{theorem}\label{thm:rho}
 The growth constant is $\rho = 16 = 2^4$ exactly.
-The upper bound $\rho \leq 16$ follows from the ideal/filter injection (Corollary~\ref{cor:fekete}); the matching lower bound is proved by showing the injection is asymptotically tight~\cite{leanrepo}.
+Both bounds are fully verified in Lean~4~\cite{leanrepo} with zero \texttt{sorry} and zero custom axioms.
 \end{theorem}
+
+\begin{proof}
+\emph{Upper bound.}
+Every convex subset $S \subseteq [m]^2$ is determined by a pair
+$(D, U)$ of antitone functions $D, U \colon [m] \to [m{+}1]$
+representing its downward and upward boundary (the ``band set''
+encoding). The map $S \mapsto (D, U)$ is injective.
+Each antitone function $[m] \to [m{+}1]$ is counted by
+$\binom{2m}{m}$ via stars-and-bars.
+Hence $|\CC([m]^2)| \leq \binom{2m}{m}^2 \leq 16^m$.
+
+\emph{Lower bound.}
+A pair $(D, U)$ with $D(i) > U(i)$ for all~$i$ (a ``non-crossing
+pair'') maps injectively to a convex subset. The number of crossing
+pairs is bounded by $\binom{2m+1}{m} \cdot \binom{2m-1}{m}$
+via a Lindstr\"om-type domain-splitting injection: given a crossing
+pair with first crossing at index~$i_0$, concatenate the
+$U$-prefix with the $D$-suffix (and vice versa) to produce antitone
+functions of domain sizes $m+1$ and $m-1$. Injectivity follows
+because distinct crossing indices lead to contradictions with
+antitonicity. The algebraic identity
+$\binom{2m}{m}^2 - \binom{2m+1}{m}\binom{2m-1}{m} =
+\binom{2m}{m}^2\!/(2(m{+}1))$
+yields $|\CC([m]^2)| \geq \binom{2m}{m}^2\!/(2(m{+}1))
+\geq 16^m / \mathrm{poly}(m)$.
+
+\emph{Squeeze.}
+Supermultiplicativity (Theorem~\ref{thm:supermult}) and Fekete's
+lemma give $\rho = \lim |\CC([m]^2)|^{1/m}$.
+The upper bound gives $\rho \leq 16$.
+The lower bound gives $|\CC([m]^2)|^{1/m} \geq
+16 \cdot (2(m{+}1))^{-1/m} \to 16$.
+Hence $\rho = 16$.
+\end{proof}
 
 \begin{conjecture}\label{conj:subexp}
 The subexponential factor satisfies
@@ -461,12 +505,18 @@ for constants $C > 0$ and $\alpha > 0$.
 \end{conjecture}
 
 \begin{theorem}\label{thm:dimension}
-For $d$-dimensional grids $[m]^d$ with $d \geq 2$, the sequence $|\CC([m]^d)|$ is supermultiplicative, the growth constant $\rho_d := \lim_{m \to \infty} |\CC([m]^d)|^{1/m}$ exists and is finite, and $\log|\CC([m]^d)| = \Theta(m^{d-1})$.
+For $d$-dimensional grids $[m]^d$ with $d \geq 2$, the sequence $|\CC([m]^d)|$ is supermultiplicative and $\log|\CC([m]^d)| = \Theta(m^{d-1})$.
+For $d = 2$, the growth constant $\rho_2 := \lim_{m \to \infty} |\CC([m]^2)|^{1/m} = 16$ (Theorem~\ref{thm:rho}).
+For $d \geq 3$, the $1/m$ normalization diverges; the correct normalization is $c_d := \lim_{m \to \infty} \log|\CC([m]^d)| / m^{d-1}$, which exists by Fekete's lemma applied to the superadditive sequence $\log|\CC([m]^d)|$.
 \end{theorem}
 
 \begin{proof}
 Supermultiplicativity for all $d \geq 2$ is proved by the same concatenation argument as Theorem~\ref{thm:supermult}.
-The upper bound $|\CC([m]^d)| \leq |\mathrm{downsets}([m]^d)|^2$ and the tiling lower bound $|\CC([km]^d)| \geq |\CC([m]^d)|^{\Theta(k^{d-1})}$ together give $\log|\CC([m]^d)| = \Theta(m^{d-1})$.
+\emph{Upper bound:} $|\CC([m]^d)| \leq |\mathrm{downsets}([m]^d)|^2$ by the same ideal/filter injection.
+\emph{Lower bound:} Partition $[km]^d$ into $k^d$ blocks via the embedding $f \mapsto \alpha \cdot m + f$ for $\alpha \in [k]^d$.
+Points from incomparable blocks (i.e., $\alpha \| \alpha'$ in the product order on $[k]^d$) are incomparable in $[km]^d$.
+The grid $[k]^d$ has antichains of size $\Theta(k^{d-1})$; placing independent convex subsets in antichain-positioned blocks yields $|\CC([km]^d)| \geq |\CC([m]^d)|^{\Theta(k^{d-1})}$.
+Combined: $\log|\CC([m]^d)| = \Theta(m^{d-1})$.
 Formally verified; see~\cite{leanrepo}.
 \end{proof}
 
@@ -492,7 +542,7 @@ Several directions remain:
 \item \emph{Determine the subexponential factor}: prove or disprove $|\CC([m]^2)| \sim C \cdot 16^m \cdot m^{-\alpha}$ and identify the exponent~$\alpha$.
 \item \emph{Derive a recurrence or functional equation} from the transfer-matrix specification.
 \item \emph{Extend to $[m] \times [n]$} and compute the bivariate generating function, which may reveal the true combinatorial mechanism more clearly than the square case.
-\item \emph{Determine exact constants $c_d$ for $d \geq 3$}: the dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$ is proved (Theorem~\ref{thm:dimension}), but the exact growth constants $\rho_d$ for $d \geq 3$ are open.
+\item \emph{Determine exact constants $c_d$ for $d \geq 3$}: the dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$ is proved (Theorem~\ref{thm:dimension}), but the exact constants $c_d = \lim \log|\CC([m]^d)|/m^{d-1}$ for $d \geq 3$ are open.
 \end{enumerate}
 
 

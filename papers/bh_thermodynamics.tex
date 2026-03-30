@@ -1,8 +1,6 @@
 % Black Hole Thermodynamics from Discrete Convex Combinatorics
 % Target: Physical Review Letters
 % Author: Thomas DiFiore
-% Version 2: addresses referee feedback, adds discrete-continuum
-%   correspondence, curvature test, literature comparison
 
 \documentclass[aps,prl,twocolumn,superscriptaddress]{revtex4-2}
 
@@ -16,15 +14,15 @@
 \title{Black Hole Thermodynamics from Counting Convex Subsets of a Lattice}
 
 \author{Thomas DiFiore}
-\noaffiliation
-\email{tom@decisionchain.io}
 
 \date{\today}
 
 \begin{abstract}
-We derive the Bekenstein-Hawking area law and Hawking temperature from
-a purely combinatorial computation on discrete lattices, without
-invoking quantum field theory on curved spacetime. The key input is a
+We present a combinatorial mechanism that reproduces the
+Bekenstein-Hawking area scaling and Hawking temperature scaling,
+without invoking quantum field
+theory on curved spacetime. The key
+input is a
 \emph{dimension law}: the number of causally convex subsets of the
 $d$-dimensional grid $[m]^d$ grows as $\exp(\Theta(m^{d-1}))$,
 where the exponent $d-1$ detects the spacetime dimension. This law is
@@ -34,24 +32,30 @@ in~\cite{DiFiorePaper2}). Restricting to \emph{cylindrical}
 $C \times [t_1, t_2]$ where $C$ is a convex subset of the spatial
 lattice --- reduces the exponent by one, yielding entropy scaling as
 $m^{d-2}$: the spatial area. This restriction is a kinematic
-identification of equilibrium configurations, requiring no dynamical
+identification of equilibrium configurations, requiring no additional dynamical
 input. For $d=4$ (3+1 spacetime), this recovers
-the Bekenstein-Hawking relation $S \sim A$. Conversely, the width
-scaling law implies that any discrete spacetime whose equilibrium
-entropy obeys the area law must have width $\sim n^{3/4}$, the
-hallmark of 4-dimensional structure: the dimension is not assumed but
-forced by the entropy scaling. The Hawking temperature
+the Bekenstein-Hawking relation $S \sim A$. Conversely,
+the entropy scaling selects $d = 4$ within this framework. The Hawking temperature scaling
 $T \sim 1/m$ follows from one derivative, verified by the computed
 data. Matching the entropy coefficient to $S = A/(4G)$ fixes the
 lattice spacing at $\ell \approx 0.664\,\ell_P$, order-one in Planck
-units. The holographic entropy density $S/V \sim 1/m$ yields a
-cosmological constant estimate within a factor of $5.4$ of the observed
-value, improving the standard quantum field theory prediction by 121
-orders of magnitude. The discrete dimension converges to the continuum
+units. Assuming the holographic dark energy scaling, the observed
+cosmological constant is recovered within a factor of $5.4$
+(as a consistency check, not an independent prediction). The discrete dimension converges to the continuum
 value with power-law corrections $\delta d \sim m^{-\beta}$ where
 $\beta \approx 1.5$--$1.7$, providing a quantitative
-discrete-continuum correspondence. All results follow from one
-combinatorial input with one free parameter.
+discrete-continuum correspondence. In numerical experiments, the
+Noetherian ratio $\gamma$ recovers the manifold dimension from Poisson
+sprinklings into Minkowski space, with perfect separation across
+$d = 2, 3, 4$ on 30 trials using no coordinate or metric input. The Benincasa-Dowker
+action $S_{\mathrm{BD}}([m] \times [n]) = -(m-1)(n-1)+1$ is proved
+for all $m, n$; the full grid is the unique global minimizer for all
+$m, n \geq 2$ (proved); and the cylinder factorization
+$S_{\mathrm{BD}}(C \times [t]) = t \cdot S_{\mathrm{BD}}^{\mathrm{sp}}(C) - |C|(t-1)$
+connects the positive energy theorem to the dimension law, yielding
+$S = \Theta(m^{d-2})$ (area scaling) as a theorem. The proportionality
+constant requires one matching; the scaling is proved. All results follow from one combinatorial
+input with one free parameter.
 \end{abstract}
 
 \maketitle
@@ -70,13 +74,15 @@ five decades. Existing derivations require string theory
 entanglement entropy of quantum fields \cite{Bombelli1986}, or the
 AdS/CFT correspondence \cite{Maldacena1999}.
 
-We present a derivation that requires none of these. The only input is
-a combinatorial fact about discrete partially ordered sets: the number
+We present a combinatorial mechanism that produces area scaling without any of these. The only theorem-level input is
+a counting fact about discrete partially ordered sets: the number
 of causally convex subsets of a $d$-dimensional lattice grows as
 $\exp(c_d \cdot m^{d-1})$, where $m$ is the lattice extent and the
-exponent $d-1$ is determined by the spacetime dimension. Restricting
-to time-symmetric configurations reduces the exponent by exactly one,
-yielding area scaling. The Hawking temperature follows from a single
+exponent $d-1$ is determined by the spacetime dimension.
+The cylindrical form of the vacuum (full grid) is proved; for
+nontrivial interiors, cylindrical stationarity remains an assumption. Restricting
+to these configurations reduces the exponent by exactly one,
+yielding area scaling. The Hawking temperature scaling follows from a single
 derivative.
 
 The approach is rooted in causal set theory
@@ -97,7 +103,7 @@ richer combinatorial object --- the convexity constraint encodes
 geometric information (the ``shape'' of a causal region) that simpler
 counts do not capture. The dimension law
 $\log|\mathrm{CC}| \sim m^{d-1}$ is specific to convex subsets and is
-the key to the area law derivation.
+the key to the area-law mechanism.
 
 We emphasize at the outset the status of each result. The dimension
 law is a theorem for all $d \geq 2$, proved via a tiling inequality
@@ -107,9 +113,12 @@ supermultiplicativity argument across $k^{d-1}$ tiles, and the upper
 bound $\log|\mathrm{CC}([m]^d)| = O(m^{d-1})$ from an ideal/filter
 injection. All physical results downstream --- the area law, the
 Hawking temperature, the lattice spacing, and the cosmological
-constant estimate --- inherit this rigorous status (modulo the
-physical interpretation of cylindrical subsets as equilibrium
-configurations, which is a kinematic identification, not a theorem).
+constant estimate. The scaling results inherit the rigor of the
+dimension law; their physical interpretation depends on the stated
+identifications. Vacuum stationarity (the full cylinder minimizes
+$S_{\mathrm{BD}}$) is proved; black hole stationarity
+(sub-cylinders $C \times [t]$ with $C \subsetneq [m]^{d-1}$
+minimize within their spatial boundary class) is assumed.
 
 %==================================================================
 \section{The Dimension Law}
@@ -229,13 +238,97 @@ spatial area. Table~\ref{tab:area} confirms convergence.
 \textbf{Physical interpretation.} We identify cylindrical convex
 subsets with equilibrium black hole configurations. A Schwarzschild
 black hole in thermal equilibrium has a time-independent metric: its
-spatial interior (the region causally disconnected from future
-infinity) is constant on each Cauchy slice. In the discrete setting, a
-time-independent spatial configuration is precisely a cylindrical
-subset $C \times [t_1, t_2]$: the cross-section $C$ is the same at
-every time step. Causal convexity of $C$ ensures that the interior is
-causally consistent. The time interval represents the equilibrium
-duration. This identification is kinematic, not dynamical.
+spatial interior is constant on each Cauchy slice. In the discrete
+setting, a time-independent spatial configuration is precisely a
+cylindrical subset $C \times [t_1, t_2]$.
+
+For the vacuum ($C = [m]^{d-1}$), this stationarity is a theorem:
+the full box $[m]^{d-1} \times [t]$ uniquely minimizes
+$S_{\mathrm{BD}}$ among all convex subsets
+(proved in Lean~4~\cite{leanrepo}: \texttt{cylinder\_optimal}).
+Furthermore, if a convex subset contains the full spatial grid
+at both temporal endpoints, it must be the entire cylinder
+(\texttt{cylinder\_forced}): convexity forbids spatial fluctuations.
+
+For excited states ($C \subsetneq [m]^{d-1}$), stationarity of the
+sub-cylinder $C \times [t]$ within its spatial boundary class is
+assumed. Proving this --- that sub-cylinders minimize
+$S_{\mathrm{BD}}$ among all convex subsets with spatial content
+$C$ --- is an open problem.
+
+The action has a variational justification: $S_{\mathrm{BD}}([m] \times [n])
+= -(m-1)(n-1) + 1$ for all $m, n \geq 1$ (proved in Lean~4~\cite{leanrepo}),
+and the full grid is the unique global minimizer of $S_{\mathrm{BD}}$
+among all nonempty convex sub-posets for $m, n \geq 2$
+(proved in Lean~4, zero \texttt{sorry}) ---
+the discrete analogue of flat geometry minimizing the Euclidean action.
+
+The action admits a topological interpretation:
+$S_{\mathrm{BD}}(S) = |S| - |\mathrm{links}(S)| = \chi_{\mathrm{graph}}(\mathrm{Hasse}(S))$,
+the graph Euler characteristic (vertices minus edges) of the Hasse
+diagram of~$S$ (formally verified~\cite{leanrepo}: \texttt{bd\_eq\_euler}).
+\emph{Caveat:} this is the graph Euler characteristic, not the
+cell-complex $\chi$; the cell-complex version would include the
+$(m{-}1)(n{-}1)$ square 2-cells and give $\chi_{\mathrm{cell}} = 1$.
+The difference $\chi_{\mathrm{graph}} - \chi_{\mathrm{cell}} =
+-(m{-}1)(n{-}1)$ counts the 2-cells, which is precisely the
+``area'' term.
+The positive energy theorem then states that among all convex
+sub-Hasse-diagrams of $[m] \times [n]$, the full grid uniquely
+minimizes $\chi_{\mathrm{graph}}$ --- a graph Euler characteristic
+extremality principle.
+
+The action admits a local curvature decomposition via the
+handshaking lemma: defining $\kappa(x) = 2 - \deg(x, S)$
+(the vertex curvature), the handshaking lemma
+$\sum \deg = 2|E|$ gives
+\begin{equation}
+2\, S_{\mathrm{BD}}(S) = \sum_{x \in S} \kappa(x).
+\end{equation}
+On $[m]^d$, interior vertices have $\deg = 2d$, so
+$\kappa_{\mathrm{int}} = 2 - 2d$.
+The full grid's total curvature is dominated by $\sim m^d$
+interior points at curvature $2 - 2d$, with $\sim m^{d-1}$
+boundary corrections.
+The dimension law $\log|\mathrm{CC}([m]^d)| = \Theta(m^{d-1})$
+thus counts the number of ways to deform the boundary of a
+curvature-minimizing configuration while preserving convexity:
+entropy $=$ boundary deformation count $=$ area.
+Both the handshaking lemma and the positive energy theorem
+are proved in Lean~4~\cite{leanrepo} with zero \texttt{sorry}
+(\texttt{discrete\_gauss\_bonnet}, \texttt{bd\_action\_ge}).
+
+The renormalized action
+$S_{\mathrm{BD}}^{\mathrm{ren}}(S) = \chi_{\mathrm{graph}}(S) -
+\chi_{\mathrm{graph}}(\text{full grid})
+\geq 0$ measures departure from flatness.
+
+The cylinder partition function factorizes: for any spatial convex
+subset $C$ of $[m]^{d-1}$ and time extent $t$,
+\begin{equation}
+\label{eq:cylinder}
+S_{\mathrm{BD}}(C \times [t]) \;=\; t \cdot S_{\mathrm{BD}}^{\mathrm{spatial}}(C) \;-\; |C|\,(t-1),
+\end{equation}
+proved in Lean~4~\cite{leanrepo}. The equilibrium partition function
+thus sums over spatial convex subsets~$C \subseteq [m]^{d-1}$.
+The number of such subsets is $|\mathrm{CC}([m]^{d-1})|$, and the
+dimension law (Theorem~1 in~\cite{DiFiorePaper2}, proved for all
+$d \geq 2$) gives
+$\log|\mathrm{CC}([m]^{d-1})| = \Theta(m^{(d-1)-1}) = \Theta(m^{d-2})$.
+The entropy of equilibrium configurations therefore scales as
+$S = \Theta(m^{d-2})$: the spatial boundary area. For $d = 4$, this
+is $S = \Theta(m^2) = \Theta(A)$, the Bekenstein-Hawking scaling.
+The area scaling $S = \Theta(m^{d-2})$ follows from three proved
+ingredients: the positive
+energy theorem (the full grid is the unique ground state), the
+cylinder factorization~\eqref{eq:cylinder} (the partition function
+sums over spatial slices), and the dimension law (the spatial slice
+count grows as the area). The full Bekenstein-Hawking area law
+$S = A/(4G\hbar)$ requires, in addition, identifying $S$ with
+thermodynamic entropy, $m$ with a length in physical units, and
+fixing the proportionality constant by one matching condition
+(the lattice spacing). The scaling is a theorem; the coefficient
+is a matching.
 
 The full convex entropy $m^{d-1}$ includes temporally varying
 (non-equilibrium) configurations; restricting to equilibrium removes
@@ -275,11 +368,12 @@ $\alpha = (d-1)/d$ with $d-1 = 3$, hence $d = 4$. No other
 dimension produces area scaling of equilibrium entropy in a discrete
 spacetime whose full convex entropy obeys the dimension law.
 
-This is a uniqueness result: a discrete spacetime whose
+This is a uniqueness result within the convex-subset framework:
+a discrete spacetime whose
 convex-subset entropy obeys the Bekenstein-Hawking area law
 \emph{must} have width scaling as $n^{3/4}$, which is the hallmark
-of 4-dimensional structure. The dimension is not chosen --- it is
-forced by the entropy scaling.
+of 4-dimensional structure. Within this framework, the dimension is
+selected by the entropy scaling.
 
 %==================================================================
 \section{Entropy Hierarchy}
@@ -321,6 +415,73 @@ as $2.50, 2.58, 2.68 \to 2c_3 \approx 2.77$, confirming $T \sim 1/m$
 from the data. Convergence corrections are $O(m^{-\beta})$ with
 $\beta \approx 1.5$ (Sec.~\ref{sec:continuum}).
 
+\textbf{Parameter-free prediction.}
+The product $T \cdot S$ is independent of all constants:
+from $S = c\, m^{d-2}$ and $T = 1/((d{-}2)\, c\, m^{d-3})$,
+the coefficient $c$ cancels, giving
+\begin{equation}
+\label{eq:TS}
+T \cdot S \;=\; \frac{m}{d-2}.
+\end{equation}
+For $d = 4$, $T \cdot S = m/2$, which matches the Schwarzschild
+result $T_H \cdot S_{\mathrm{BH}} = M/2$ exactly (with $M \sim m$).
+No free parameters, no matched constants: the factor $1/(d{-}2)$
+is a direct consequence of the proved dimension-law exponent.
+This is falsifiable: any $d \neq 4$ predicts a different factor.
+Formally verified~\cite{leanrepo}
+(\texttt{energy\_cancellation}, \texttt{d4\_unique\_schwarzschild}).
+
+\textbf{Negative specific heat.}
+From~(\ref{eq:TS}), $E \sim m$ and $T = m/((d{-}2)S)$, the
+specific heat is
+\begin{equation}
+C = \frac{dE}{dT} = -\frac{S}{d-3}.
+\end{equation}
+For $d \geq 4$, $C < 0$: black holes get hotter as they shrink.
+This is the defining thermodynamic signature of black holes, and
+it follows from the proved exponent alone.
+For $d = 4$, $C = -S$ exactly.
+For $d = 3$, $C$ diverges (phase transition).
+Formally verified~\cite{leanrepo}
+(\texttt{specific\_heat\_negative\_sign}).
+
+\textbf{Bekenstein bound selects $d = 4$.}
+The ratio $S/(E \cdot R) \propto m^{d-4}$.
+For $d \leq 3$, it vanishes (trivially satisfied).
+For $d = 4$, it is constant --- the Bekenstein bound $S \leq 2\pi ER$
+is \emph{marginally saturated}, requiring $c_3 \leq \pi$.
+For $d \geq 5$, it diverges, violating the bound for large $m$.
+Thus $d = 4$ is the unique dimension where the Bekenstein bound is
+marginal rather than trivial or violated.
+Formally verified~\cite{leanrepo}
+(\texttt{d4\_unique\_bekenstein}).
+
+\textbf{Dimension selection.}
+Four independent criteria select $d = 4$ from the single input
+$T \cdot S = m/(d{-}2)$:
+
+\medskip
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Criterion & $d=3$ & $d=4$ & $d=5$ \\
+\midrule
+Hawking $T \propto 1/M$ & $T = \mathrm{const}$ & $T \propto 1/M$ \checkmark & $T \propto 1/M^2$ \\
+Negative specific heat & $C = \infty$ & $C = -S$ \checkmark & $C = -S/2$ \\
+Bekenstein bound & trivial & marginal \checkmark & violated \\
+Evaporation $t \propto M^3$ & $t \propto M$ & $t \propto M^3$ \checkmark & $t \propto M^6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\medskip
+
+\noindent The first three rows are proved from the dimension law;
+the fourth requires Stefan-Boltzmann radiation as external input.
+The falsifiable prediction $c_3 \leq \pi$ from the Bekenstein
+bound is the primary open problem: once $c_3$ is determined
+analytically from the $[m]^3$ transfer matrix, the model either
+satisfies or violates the bound.
+
 %==================================================================
 \section{Lattice Spacing}
 %==================================================================
@@ -354,11 +515,11 @@ Gibbons-Hawking result that de~Sitter horizons carry area-proportional
 entropy \cite{GibbonsHawking1977}.
 
 \begin{table}[h]
-\caption{Cosmological constant: three predictions.}
+\caption{Cosmological constant: three estimates.}
 \label{tab:lambda}
 \begin{ruledtabular}
 \begin{tabular}{lcc}
-Prediction & $\rho$ (kg/m$^3$) & Discrepancy \\
+Estimate & $\rho$ (kg/m$^3$) & Discrepancy \\
 \midrule
 QFT & $5.2 \times 10^{96}$ & $10^{122}$ \\
 This work & $3.4 \times 10^{-26}$ & $5.4\times$ \\
@@ -378,9 +539,13 @@ continuum limit. More concretely, the exact growth constant $c_3$
 for the $d=3$ grid (analogous to $\rho_2 = 16$ for $d=2$) would
 sharpen the entropy coefficient and hence the $\Lambda$ prediction;
 determining $c_3$ is the single most impactful open problem for this
-estimate. We do not claim exactness; the significance is that
-holographic scaling emerges from the dimension law, reducing
-$10^{122}$ to $5.4$.
+estimate. We do not claim a first-principles prediction of $\Lambda$;
+the lattice spacing is already fixed by matching the black hole
+entropy, so the cosmological constant is a consistency check, not an
+independent derivation. The significance is that holographic scaling
+emerges from the dimension law, and the resulting estimate is
+compatible with observation (factor $5.4$) rather than discrepant by
+$10^{122}$.
 
 %==================================================================
 \section{Discrete-Continuum Correspondence}
@@ -454,31 +619,52 @@ Result & Status \\
 \midrule
 Dimension law, all $d \geq 2$ & Proved \\
 Area law implies $d=4$ & Corollary \\
-Hawking $T \sim 1/m$ & Derivative \\
+Hawking scaling $T \sim 1/m$ & Derivative \\
 $\ell \approx 0.664\,\ell_P$ & Matching \\
-$\Lambda$ within $5.4\times$ & Thermodynamic identity \\
+$\Lambda$ within $5.4\times$ & Consistency check \\
 $\beta \approx 1.5$ & Computed \\
 Entropy density detects boundary & Computed \\
+Poisson sprinklings: $\hat{\gamma}$ recovers $d$ & Computed \\
+$S_{\mathrm{BD}}([m]{\times}[n]) = -(m{-}1)(n{-}1){+}1$ & Proved \\
+Full grid uniquely minimizes $S_{\mathrm{BD}}$ & Proved \\
+Cylinder factorization & Proved \\
+$S = \Theta(m^{d-2})$ (area scaling) & Proved \\
 Exact constants $c_d$, $d \geq 3$ & Open \\
 \end{tabular}
 \end{ruledtabular}
 \end{table}
 
 The derivation chain --- dimension law $\to$ cylindrical restriction
-$\to$ area law $\to$ temperature $\to$ lattice spacing $\to$ entropy
+$\to$ area scaling $\to$ temperature scaling $\to$ lattice spacing $\to$ entropy
 density $\to$ cosmological constant --- uses one combinatorial input
-and one free parameter. The dimension law, which was the sole
-conjectural link in an earlier version of this work, is now a theorem
+and one free parameter. The dimension law is a theorem
 for all $d \geq 2$. The converse direction (Sec.~\ref{sec:dimuniq})
-shows that the area law forces $d = 4$: the derivation is not only
-sufficient but unique. No quantum field theory, no string theory, no
-Bogoliubov transformations.
+shows that, within this discrete convex-subset framework, the area-law
+mechanism singles out $d = 4$.
 
-\textbf{Open questions.} (i)~Extension to Poisson sprinklings.
-(ii)~Local curvature detection via neighborhood-restricted $\gamma$.
-(iii)~Convergence exponent on periodic lattices.
-(iv)~Exact constants $c_d$ for $d \geq 3$.
-(v)~Reducing the factor $5.4$ in $\Lambda$.
+\textbf{Poisson sprinklings.} To verify that the dimension law is
+not a lattice artifact, we computed a normalized dimension
+indicator $\hat{\gamma} := \log|\mathrm{CC}| / (N \log N)$ on Poisson sprinklings
+into $d$-dimensional Minkowski space ($N = 500$, 10 trials per $d$):
+$\hat{\gamma} = 0.213 \pm 0.011$ ($d=2$), $0.487 \pm 0.036$ ($d=3$),
+$0.758 \pm 0.023$ ($d=4$). The three dimensions are perfectly
+separated across all 30 trials with no overlap. No coordinates or
+metric are used --- $\hat{\gamma}$ recovers the manifold dimension from
+the causal partial order alone.
+
+Note: the raw Noetherian ratio $\gamma = |\mathrm{CC}|/|\mathrm{Int}|$ satisfies
+$\gamma \geq 1$ for any poset (every interval is convex).
+The per-element normalization $\hat{\gamma}$ is used here because
+the raw ratio grows with $N$, making it unsuitable as a
+dimension indicator on varying-size sprinklings.
+
+\textbf{Open questions.}
+(i)~Local curvature detection via neighborhood-restricted $\gamma$
+(preliminary results show the correct directional signal on de~Sitter
+and anti-de~Sitter sprinklings but require normalization).
+(ii)~Convergence exponent on periodic lattices.
+(iii)~Exact constants $c_d$ for $d \geq 3$.
+(iv)~Reducing the factor $5.4$ in $\Lambda$.
 
 \begin{acknowledgments}
 The author thanks Anthropic's Claude for computational collaboration.
@@ -550,11 +736,13 @@ P.~B.~Gilkey,
 
 \bibitem{DiFiorePaper2}
 T.~DiFiore,
-arXiv:XXXX.XXXXX [math.CO] (2026).
+Order-convex subsets of grid posets: a new exponential
+combinatorial class, preprint (2026).
 
 \bibitem{DiFiorePaper1}
 T.~DiFiore,
-arXiv:XXXX.XXXXX [math.AG] (2026).
+Causal-algebraic geometry: a Grothendieck-type framework for
+partial orders, preprint (2026).
 
 \bibitem{BNR2019}
 B.~Barnette, W.~Nichols, and T.~Richmond,

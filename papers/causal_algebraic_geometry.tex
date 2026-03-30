@@ -4,6 +4,7 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{mathtools}
 \usepackage{hyperref}
+\usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage[margin=1in]{geometry}
@@ -54,17 +55,17 @@ A Grothendieck-Type Framework for Partial Orders\\[4pt]
 
 \begin{abstract}
 We develop an algebraic-geometric framework for finite partial orders.
-Starting from a \emph{causal algebra}---an associative algebra equipped with a partial order on its idempotents satisfying a causality axiom---we construct a spectrum $\CSpec$, equip it with a structure sheaf of corner algebras, build a simplicial cohomology theory on the order complex, and introduce the \emph{Noetherian ratio} $\gamma$, a combinatorial invariant measuring geometric regularity.
-We prove a \emph{separation theorem}: two explicitly constructed 4-element posets sharing all classical invariants (element count, Hasse link count, longest chain length) have different Noetherian ratios, establishing that $\gamma$ is strictly finer than every previously known invariant of finite posets.
+Starting from a \emph{causal algebra}---an associative algebra equipped with a partial order on its idempotents satisfying a causality axiom---we construct a spectrum $\CSpec$, equip it with a structure presheaf of corner algebras (satisfying locality but not gluing; Proposition~\ref{prop:gluing}), build a simplicial cohomology theory on the order complex, and introduce the \emph{Noetherian ratio} $\gamma$, a combinatorial invariant measuring geometric regularity.
+We prove a \emph{separation theorem}: two explicitly constructed 5-element posets agreeing on eight classical invariants (width, height, Hasse edges, number of antichains, maximal chains, comparable pairs, order ideals, and join-irreducibles) have different Noetherian ratios ($\gamma = 13/5$ vs $14/5$), establishing that $\gamma$ carries structural information beyond all tested cardinal invariants of finite posets.
 We prove that $\CSpec$ is the \emph{terminal object} in the category of causal topologies, reversing the usual Grothendieck logic: the ring structure of the corner algebras forces the topology (the collection of opens).
-We establish a \emph{dimensional ordering} $\gamma(\text{chain}) < \gamma(\text{grid}) < \gamma(\text{antichain})$, a universal \emph{width-one bound} $\gamma < 2$ for all total orders, and a \emph{width scaling law}:
+We establish that $\gamma(\text{chain}) < \gamma(\text{grid}) < \gamma(\text{antichain})$ for all $m \geq 2$ (proved). A universal \emph{width-one bound} $\gamma \leq 2$ holds for all total orders ($\gamma < 2$ for $n \geq 2$). A \emph{width scaling law}:
 \[
 2^w \;\leq\; |\CC(C)| \;\leq\; (\lceil n/w \rceil^2 + 1)^w,
 \]
 giving $\gamma = O(n^{2(w-1)})$ for fixed width~$w$ (matching computational data for $w = 1, 2, 3$).
 An initial conjecture $\gamma \leq 2^w$ was disproved at $n = 6$ during the formalization process; the correct polynomial bound establishes a dichotomy between bounded-width posets (polynomial $\gamma$) and linear-width posets (exponential $\gamma$), with manifold-like causal sets falling in an intermediate regime.
 A non-abelian gauge connection on the causal spectrum yields exact rational Wilson loop values on discretized cylinders; we prove that $\operatorname{tr}(\Hol) = n_{\mathrm{time}} - 1$ independent of spatial circumference.
-Applied to the truncated divisibility lattice $(\Z^+ \cap [1,N], \mid)$, the framework recovers the closed points of $\Spec(\Z)$ corresponding to primes $\leq N$ and the number-theoretic M\"obius function exactly.
+Applied to the truncated divisibility lattice $(\Z^+ \cap [1,N], \mid)$, prime-generated upsets recover the primes $p \leq N$ as $\CSpec$ points, with $\CSpec$ strictly richer than the classical spectrum (8~points vs 2~prime ideals for $\mathrm{div}(12)$). The number-theoretic M\"obius function is recovered exactly.
 A \emph{sheaf-$\gamma$ bridge theorem} proves that the causally convex subsets are exactly the ring homomorphism opens of the structure sheaf, so that $\gamma$ equals the ring homomorphism density.
 The ratio $\kappa = 1 - 1/\gamma$ measures the fraction of ring homomorphism opens that are not intervals.
 The map from posets to convex structures is many-to-one, extracting geometric content from combinatorial data.
@@ -96,30 +97,76 @@ This paper extends the programme to partial orders.
 A \emph{causal set}---a locally finite partially ordered set---is the mathematical model of discrete spacetime proposed by Bombelli, Lee, Meyer, and Sorkin~\cite{bombelli1987}.
 The combinatorial theory of random partial orders in this setting is surveyed by Brightwell and Luczak~\cite{brightwell2015}, who establish that the height of a Poisson process in a box space of dimension~$d$ scales as $n^{1/d}$~\cite{bollobas1991}, that every convergent sequence of classical sequential growth models has a semiorder as its limit~\cite{brightwell2010}, and that the uniform measure on 2-dimensional orders is contiguous with a Poisson process in $\mathbb{M}^2$~\cite{brightwell2008}.
 The Benincasa--Dowker action~\cite{benincasa2010} provides a discrete Einstein--Hilbert functional via interval counting and the M\"obius function.
-What has been missing is the algebraic-geometric infrastructure---a spectrum, a structure sheaf, morphisms, cohomology---that would bring the structural depth of scheme theory to bear on causal structures.
+What has been missing is algebraic-geometric infrastructure---a spectrum, a structure presheaf, morphisms---adapted to the non-commutative setting of causal structures.
+
+\textbf{Relation to existing work on convex subsets of posets.}
+Interval convexity in posets is a classical notion: a subset $S$
+is convex if whenever $a \leq c \leq b$ with $a, b \in S$, then
+$c \in S$. The lattice of convex sublattices was studied by
+Lihov\'a~\cite{lihova1999} and others; convex geometries
+(closure systems satisfying the anti-exchange axiom) were
+developed by Edelman and Jamison~\cite{edelmanjamison1985}.
+Counting convex subsets in products of chains was initiated by
+Barnette, Nichols, and Richmond~\cite{barnette2019}, who gave
+explicit formulas for small fixed column width.
+Prime ideals of incidence algebras are treated in
+Spiegel and O'Donnell~\cite{spiegel1997}.
+Our contributions begin where this literature stops:
+(a)~the observation that the convex subset count
+grows exponentially and detects dimension (the dimension law,
+proved for all $d \geq 2$);
+(b)~the algebraic characterization of convex subsets as the
+ring homomorphism opens of a structure sheaf (the bridge theorem);
+(c)~the construction of $\CSpec$ with its universal property;
+(d)~the Noetherian ratio $\gamma$ as a manifold-likeness
+invariant;
+and (e)~the holonomy construction distinguishing posets with
+identical classical invariants.
 
 The central obstruction is immediate.
 The natural algebra of a partial order is the incidence algebra of Rota~\cite{rota1964}, which is non-commutative: the causality axiom makes it upper-triangular.
-Standard non-commutative primality collapses when applied to such algebras, because causally unrelated elements are automatic zero divisors (their product vanishes by the causality axiom), driving the spectrum to at most one point.
-We resolve this by introducing \emph{causal primality} (\S\ref{sec:cspec}), a weakening that restricts the primality test to causally connected triples, and prove that the resulting spectrum $\CSpec$ recovers the original poset as its closed points with additional generic points (\S\ref{sec:recovery}).
+Standard non-commutative primality degenerates when applied to such algebras: the zero ideal of the causal subalgebra fails to be NC-prime because causally unrelated elements provide automatic witnesses (${\bf e}_\alpha M {\bf e}_\beta = 0$ for all causal $M$ when $\alpha \| \beta$).
+We resolve this by introducing \emph{causal primality} (\S\ref{sec:cspec}), a weakening that restricts the primality test to causally connected triples, and prove that the resulting spectrum $\CSpec$ admits an injective map from the original poset into its points (\S\ref{sec:recovery}).
 We then prove that causal primality satisfies a \emph{universal property}: $\CSpec$ is the terminal object in the category of causal topologies (\S\ref{sec:uniqueness}).
 In Grothendieck's theory, one defines the spectrum and then constructs the sheaf; here, the logic reverses\textemdash the ring structure of the corner algebras forces the topology (the collection of opens).
 
 The principal application is to the \emph{Hauptvermutung} of causal set theory: the question, open since the founding of the programme in 1987, of whether the causal order alone determines the manifold~\cite{sorkin2003, malament1977, brightwell2015}.
 Malament~\cite{malament1977} proved topologically that continuous timelike curves determine spacetime topology up to a conformal factor; Hawking, King, and McCarthy~\cite{hawking1976} established the analogous result for the differential structure.
 $\CSpec$ provides an independent \emph{algebraic} proof of a related result: the ring structure of the corner algebras forces the topology (Theorem~\ref{thm:A2}).
-We introduce the \emph{Noetherian ratio}~$\gamma$ (\S\ref{sec:gamma}), prove it is strictly finer than all known invariants (\S\ref{sec:separation}), establish a dimensional ordering (\S\ref{sec:ordering}), and prove a width scaling law that separates bounded-width from linear-width posets (\S\ref{sec:width}).
+We introduce the \emph{Noetherian ratio}~$\gamma$ (\S\ref{sec:gamma}), prove it is finer than the standard cardinal invariants (\S\ref{sec:separation}), establish a dimensional ordering (\S\ref{sec:ordering}), and prove a width scaling law that separates bounded-width from linear-width posets (\S\ref{sec:width}).
 A non-abelian gauge connection with exact rational holonomy detects curvature (\S\ref{sec:holonomy}).
-The divisibility lattice yields an arithmetic bridge recovering $\Spec(\Z)$ (\S\ref{sec:arithmetic}).
+The truncated divisibility lattice yields an arithmetic bridge: prime-generated upsets appear as $\CSpec$ points, and $\CSpec$ is strictly richer than the classical ring-theoretic spectrum in finite examples (\S\ref{sec:arithmetic}).
 A sheaf-$\gamma$ bridge theorem (\S\ref{sec:sheaf:gamma}) proves that $\gamma$ is not merely a combinatorial invariant but the ring homomorphism density of the structure sheaf, unifying the combinatorics, the algebra, and the geometry.
+
+
+The publishable core of this paper rests on three proved results:
+\begin{enumerate}[nosep]
+\item \textbf{Bridge theorem:} convexity is algebraic.
+A subset preserves multiplication if and only if it is
+order-convex (\S\ref{sec:sheaf:gamma}).
+\item \textbf{Euler characteristic extremality:} the
+Benincasa-Dowker action equals $\chi_{\mathrm{graph}}(\mathrm{Hasse}(S))$,
+and the full grid uniquely minimizes it among all convex
+sub-diagrams (\S\ref{sec:width}).
+\item \textbf{Dimension detection:} the growth rate of
+$\chi$-minimizing configurations detects manifold dimension ---
+$\log|\CC([m]^d)| = \Theta(m^{d-1})$ separates chains ($d = 1$)
+from grids ($d = 2$) from higher-dimensional posets, with
+$\gamma(\text{chain}) < \gamma(\text{grid}) <
+\gamma(\text{antichain})$ proved for all $m \geq 2$
+(\S\ref{sec:ordering}).
+\end{enumerate}
+Everything else --- $\CSpec$, holonomy, arithmetic, the
+structure presheaf --- is downstream application or analogy
+built on this core.
 
 
 \subsection{Statement of main results}
 
-All algebraic results below (Theorems A--E, F--H) are formally verified; the source is cited at~\cite{leanrepo}.
+All algebraic results below are formally verified in Lean~4; the source is cited at~\cite{leanrepo}.
 
 \begin{theorem}[Recovery]\label{thm:A}
-For a finite partial order $C$, the elements of\/ $C$ embed as the closed points of\/ $\CSpec(k[C])$, with additional generic points corresponding to causally convex subregions.
+For a finite partial order $C$, every element determines a causally prime upset in $\CSpec(k[C])$ (no hypotheses). The map is injective if and only if $C$ is future-distinguishing ($T_0$).
 \end{theorem}
 
 \begin{theorem}[Universal Property]\label{thm:A2}
@@ -132,12 +179,12 @@ There exist two $4$-element posets with identical element count, Hasse link coun
 \end{theorem}
 
 \begin{theorem}[Dimensional Ordering]\label{thm:C}
-For posets on the same number of elements,
-$\gamma(\text{total order}) < \gamma(\text{grid}) < \gamma(\text{antichain}).$
+For all $m \geq 2$,
+$\gamma(\text{chain on $m^2$ elements}) < \gamma([m]^2) < \gamma(\text{antichain on $m^2$ elements}).$
 \end{theorem}
 
 \begin{theorem}[Width-One Bound]\label{thm:D}
-For every total order on $n$ elements, $n \geq 1$, we have $\gamma < 2$.
+For every total order on $n$ elements, $n \geq 2$, we have $\gamma < 2$.
 \end{theorem}
 
 \begin{theorem}[Wilson Loop Trace]\label{thm:E}
@@ -147,7 +194,7 @@ On discretized cylinders $[c] \times [t]$, the holonomy trace of the interval-pr
 \begin{theorem}[Arithmetic Bridge]\label{thm:F}
 On the truncated divisibility lattice $(\Z^+ \cap [1,N], \mid)$, the causal M\"obius function is the number-theoretic $\mu$.
 The identity $\mu * \zeta = 1$ holds.
-Primes $p \leq N$ generate causally prime ideals in $\CSpec$.
+Primes $p \leq N$ generate causally prime upsets in $\CSpec$.
 \end{theorem}
 
 \begin{theorem}[Width Scaling Law]\label{thm:G}
@@ -162,9 +209,19 @@ Hence $\gamma = O(n^{2(w-1)})$ for fixed~$w$, and the exponent $2(w-1)$ matches 
 \begin{theorem}[Sheaf-$\gamma$ Bridge]\label{thm:H}
 A subset $S$ of a causal algebra is a ring homomorphism open of the structure sheaf if and only if $S$ is causally convex.
 Hence $\gamma$ equals the ring homomorphism density of the structure sheaf.
+Moreover, $\CSpec$ is the unique topology supporting a structure sheaf:
+any topology on which restriction preserves multiplication coincides
+with the convex topology.
+Both the biconditional and the uniqueness are proved in
+Lean~4~\cite{leanrepo} (\texttt{convexity\_iff\_preserves\_multiplication},
+\texttt{cspec\_uniquely\_determined}).
 \end{theorem}
 
 The width scaling law separates manifold-like causal sets (bounded width, polynomial~$\gamma$) from random partial orders (width $\sim N/2$, exponential~$\gamma$).
+For the grid $[m]^2$, the width is exactly $m$ (proved in
+Lean~4~\cite{leanrepo}); Dilworth's theorem guarantees only that
+a width exists, but does not compute it or establish its growth
+rate, which is what determines the dimension via the scaling law.
 The sheaf-$\gamma$ bridge shows this separation is algebraic, not merely combinatorial: $\gamma$ counts the subsets on which the structure sheaf preserves multiplication.
 An initial conjecture $\gamma \leq 2^w$ was disproved at $n = 6$ during the formalization; the polynomial bound is the correct statement.
 
@@ -210,12 +267,16 @@ Corner algebras are closed under multiplication.
 \subsection{Collapse of non-commutative primality}
 
 Recall that a proper two-sided ideal $P$ of a ring $R$ is NC-prime if $aRb \not\subseteq P$ for all $a, b \notin P$.
-In a causal algebra of width $\geq 2$, there exist incomparable elements $\alpha \| \beta$ with ${\bf e}_\alpha \cdot A \cdot {\bf e}_\beta = 0$ by the causality axiom.
-These automatic zero divisors collapse the NC-spectrum.
+In a causal algebra of width $\geq 2$, there exist incomparable elements $\alpha \| \beta$ with ${\bf e}_\alpha \cdot M \cdot {\bf e}_\beta = 0$ for every causal matrix~$M$, by the causality axiom.
 
 \begin{theorem}\label{thm:collapse}
-For any causal algebra of width $\geq 2$, the standard NC-spectrum has at most one point.
+In any causal algebra of width $\geq 2$, the zero ideal of the causal subalgebra (the algebra of matrices satisfying the causality constraint) is not NC-prime.
 \end{theorem}
+
+\noindent
+This does not claim that the full incidence algebra has no prime ideals; for instance, the incidence algebra of a 2-element antichain is $k \times k$, which has two standard prime ideals $k \times 0$ and $0 \times k$.
+The theorem says that the causality-restricted primality notion degenerates: the zero ideal fails to be NC-prime because the causal matrices ${\bf e}_\alpha M {\bf e}_\beta = 0$ for incomparable $\alpha, \beta$ provide automatic witnesses.
+This motivates the introduction of causal primality (Definition~\ref{def:cprime}), which restricts the primality test to causally connected triples.
 
 \subsection{Causal primality}
 
@@ -234,21 +295,58 @@ $D(\alpha) = \{P \in \CSpec : \alpha \notin P\}$.
 \end{definition}
 
 \begin{example}
-The 4-element diamond $\{a < b,\; a < c,\; b < d,\; c < d\}$ satisfies $|\CSpec_{\mathrm{NC}}| = 1$ but $|\CSpec| = 5$: four closed points and one generic point for the interval $[a,d]$.
+The 4-element diamond $\{a < b,\; a < c,\; b < d,\; c < d\}$ satisfies $|\CSpec_{\mathrm{NC}}| = 1$ but $|\CSpec| = 5$. The five causally prime upsets are:
+(i)~$\varnothing$,
+(ii)~$\{d\}$,
+(iii)~$\{b,d\}$,
+(iv)~$\{c,d\}$,
+(v)~$\{b,c,d\}$.
+The strict-upset map sends $d \mapsto \varnothing$, $b \mapsto \{d\}$, $c \mapsto \{d\}$, $a \mapsto \{b,c,d\}$. Since $b$ and $c$ have the same strict upset, the diamond is not $T_0$ and the map is not injective. The two ``extra'' points $\{b,d\}$ and $\{c,d\}$ are causally convex upsets with no element-preimage, illustrating that $\CSpec$ is richer than the poset itself.
 \end{example}
 
-\subsection{The Recovery Theorem}\label{sec:recovery}
+\subsection{Recovery}\label{sec:recovery}
 
 \begin{theorem}[Recovery]\label{thm:recovery}
-For each non-maximal $\alpha \in \Lambda$, the principal upset ${\uparrow}\alpha = \{\beta : \alpha < \beta\}$ is causally prime.
-The map $\alpha \mapsto {\uparrow}\alpha$ embeds the original poset as the closed points of\/ $\CSpec$.
+For every $\alpha \in \Lambda$, the strict principal upset
+${\uparrow}\alpha = \{\beta : \alpha < \beta\}$ is causally prime
+in $\CSpec$. The map $\alpha \mapsto {\uparrow}\alpha$ is injective
+if and only if the poset is future-distinguishing ($T_0$: distinct
+elements have distinct strict upsets).
+Formally verified~\cite{leanrepo}
+(\texttt{principalUpset\_isCausallyPrime},
+\texttt{bulletproof\_recovery}).
 \end{theorem}
 
 \begin{proof}
-The complement of ${\uparrow}\alpha$ is $\{\beta : \alpha \not< \beta\}$.
-For causal convexity: if $x, y \notin {\uparrow}\alpha$ and $x \leq \gamma \leq y$, then $\alpha \leq \gamma$ would give $\alpha \leq \gamma \leq y$, hence $\alpha \leq y$.
-Since $y \notin {\uparrow}\alpha$, we must have $y = \alpha$, giving $\gamma \leq \alpha$ and $\alpha \leq \gamma$, so $\gamma = \alpha \notin {\uparrow}\alpha$.
+Causal primality: the complement
+$\Lambda \setminus {\uparrow}\alpha = \{\beta : \alpha \not< \beta\}$
+is causally convex. If $x, y \notin {\uparrow}\alpha$ and
+$x \leq \gamma \leq y$ with $\gamma \in {\uparrow}\alpha$, then
+$\alpha < \gamma \leq y$ gives $\alpha < y$, contradicting
+$y \notin {\uparrow}\alpha$.
+Injectivity under $T_0$: immediate from the hypothesis.
+Necessity of $T_0$: in the V-poset $\{0 < 2,\; 1 < 2\}$, both
+${\uparrow}0 = \{2\} = {\uparrow}1$
+(\texttt{recovery\_counterexample}).
 \end{proof}
+
+\begin{remark}
+For maximal elements, ${\uparrow}\alpha = \varnothing$; the
+corresponding point of $\CSpec$ is the ``generic point''
+(the empty causally prime upset). For the minimum element~$m$
+(if one exists), ${\uparrow}m$ is proper and causally prime,
+so $m$ is recovered as a $\CSpec$ point --- unlike the
+principal-filter approach, where ${\uparrow_{\leq}}m = \Lambda$
+would fail properness.
+The $T_0$ condition holds for total orders and many natural posets,
+but not for all grids: in $[2]^2$, the incomparable elements
+$(1,2)$ and $(2,1)$ both have strict upset $\{(2,2)\}$.
+We do not claim that the recovery embeds the poset as the
+\emph{closed points} of $\CSpec$; in the chain $a < b < c$,
+the point $\{c\}$ specializes to $\{b,c\}$, so element-points
+are not all closed.
+The analogy with $\Spec(R)$ is structural, not exact.
+\end{remark}
 
 
 \subsection{The universal property of $\CSpec$}\label{sec:uniqueness}
@@ -287,6 +385,15 @@ This reverses the Grothendieck logic.
 In scheme theory, $\Spec(R)$ is defined first and the structure sheaf is built afterward; different choices of sheaf are possible on the same spectrum.
 In causal-algebraic geometry, the ring structure of the corner algebras \emph{forces} the topology: there is exactly one causal topology that is maximal, and it is $\CSpec$.
 
+The universal property is non-trivial: intervals (the only subsets
+visible to classical order theory) grow as $O(m^4)$ on $[m]^2$,
+while convex subsets grow as $\Theta(16^m)$. At $m = 3$, already
+68\% of convex subsets are non-intervals (proved in
+Lean~4~\cite{leanrepo}). An interval-only topology is
+dimensionally blind --- it cannot detect the exponent $d-1$ in the
+dimension law because it lacks the exponentially many subsets that
+carry the dimensional information.
+
 
 %% ================================================================
 \section{The Structure Sheaf}\label{sec:sheaf}
@@ -315,6 +422,26 @@ At a minimal element, the stalk is one-dimensional.
 \begin{proposition}
 The causal past ${\downarrow}\alpha = \{\beta : \beta \leq \alpha\}$ is causally convex.
 \end{proposition}
+
+\begin{proposition}[Gluing failure]\label{prop:gluing}
+The corner algebra assignment $D(S) \mapsto {\bf e}_S A\, {\bf e}_S$
+satisfies locality but does \emph{not} satisfy the sheaf gluing axiom
+in general. On the 3-element chain $\{a < b < c\}$, the sections
+over $\{a, b\}$ and $\{b, c\}$ are each $2 \times 2$ corner algebras,
+but they cannot be glued into a section over $\{a, b, c\}$: the
+cross-entry $M(a, c)$ is determined by the full $3 \times 3$ algebra
+and is not recoverable from the two $2 \times 2$ restrictions.
+Formally verified~\cite{leanrepo}.
+\end{proposition}
+
+\noindent
+$\CSpec$ is therefore a \emph{presheaf} construction with a universal
+property, not a full sheaf theory. The unique contributions of this
+framework --- the bridge theorem, the $\gamma$ invariant, the
+separation power, and the positive energy theorem --- do not depend
+on sheaf-theoretic depth. The comparison with $\Spec(R)$ in
+Section~\ref{sec:discussion} is appropriately marked as analogical
+where the formal content is weaker.
 
 
 %% ================================================================
@@ -401,10 +528,67 @@ The Noetherian ratio detects the \emph{branching geometry} of the partial order.
 The Y-shape has a bottleneck at vertex~1 through which all order traffic flows; the Fork distributes immediately from vertex~0.
 This distinction is the discrete analogue of geodesic focusing, and it is invisible to the classical triple $(|C|, |{\rm links}|, {\rm chain\; length})$.
 
+\begin{theorem}[Strong Separation]\label{thm:separation5}
+Among all 4231 posets on 5~elements, there is a unique pair
+(``Diamond+isolated'' $P_1$ and ``Y+pendant'' $P_2$) that agrees on
+eight classical invariants simultaneously:
+
+\medskip
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Invariant & $P_1$ & $P_2$ \\
+\midrule
+Width & 3 & 3 \\
+Height & 3 & 3 \\
+Hasse edges & 4 & 4 \\
+Antichains & 12 & 12 \\
+Maximal chains & 3 & 3 \\
+Comparable pairs & 10 & 10 \\
+Order ideals & 12 & 12 \\
+Join-irreducibles & 2 & 2 \\
+\midrule
+$\gamma$ & $13/5$ & $14/5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\medskip
+
+\noindent The Noetherian ratio is the unique discriminator.
+$P_1$ (diamond with an isolated element) has a ``branch then merge''
+topology that creates convexity obstructions absent in the tree-like
+$P_2$. All values verified in Lean~4~\cite{leanrepo}.
+\end{theorem}
+
 
 \subsection{Dimensional ordering}\label{sec:ordering}
 
-\begin{theorem}\label{thm:ordering}
+\begin{theorem}[Dimensional Ordering]\label{thm:dim_ordering}
+For all $m \geq 2$:
+\[
+\gamma(\text{chain on $m^2$ elements}) \;<\; \gamma([m]^2) \;<\; \gamma(\text{antichain on $m^2$ elements}).
+\]
+Moreover, $\gamma(\text{chain}) \to 1$ as $n \to \infty$.
+Proved in Lean~4~\cite{leanrepo} (\texttt{dimensional\_ordering}).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The key input from the companion paper~\cite{difiore2026grid} is the
+growth constant $\rho_2 = 16$, which gives
+$16^m/(8m^3) \leq |\CC([m]^2)| \leq 16^m$.
+For $m \geq 6$: the lower bound gives
+$\gamma([m]^2) > 2 > \gamma(\text{chain})$, since a chain on $n$
+elements has $\gamma = (n(n{+}1)/2 + 1)/(n(n{+}1)/2) < 2$.
+For the upper inequality: $|\CC([m]^2)| \leq 16^m$ while
+$|\CC(\text{antichain on $m^2$})| = 2^{m^2}$ and
+$|\Int(\text{antichain})| = m^2$, so
+$\gamma(\text{antichain}) = 2^{m^2}/m^2 > 16^m/m^4 \geq
+\gamma([m]^2)$ for $m \geq 6$ (since $4m < m^2$).
+Cases $m = 2, 3, 4, 5$ are kernel-verified by \texttt{native\_decide}.
+\end{proof}
+
+\noindent Explicit values at small sizes:
+
 At $N = 4$:
 \[
 \gamma(\text{chain}) = \tfrac{11}{10} \;<\; \gamma(\text{grid}) = \tfrac{13}{9} \;<\; \gamma(\text{antichain}) = 4.
@@ -413,7 +597,6 @@ At $N = 6$:
 \[
 \gamma(\text{chain}) = \tfrac{22}{21} \;<\; \gamma(\text{grid}) = \tfrac{33}{18} \;<\; \gamma(\text{antichain}) = \tfrac{64}{6}.
 \]
-\end{theorem}
 
 The chain is a 1-dimensional totally ordered spacetime.
 The grid is a 2-dimensional lattice.
@@ -458,7 +641,7 @@ The generic bound $|\CC| \leq (\lceil n/w \rceil^2+1)^w$ is orders of magnitude 
 
 \begin{theorem}[Width-One Bound]\label{thm:width1}
 For any finite total order, every nonempty causally convex subset is an interval.
-Hence $|\CC| = |\Int| + 1$ and $\gamma < 2$.
+Hence $|\CC| = |\Int| + 1$ and $\gamma = 1 + 1/|\Int| \leq 2$, with equality only for the 1-element chain ($|\Int| = 1$). For $n \geq 2$, $\gamma < 2$.
 \end{theorem}
 
 \begin{proof}
@@ -479,7 +662,7 @@ For any finite poset of width $w$ on $n$ elements:
 2^w \;\leq\; |\CC(C)| \;\leq\; \left(\left\lceil \frac{n}{w} \right\rceil^2 + 1\right)^w.
 \]
 The lower bound holds because the $2^w$ subsets of any maximum antichain are vacuously convex.
-The upper bound gives $\gamma = O(n^{2(w-1)})$ for fixed $w$, and the exponent matches all tested cases.
+The upper bound gives $\gamma = O(n^{2(w-1)})$ for fixed $w$: by a Cauchy-Schwarz argument, $|\Int(C)| \geq n^2/(2w)$ for any poset of width $w$ on $n$ elements (proved in Lean~4~\cite{leanrepo}). Hence $\gamma = |\CC|/|\Int| \leq (\lceil n/w \rceil^2 + 1)^w \cdot 2w/n^2 = O(n^{2w}/n^2) = O(n^{2(w-1)})$ for fixed $w$. The exponent matches all tested cases.
 The proof of the upper bound proceeds by Dilworth decomposition into $w$ chains, convex factorization (injective), interval characterization on each chain, the balanced bound $f(m) \leq m^2 + 1$, and the injection bound. The entire proof chain, including Dilworth's theorem itself, is verified in~\cite{leanrepo}.
 \end{theorem}
 
@@ -516,7 +699,7 @@ Given any procedure extracting a chain that reduces the width, iteration produce
 Together: by Dilworth's theorem~\cite{dilworth1950}, every finite poset of width $w$ decomposes into $w$ chains.
 Chain restriction gives $S \cap L_i \in \{{\rm interval}\} \cup \{\varnothing\}$.
 Injectivity gives $|\CC(C)| \leq \prod_{i=1}^w (|\Int(L_i)| + 1)$.
-For $d$-dimensional spacetimes with $w \sim N^{(d-1)/d}$~\cite{myrheim1978}, the exponent $2(w-1)$ gives $\gamma = O(N^{2(d-1)/d})$\textemdash polynomial for any fixed~$d$, with degree increasing monotonically in the dimension.
+For $d$-dimensional spacetimes, the width grows as $w \sim N^{(d-1)/d}$~\cite{myrheim1978}. The fixed-width bound does not directly apply when $w$ grows with $N$; the rigorous result in the growing-width regime is the dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$, proved directly in~\cite{difiore2026grid} by a separate tiling argument.
 For random partial orders with $w \sim N/2$, the lower bound $2^w$ gives $\gamma \geq 2^{N/2}/N^2$\textemdash exponential.
 
 \begin{remark}[Relation to the Hauptvermutung]
@@ -527,8 +710,7 @@ This means no classical sequential growth model satisfying general covariance an
 
 The width scaling law does not resolve the Hauptvermutung but provides a necessary condition.
 It cleanly separates two extremes: bounded-width posets ($w = O(1)$) have polynomial $\gamma$, while linear-width posets ($w = \Omega(n)$) have exponential $\gamma$.
-Manifold-like causal sets fall into an \emph{intermediate regime}: for $d$-dimensional sprinklings, $w \sim n^{(d-1)/d}$~\cite{myrheim1978}, giving $\gamma = O(n^{2(w-1)})$ with $w$ growing but sub-linearly.
-This intermediate scaling is super-polynomial but sub-exponential, and characterizing it precisely (e.g., for Poisson sprinklings into Minkowski space) remains an open problem requiring probability theory on random partial orders.
+Manifold-like causal sets fall into an \emph{intermediate regime}: for $d$-dimensional sprinklings, $w \sim n^{(d-1)/d}$~\cite{myrheim1978}. The fixed-width bound suggests $\gamma$ is super-polynomial but sub-exponential in this regime; the rigorous result is the dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$ for grids.
 What the width scaling law does establish is a \emph{dichotomy}: random partial orders have exponential $\gamma$, while any poset with sub-linear width has sub-exponential $\gamma$. Both directions are unconditional.
 
 For $d \geq 3$, an additional subtlety arises: Brightwell and Gregory~\cite{brightwell1991} showed that Lorentz boosts create rare voids---intervals of large volume containing very few Poisson points---which obstruct any simple combinatorial definition of spacelike distance.
@@ -589,7 +771,7 @@ This identity unifies the three threads of the paper:
 
 \noindent The complete reduction is a sequence of proved arrows:
 \[
-\text{Poset} \;\xrightarrow{\;\text{many-to-one}\;}\; \text{Convex structure} \;\xlongequal{\;\text{Thm.~\ref{thm:bridge:gamma}}\;}\; \text{Sheaf structure} \;\xrightarrow{\;\gamma\;}\; \text{Dimension.}
+\text{Poset} \;\xrightarrow{\;\text{many-to-one}\;}\; \text{Convex structure} \;\stackrel{\text{Thm.~\ref{thm:bridge:gamma}}}{=\!=\!=\!=\!=\!=}\; \text{Sheaf structure} \;\xrightarrow{\;\gamma\;}\; \text{Dimension.}
 \]
 The first arrow is a quotient that extracts geometric content.
 The equality is the bridge theorem.
@@ -614,6 +796,28 @@ On overlaps $U_s \cap U_{s+1}$, the \emph{transition matrix}
 T_{s,\,s+1} = A_s^+\, A_{s+1}
 \]
 transforms the interval description from frame $s$ to frame $s+1$, where $A_s^+$ denotes the Moore--Penrose pseudoinverse restricted to the overlap.
+
+\begin{theorem}[Functoriality]\label{thm:functorial}
+The transition matrices satisfy the composition law
+\[
+T_{p,q} \cdot T_{q,r} \;=\; {\bf e}_q
+\]
+for consecutive overlapping wedges $p, q, r$, where ${\bf e}_q$ is the
+junction idempotent at wedge~$q$. This is the defining property of a
+discrete connection: parallel transport through $q$ composes
+associatively, and the junction idempotent acts as the identity on the
+fiber at~$q$. The interval-projection assignment is therefore
+\emph{functorial} from the path category of the cover to the matrix
+algebra.
+All 12~component theorems (associativity, idempotency, composition,
+naturality, and the resulting functoriality) are proved in
+Lean~4~\cite{leanrepo} with zero \texttt{sorry}.
+\end{theorem}
+
+\noindent This addresses the concern that the pseudoinverse construction
+is ``ad hoc'': it is not merely a matrix computation but a functor
+satisfying the same composition law as parallel transport in
+differential geometry.
 
 \subsection{The Wilson loop}
 
@@ -668,6 +872,14 @@ The eigenvalue spectrum of $\Hol$ exhibits one eigenvalue near unity\textemdash 
 Extending the proof to the full pseudoinverse connection on general (non-cylindrical) spacetimes is left for future work.
 We note, however, that the physical derivation of the Bekenstein--Hawking area law in~\cite{difiore2026bh} depends only on the dimension law and the cylindrical factorization, not on any holonomy computation; the Wilson loop theorem is an independent structural result.
 
+The holonomy carries non-trivial structural information beyond
+classical invariants. The Y-shape ($0 \leq 1$, $0 \leq 2$,
+$0 \leq 3$) and the Fork ($0 \leq 1$, $0 \leq 2$, $1 \leq 3$)
+both have 4~elements, 3~links, and chain length~3, but holonomy
+weights 16 and 13 respectively (proved in Lean~4~\cite{leanrepo}).
+No classical partial-order invariant (element count, edge count,
+width, chain length) distinguishes them; the holonomy does.
+
 
 \subsection{Curvature discrimination}
 
@@ -703,9 +915,25 @@ For any $N \geq 1$, the truncated divisibility lattice $(\Z^+ \cap [1,N], \mid)$
 \item It is a causal algebra under the divisibility order.
 \item $\mu * \zeta = 1$ in the incidence algebra, where $\mu$ is the number-theoretic M\"obius function.
 \item $\mu(p) = -1$ for every prime $p \leq N$.
-\item Every prime $p \leq N$ generates a causally prime ideal in $\CSpec$, recovering the closed points of\/ $\Spec(\Z)$ corresponding to primes dividing elements of $[1,N]$.
+\item Every prime $p \leq N$ generates a causally prime upset in $\CSpec$.
 \end{enumerate}
 \end{theorem}
+
+\begin{proposition}[$\CSpec$ is strictly richer than $\Spec$]\label{prop:cspec_richer}
+For the divisibility lattice $\mathrm{div}(12) = (\{1,2,3,4,6,12\}, \mid)$,
+$|\CSpec| = 8$ while $\Spec(\Z/12\Z)$ has $2$ prime ideals (corresponding
+to primes $2$ and $3$). The prime upsets embed into $\CSpec$, but $\CSpec$
+also contains ``composite upsets'' --- causally convex upsets generated by
+composite elements --- with no $\Spec$ analogue.
+Proved in Lean~4~\cite{leanrepo}.
+\end{proposition}
+
+\noindent In the finite truncation $\mathrm{div}(N)$, prime-generated
+upsets correspond to the primes $p \leq N$, while $\CSpec$ also
+contains composite-generated points with no classical ring-theoretic
+analogue. The $\sim$ notation in the comparison table
+(Section~\ref{sec:discussion}) reflects this: the correspondence is
+suggestive but not an equivalence.
 
 \begin{theorem}[CC Doubling]\label{thm:doubling}
 On the truncated divisibility lattice $(\Z^+ \cap [1,N], \mid)$, for every prime $p \leq N$:
@@ -744,7 +972,7 @@ Source code is available at~\cite{leanrepo}.
 
 \subsection{Correspondence with scheme theory}
 
-The causal-algebraic framework provides partial orders the same structural depth that scheme theory provides commutative rings:
+The causal-algebraic framework adapts several elements of scheme theory to partial orders, with the following correspondences (proved $\longleftrightarrow$; analogical $\sim$):
 
 \medskip
 \begin{center}
@@ -753,16 +981,24 @@ The causal-algebraic framework provides partial orders the same structural depth
 Commutative Algebra & & Causal-Algebraic Geometry \\
 \midrule
 Commutative ring $R$ & $\longleftrightarrow$ & Causal algebra $(A, \{{\bf e}_\alpha\}, \leq)$ \\
-$\Spec(R)$ & $\longleftrightarrow$ & $\CSpec(A)$ \\
-Localization $R_{\mathfrak{p}}$& $\longleftrightarrow$ & Corner algebra ${\bf e}_S A\, {\bf e}_S$ \\
-Structure sheaf $\mathcal{O}$ & $\longleftrightarrow$ & Corner algebra sheaf \\
-Sheaf cohomology & $\longleftrightarrow$ & Order-complex cohomology \\
-$\Spec(\Z)$ & $\longleftrightarrow$ & $\CSpec(k[{\rm Div}(N)])$ (finite truncation) \\
-Noetherian condition & $\longleftrightarrow$ & $\gamma \approx 1$ \\
+$\Spec(R)$ & $\sim$ & $\CSpec(A)$ \\
+Localization $R_{\mathfrak{p}}$& $\sim$ & Corner algebra ${\bf e}_S A\, {\bf e}_S$ \\
+Structure sheaf $\mathcal{O}$ & $\sim$ & Corner algebra presheaf (locality proved; gluing fails) \\
+Sheaf cohomology & $\sim$ & Order-complex cohomology \\
+$\Spec(\Z)$ & $\sim$ & $\CSpec(k[{\rm Div}(N)])$ (finite truncation) \\
+Noetherian condition & $\sim$ & $\gamma \approx 1$ \\
 Spectrum determined by ring & $\longleftrightarrow$ & Spectrum is terminal object (Thm.~\ref{thm:uniqueness}) \\
 \bottomrule
 \end{tabular}
 \end{center}
+\medskip
+
+\noindent Entries marked $\longleftrightarrow$ are proved
+correspondences; entries marked $\sim$ are structural analogies
+that motivate the construction but are not claimed as formal
+equivalences. In particular, corner algebras play a role analogous
+to localizations but are not shown to satisfy the same universal
+property.
 
 
 \subsection{Main theorem}
@@ -774,7 +1010,7 @@ Let $(C, \leq)$ be a finite poset of width $w$ on $n$ elements.
 \begin{enumerate}[nosep]
 \item \textup{(Universal property.)} $\CSpec(k[C])$ is the terminal object in the category of causal topologies on $k[C]$: every compatible topology maps to $\CSpec$, the morphism is unique, and no strictly larger compatible topology exists.
 \item \textup{(Bridge.)} A subset $S \subseteq C$ is a ring homomorphism open of the structure sheaf if and only if $S$ is causally convex.
-\item \textup{(Scaling.)} $\;2^w \leq |\CC(C)| \leq (\lceil n/w \rceil^2 + 1)^w$, giving $\gamma = \Theta(n^{2(w-1)})$ for fixed $w$.
+\item \textup{(Scaling.)} $\;2^w \leq |\CC(C)| \leq (\lceil n/w \rceil^2 + 1)^w$. Since $|\Int(C)| \geq n^2/(2w)$ for any poset of width $w$ on $n$ elements (Cauchy-Schwarz; proved in Lean~4~\cite{leanrepo}), this gives $\gamma = O(n^{2(w-1)})$ for fixed $w$. A universal lower bound $\gamma \geq 2^w / n^2$ follows from $|\CC| \geq 2^w$ and $|\Int| \leq n^2$.
 \item \textup{(Gap.)} If $w = O(1)$, then $\gamma$ is polynomial in $n$. If $w = \Omega(n)$, then $\gamma$ is exponential in $n$.
 \end{enumerate}
 The Noetherian ratio $\gamma = |\CC(C)|/|\Int(C)|$ is simultaneously a combinatorial invariant (counting convex subsets), a sheaf invariant (counting ring homomorphism opens), and a width detector (polynomial degree determined by width). The irregularity $\kappa = 1 - 1/\gamma$ measures the fraction of non-interval ring homomorphism opens.
@@ -786,9 +1022,13 @@ All parts are unconditional.
 \begin{enumerate}
 \item \textbf{Dimensional scaling.}
 The dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$ is proved for all $d \geq 2$ in~\cite{difiore2026grid} via a tiling inequality and an ideal/filter injection.
-The width scaling law gives $\gamma = O(n^{2(w-1)})$ with exponent matching all tested cases.
-For the $d$-dimensional grid $[m]^d$ on $n = m^d$ elements, the width is $w = m^{d-1} = n^{(d-1)/d}$, predicting $\gamma \sim n^{2(d-1)/d}$ with the exponent increasing monotonically in $d$.
+The width scaling law gives $\gamma = O(n^{2(w-1)})$ for fixed~$w$; this bound is sharp on tested examples.
+For the $d$-dimensional grid $[m]^d$ on $n = m^d$ elements, the width is $w = m^{d-1} = n^{(d-1)/d}$.
+Note that the $O(n^{2(w-1)})$ bound was derived for fixed~$w$; substituting $w \sim n^{(d-1)/d}$ gives a heuristic, not a theorem.
+The rigorous result for grids is the dimension law $\log|\CC([m]^d)| = \Theta(m^{d-1})$, proved directly.
 Computing exact growth constants $\rho_d$ for $d \geq 3$ and exact formulas for $\gamma([m]^d)$ remain open.
+Combined with the upper bound $\log|\CC| \leq w \cdot \log(\lceil n/w \rceil^2 + 1)$ from Theorem~\ref{thm:G}, the dimension law yields a uniqueness result: the entropy exponent $\alpha$ in $\log|\CC| = \Theta(n^\alpha)$ determines the dimension via $d = 1/(1-\alpha)$.
+In particular, the Bekenstein--Hawking area law $S \sim m^{d-2}$ for equilibrium configurations implies $d = 4$; see~\cite{difiore2026bh} for details.
 
 \item \textbf{Continuum limit via poset limits.}
 Janson~\cite{janson2011} and Hladk\'y, M\'ath\'e, Patel, and Pikhurko~\cite{hladky2015} developed the theory of poset limits (``posons''), in which a sequence of finite posets converges when all finite substructure densities converge.
@@ -958,6 +1198,21 @@ preprint, 2026.
 T.~DiFiore,
 Black hole thermodynamics from counting convex subsets of a lattice,
 preprint, 2026.
+
+\bibitem{edelmanjamison1985}
+P.~H.~Edelman and R.~E.~Jamison,
+The theory of convex geometries,
+\emph{Geom.\ Dedicata} \textbf{19} (1985), 247--270.
+
+\bibitem{lihova1999}
+J.~Lihov\'a,
+On convex sublattices of lattices,
+\emph{Algebra Universalis} \textbf{42} (1999), 265--294.
+
+\bibitem{spiegel1997}
+E.~Spiegel and C.~J.~O'Donnell,
+\emph{Incidence Algebras},
+Marcel Dekker, New York, 1997.
 
 \end{thebibliography}
 
