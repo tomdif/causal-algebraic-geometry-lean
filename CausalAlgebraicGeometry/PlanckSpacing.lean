@@ -34,13 +34,26 @@ namespace CausalAlgebraicGeometry.PlanckSpacing
 /-- The spectral gap is 1 in lattice units. (Imported from UniversalGap.) -/
 axiom spectral_gap_is_one : True  -- placeholder; actual proof in UniversalGap.lean
 
--- Physics identification: Δ (lattice) = E_Planck (physical).
--- This is a SINGLE identification, replacing the free parameter ℓ.
--- Consequence: ℓ = ℓ_Planck (since Δ = 1 lattice unit = E_P = ℏ/ℓ_P).
--- The number of physics bridges reduces from 2 to 1:
---   BEFORE: ❗B (β = 8πm) + ❗C (m = r_s/ℓ, ℓ free)
---   AFTER:  ❗B (β = 8πm) only. ℓ = ℓ_P from Δ = 1.
--- With ℓ = ℓ_P: m = M/M_P, S = c_d·(M/M_P)^{d-2}, E = M/(d-2).
+-- TWO possible identifications of ℓ (NOT YET CONSISTENT):
+--
+-- Method 1 (entropy matching): ℓ ≈ 0.664 ℓ_P
+--   Fix ℓ so that S = c_d · m^{d-2} matches S = A/(4G).
+--   This is what the BH paper currently does.
+--
+-- Method 2 (spectral gap): ℓ = ℓ_P
+--   Identify Δ = 1 with E_Planck. Then ℓ = ℓ_Planck exactly.
+--
+-- TENSION: the two methods give ℓ values differing by a factor ≈ 1.5.
+-- This is an O(1) discrepancy — within model uncertainty but NOT negligible.
+-- Until resolved, the paper should NOT claim both identifications.
+--
+-- The spectral gap identification is CONCEPTUALLY cleaner (one universal
+-- constant Δ = 1 fixes ℓ, vs matching a d-dependent coefficient c_d).
+-- But the entropy-matching identification is EMPIRICALLY calibrated.
+--
+-- OPEN PROBLEM: resolve the factor-1.5 tension between the two methods.
+-- Possible resolution: the spectral gap in physical units might be
+-- Δ = 0.664 E_P (not exactly E_P), reflecting a lattice correction.
 
 /-! ## Comparison with the two-bridge framework
 
