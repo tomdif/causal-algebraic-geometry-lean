@@ -1,9 +1,26 @@
 /-
-  GrandUnity.lean — Discrete concavity of S_BD unifies gravity across dimensions.
+  GrandUnity.lean — Discrete concavity of S_BD for d = 2, 3, 4.
 
-  S_BD_d(m) is discretely concave: f(n-1) + f(n+1) ≤ 2·f(n).
-  Proved for d = 2, 3, 4. This is the engine of the nested TV principle:
-  Jensen → equal slices optimal → min TV → min S_BD at every dimension.
+  PROVED: the BD action S_BD_d(m) is discretely concave for d = 2, 3, 4:
+    f(n-1) + f(n+1) ≤ 2·f(n) for all n ≥ 1.
+
+  The exact concavity defects:
+    d=2: -2 (constant, degree 0)
+    d=3: -12n + 6 (linear, degree 1)
+    d=4: -36n² + 24n - 6 (quadratic, degree 2)
+
+  The degree of the defect polynomial is d-2 — the same exponent that
+  controls equilibrium entropy (m^{d-2}), temperature (m^{-(d-3)}),
+  and Bekenstein marginality (m^{d-4}). This is not coincidence:
+  it arises from the polynomial structure of the link-count formula.
+
+  WHAT THIS SUPPORTS (not yet a single general-d theorem):
+  Combined with the recursive decomposition (RecursiveBD.lean),
+  the d=2 TV exactness (ExactBDFormula.lean), and the d=3
+  TV-minimization benchmarks (NestedTVQuantitative.lean), these
+  concavity identities support a conjectural recursive TV hierarchy
+  across dimensions. The full all-d iterated-TV law remains a
+  conjecture supported by these proved components.
 
   Zero sorry.
 -/
@@ -40,9 +57,11 @@ theorem grand_unity (n : ℤ) (hn : 1 ≤ n) :
     (sbd4 (n-1) + sbd4 (n+1) ≤ 2 * sbd4 n) :=
   ⟨concavity_d2 n, concavity_d3 n hn, concavity_d4 n⟩
 
--- The d=2 difference is CONSTANT (-2): curvature-independent. TOPOLOGICAL.
--- The d=3 difference is LINEAR (-12n+6): grows with size. DYNAMICAL.
--- The d=4 difference is QUADRATIC (-36n²+24n-6): grows faster. MORE DYNAMICAL.
--- Pattern: d=k difference is degree (k-2) polynomial in n.
+-- The degree of the concavity defect grows as d-2, matching the
+-- thermodynamic exponent that controls equilibrium entropy scaling.
+-- d=2: degree 0 (constant defect, topological gravity)
+-- d=3: degree 1 (linear defect, onset of dynamical gravity)
+-- d=4: degree 2 (quadratic defect, fully dynamical)
+-- Conjecture: d=k gives degree k-2 defect for all k ≥ 2.
 
 end CausalAlgebraicGeometry.GrandUnity
