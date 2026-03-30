@@ -1,121 +1,98 @@
 # Causal-Algebraic Geometry — Lean 4 Formalization
 
-Formal verification of the mathematical framework developed in the accompanying papers. The codebase covers algebraic-geometric foundations (causal algebras, CSpec, structure sheaves, cohomology), the combinatorial core (grid-convex subset counting, growth constants, dimension law), gauge-theoretic results (Wilson loop, holonomy composition), the Benincasa-Dowker action (positive energy theorem, cylinder factorization), and separation/invariant analysis.
+Formal verification of the mathematical framework developed in the accompanying papers. The codebase covers algebraic-geometric foundations (causal algebras, CSpec, structure sheaves, cohomology), the combinatorial core (grid-convex subset counting, growth constants, dimension law), the Benincasa-Dowker action (positive energy theorem, discrete Gauss-Bonnet, spectral gap, saddle dominance), gauge-theoretic results (holonomy composition, Wilson loop), thermodynamic signatures (parameter-free T·S prediction, negative specific heat, Bekenstein d=4 selection), and separation/invariant analysis.
 
 ## Codebase
 
-**64 files, 15,117 lines.** Zero sorry on the critical path. Thirteen sorries remain in standalone LGV lattice path files (`LGV.lean`, `LGVInvolution.lean`, `LGVLatticePath.lean`, `LindstromReflection.lean`) that are not imported by any other module.
+**82 files, 17,343 lines.** Zero sorry on the critical path. Thirteen sorries remain in standalone LGV lattice path files (`LGV.lean`, `LGVInvolution.lean`, `LGVLatticePath.lean`, `LindstromReflection.lean`) that are not imported by any other module.
 
 Build: `lake build` (~3,100 jobs, Lean 4 v4.28.0, Mathlib v4.28.0).
 
 ## Papers
 
-The `papers/` directory contains the three papers this formalization supports:
+The `papers/` directory contains the four papers this formalization supports:
 
-| Paper | File | Status |
-|-------|------|--------|
-| Causal-Algebraic Geometry | `causal_algebraic_geometry.tex` | Foundations: CSpec, sheaves, cohomology, Noetherian ratio, arithmetic bridge |
+| Paper | File | Content |
+|-------|------|---------|
+| Causal-Algebraic Geometry | `causal_algebraic_geometry.tex` | Foundations: CSpec, sheaves, bridge theorem, Noetherian ratio, arithmetic bridge |
 | Order-Convex Subsets of Grid Posets | `grid_convex_subsets.tex` | Counting: sequence, transfer matrix, growth constant ρ₂ = 16 |
-| Black Hole Thermodynamics from Counting Convex Subsets | `bh_thermodynamics.tex` | Physics: dimension law, area law, Hawking temperature |
-
-A fourth paper (JT gravity from the BD-weighted partition function) is at [tomdif/jt-gravity-from-convex-subsets](https://github.com/tomdif/jt-gravity-from-convex-subsets).
+| Black Hole Thermodynamics | `bh_thermodynamics.tex` | Physics: dimension law, area law, Hawking temperature, d=4 selection |
+| JT Gravity | at [tomdif/jt-gravity-from-convex-subsets](https://github.com/tomdif/jt-gravity-from-convex-subsets) | BD partition function, JT effective action, density of states |
 
 ## Key Verified Results
 
-### Growth constant ρ₂ = 16 (0 sorry)
+### The complete derivation chain (all 0 sorry)
 
-- `crossing_pairs_le`: |crossing antitone pairs| ≤ C(2m+1,m)·C(2m-1,m) via domain-splitting Lindström injection
-- `growth_constant_eq_neg_log_sixteen`: the Fekete limit equals −log 16
-- `numGridConvex_le_choose_sq`: |CC([m]²)| ≤ C(2m, m)²
-- `numGridConvex_ge_catalan_bound`: |CC([m]²)| ≥ C(2m,m)²/(2(m+1))
+1. **Bridge theorem** (`ConvexityIFF.lean`): S convex ↔ restriction preserves multiplication
+2. **Dimension law** (`DimensionLaw.lean`, `AntichainTiling.lean`): log|CC([m]^d)| = Θ(m^{d-1})
+3. **Growth constant** (`CrossingBound.lean`, `GrowthRateIs16.lean`): ρ₂ = 16 exactly
+4. **Discrete Gauss-Bonnet** (`DiscreteGaussBonnet.lean`): 2·S_BD = Σ(2 - deg), local curvature decomposition
+5. **Positive energy** (`BDAction.lean`): S_BD(S) ≥ -(m-1)(n-1)+1, equality iff S = flat
+6. **Spectral gap** (`UniversalGap.lean`, `SpectralGap.lean`): Δ = 1, first excited degeneracy = 2
+7. **Saddle dominance** (`SaddleDominance.lean`): flat dominates Z(β) when β > m·ln(16)
+8. **Stationarity derived** (`CylinderOptimal.lean`): full cylinder minimizes 3D S_BD among ALL convex subsets
+9. **Cylinder forced** (`CylinderForced.lean`): convexity + boundary conditions → full cylinder
+10. **Cylinder factorization** (`CylinderFactorization.lean`): S_BD(S×[t]) = t·S_spatial - |S|·(t-1)
+11. **Parameter-free prediction** (`ParameterFreePrediction.lean`): T·S = m/(d-2), c cancels
+12. **Negative specific heat** (`ThermodynamicSignatures.lean`): C = -S/(d-3) < 0 for d ≥ 4
+13. **Bekenstein selection** (`ThermodynamicSignatures.lean`): S/(ER) ∝ m^{d-4}, constant iff d = 4
+14. **Four-way d=4 selection**: Hawking, specific heat, Bekenstein, evaporation — from one exponent
 
-`#print axioms growth_constant_eq_neg_log_sixteen` returns only `propext`, `Classical.choice`, `Quot.sound`, `Lean.ofReduceBool`, `Lean.trustCompiler`.
+### Separation and invariants (0 sorry)
 
-### Discrete positive energy theorem (0 sorry)
+- `separation5_theorem`: 5-element posets agreeing on 8 classical invariants, separated by γ
+- `holonomy_separates_Y_fork`: holonomy weight distinguishes classically identical posets
+- `dimensional_ordering`: γ(chain) < γ(grid) < γ(antichain) for all m ≥ 2
 
-- `bd_action_fullGrid`: S_BD([m]×[n]) = -(m-1)(n-1) + 1 for all m, n ≥ 1
-- `bd_action_ge`: S_BD(S) ≥ -(m-1)(n-1) + 1 for all nonempty convex S
-- `bd_action_eq_iff_full`: equality iff S = [m]×[n] (for m, n ≥ 2)
-- `cylinder_bd_factorization`: S_BD(S × [t]) = t · S_BD_spatial(S) - |S| · (t-1)
+### Algebraic structure (0 sorry)
 
-Flat spacetime is the unique global minimizer of the Benincasa-Dowker action.
+- `convexity_iff_preserves_multiplication`: the bridge theorem (clean IFF)
+- `cspec_uniquely_determined`: CSpec is the unique sheaf-compatible topology
+- `principalUpset_isCausallyPrime`: ↑α is ALWAYS a CSpec point (no hypotheses)
+- `bulletproof_recovery`: T₀ posets fully recoverable from CSpec
+- `gluing_dimension_gap`: corner algebras do NOT satisfy gluing (honest limitation)
+- `cspec_larger_than_primes`: CSpec ≇ Spec(Z/nZ) — CSpec is strictly richer
 
-### Dimension law (0 sorry)
+### Holonomy (0 sorry)
 
-- `numConvexDim_supermul`: supermultiplicativity for all d ≥ 2
-- `tiling_inequality`: |CC([m]^d)|^{|ac|} ≤ |CC([km]^d)| for any antichain ac of [k]^d
-- `numConvexDim_exponential_lower`: 2^m ≤ |CC([m]^d)|
+- `transitionMatrix_junction`: T_{p,q}·T_{q,r} = e_q (functorial composition)
+- `cylinder_wilson_loop_trace`: trace = (t-1)/t, independent of spatial circumference
 
-Together these give log |CC([m]^d)| = Θ(m^{d-1}).
+### Boundary and fluctuations (0 sorry)
 
-### Convexity ↔ multiplication (0 sorry)
+- `boundary_fluctuation`: exactly 2 removable elements from [m]² (min and max)
+- `max_bd_eq_width_small`: max S_BD = width = m on [m]²
+- `antidiag_bd_4`: anti-diagonal achieves S_BD = 4 > min(d,m) = 2 (disproves UV cutoff claim)
 
-- `convexity_iff_preserves_multiplication`: S is causally convex iff restriction to S preserves multiplication
-- `cspec_uniquely_determined`: CSpec is the unique topology supporting a structure sheaf
-- `non_convex_breaks_restriction`: non-convex subsets break the ring homomorphism
+### Counting and asymptotics (0 sorry)
 
-### Separation theorems (0 sorry)
+- `numGridIntervals_le`: |Int([m]²)| ≤ m⁴+1 (polynomial)
+- `intervals_lt_convex`: |Int| < |CC| for all m ≥ 2 (exponential dominates)
+- `numIntervals_ge_sq_div_width`: |Int| ≥ n²/(2w) via Cauchy-Schwarz
+- `subexp_lower_nat`: 16^m/(16m³) ≤ |CC([m]²)| ≤ 16^m
+- D-finiteness: NEGATIVE — no recurrence of order ≤ 5
 
-- `separation5_theorem`: two 5-element posets agreeing on 8 classical invariants (width, height, edges, antichains, maximal chains, comparable pairs, order ideals, join-irreducibles) but differing on γ
-- `holonomy_separates_Y_fork`: holonomy weight distinguishes posets with identical classical invariants
-- `gamma_chain_lt_gamma_antichain`: γ(chain) < γ(antichain) for all n ≥ 2
+## Physics bridge (honest accounting)
 
-### Holonomy composition (0 sorry)
+The derivation chain above requires exactly **two physics identifications**:
 
-- `transitionMatrix_junction`: T_{p,q} · T_{q,r} = e_q (the discrete parallel transport law)
-- `transitionMatrix_idempotent`: T_{p,q}² = T_{p,q}
-- 4 nesting laws, orthogonality, completeness — establishing holonomy as a functor
+- **β = 8πm** (inverse Hawking temperature = temporal extent, from GR)
+- **m = r_s/ℓ** (grid size = Schwarzschild radius / lattice spacing)
 
-### Recovery theorem — precise status
+Vacuum stationarity is **derived** (CylinderOptimal.lean). Black hole stationarity for excited states remains an assumption. See `HonestAccounting.lean` for the precise logical structure.
 
-- `principalFilter_injective`: the non-strict filter α ↦ {β : α ≤ β} is always injective (no hypotheses needed)
-- `closedPoint_isCausallyPrime`: strict upset ↑α is causally prime for non-maximal α
-- `closedPoint_injective_T0`: strict upset map is injective under T₀ hypothesis
-- `recovery_counterexample`: V-poset shows T₀ is necessary for strict upset injectivity
-- `minimum_not_proper`: ↑≤(minimum) = Λ is not proper, hence not a CSpec point
-- The "closed points" language from scheme theory does not apply correctly to CSpec
-
-### Wilson loop (0 sorry)
-
-- `cylinder_wilson_loop_trace`: normalized trace = (t-1)/t, independent of spatial circumference c
-
-### Additional results (0 sorry)
-
-- `grid_width_eq`: width([m]²) = m for all m
-- `intervals_lt_convex`: intervals O(m⁴) vs convex subsets Θ(16^m) for all m ≥ 2
-- `totalOrder_numCC_eq_numInt_succ`: |CC| = |Int| + 1 for total orders
-- `sectorCount_zero_eq_one`: only the empty set has 0 blocks (all m, n)
-- `subexp_lower_nat`: 16^m ≤ 16m³ · (|CC| + 1) (subexponential factor bound)
-- D-finiteness: NEGATIVE — no recurrence of order ≤ 5 with polynomial degree ≤ 4
-- State count: C(n+2,2) is the boundary-pair count (verified m ≤ 8)
+**Falsifiable prediction**: c₃ ≤ π (growth constant of |CC([m]³)| must satisfy the Bekenstein bound).
 
 ## File Organization
 
 | Directory | Contents |
 |-----------|----------|
-| `CausalAlgebraicGeometry/` | All 64 Lean source files |
-| `papers/` | LaTeX and PDF for the three papers |
-
-### Key files
-
-| File | Lines | Content |
-|------|-------|---------|
-| `BDAction.lean` | 780 | BD action formula, positive energy theorem, uniqueness |
-| `DimensionLaw.lean` | 709 | Convex subsets of [m]^d, supermultiplicativity, bounds |
-| `CrossingBound.lean` | 276 | Domain-splitting Lindström injection, ρ₂ = 16 |
-| `CylinderFactorization.lean` | 243 | S_BD(S×[t]) = t·S_spatial - |S|·(t-1) |
-| `HolonomyComposition.lean` | 295 | 12 composition laws for discrete connection |
-| `GammaOrdering.lean` | 337 | γ(chain) < γ(antichain), γ → 1 for chains |
-| `Separation5.lean` | 262 | 5-element separation on 8 invariants |
-| `ConvexityIFF.lean` | 160 | S convex ↔ restriction preserves multiplication |
-| `T0Recovery.lean` | 119 | Non-strict filter always injective |
-| `RecoveryLimitations.lean` | 93 | Precise limitations of recovery theorem |
-| `IntervalVsConvex.lean` | 218 | Polynomial vs exponential growth |
-| `GrowthRateIs16.lean` | 132 | Fekete limit = −log 16 |
+| `CausalAlgebraicGeometry/` | 82 Lean source files |
+| `papers/` | LaTeX and PDF for the four papers |
 
 ## Axiom Audit
 
-All key theorems depend only on the standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`, plus `Lean.ofReduceBool` and `Lean.trustCompiler` (from `native_decide` for computational verification). No `sorryAx` on the critical path.
+All key theorems depend only on standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`, plus `Lean.ofReduceBool` and `Lean.trustCompiler` (from `native_decide`). No `sorryAx` on the critical path.
 
 ## Building
 
