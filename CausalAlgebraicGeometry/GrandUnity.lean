@@ -51,11 +51,35 @@ theorem concavity_d4 (n : ℤ) :
     sbd4 (n - 1) + sbd4 (n + 1) ≤ 2 * sbd4 n := by
   have h := concavity_d4_exact n; nlinarith [sq_nonneg (3 * n - 2)]
 
+def sbd5 (m : ℤ) : ℤ := -4 * m ^ 5 + 5 * m ^ 4
+def sbd6 (m : ℤ) : ℤ := -5 * m ^ 6 + 6 * m ^ 5
+
+theorem concavity_d5_exact (n : ℤ) :
+    sbd5 (n - 1) + sbd5 (n + 1) - 2 * sbd5 n =
+    -80 * n ^ 3 + 60 * n ^ 2 - 40 * n + 10 := by unfold sbd5; ring
+
+theorem concavity_d5 (n : ℤ) (hn : 1 ≤ n) :
+    sbd5 (n - 1) + sbd5 (n + 1) ≤ 2 * sbd5 n := by
+  have h := concavity_d5_exact n
+  nlinarith [sq_nonneg (2 * n - 1), sq_nonneg n, sq_nonneg (n - 1)]
+
+theorem concavity_d6_exact (n : ℤ) :
+    sbd6 (n - 1) + sbd6 (n + 1) - 2 * sbd6 n =
+    -150 * n ^ 4 + 120 * n ^ 3 - 150 * n ^ 2 + 60 * n - 10 := by unfold sbd6; ring
+
+theorem concavity_d6 (n : ℤ) (hn : 1 ≤ n) :
+    sbd6 (n - 1) + sbd6 (n + 1) ≤ 2 * sbd6 n := by
+  have h := concavity_d6_exact n
+  nlinarith [sq_nonneg n, sq_nonneg (n - 1), sq_nonneg (3 * n ^ 2 - n),
+             sq_nonneg (n * (n - 1))]
+
 theorem grand_unity (n : ℤ) (hn : 1 ≤ n) :
     (sbd2 (n-1) + sbd2 (n+1) ≤ 2 * sbd2 n) ∧
     (sbd3 (n-1) + sbd3 (n+1) ≤ 2 * sbd3 n) ∧
-    (sbd4 (n-1) + sbd4 (n+1) ≤ 2 * sbd4 n) :=
-  ⟨concavity_d2 n, concavity_d3 n hn, concavity_d4 n⟩
+    (sbd4 (n-1) + sbd4 (n+1) ≤ 2 * sbd4 n) ∧
+    (sbd5 (n-1) + sbd5 (n+1) ≤ 2 * sbd5 n) ∧
+    (sbd6 (n-1) + sbd6 (n+1) ≤ 2 * sbd6 n) :=
+  ⟨concavity_d2 n, concavity_d3 n hn, concavity_d4 n, concavity_d5 n hn, concavity_d6 n hn⟩
 
 -- The degree of the concavity defect grows as d-2, matching the
 -- thermodynamic exponent that controls equilibrium entropy scaling.
