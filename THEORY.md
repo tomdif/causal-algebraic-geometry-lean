@@ -99,55 +99,69 @@ The angular correction Δγ ≈ 0.004 is genuinely non-perturbative:
 it arises from the hypotenuse BC coupling all modes, not from
 a small perturbation of the p=1 solution.
 
-### Numerical Resolution
+### Spectral Theorem Package
 
-The L² Galerkin with mpmath Gram-Schmidt orthogonalization (50-digit precision)
-gives spectral convergence. At polynomial degree P=10 (66 basis functions):
+**Definition.** Let K_s be the symmetrized comparability transfer operator on the
+simplex Σ = {u,v ≥ 0, u+v ≤ 1}, defined by:
 
-**λ_comp = 0.3491649455123988110851824586097...** (30+ digits)
-**γ₂ = 0.27641373606996265828496627577...** (28+ digits)
+  (K_s f)(u,v) = (1/2) ∫_Σ 1_{comparable}(P,Q) f(Q) dQ
 
-Convergence is spectral (~4 digits per degree increase). Full mpmath eigensolver
-(Cholesky + eigsy) at P=17 (171 basis functions, 124s) gives 28 stable digits.
-Higher precision is limited only by mpmath precision setting and computation time.
+where comparable means (u'≤u, v'≥v) or (u'≥u, v'≤v). K_s is a compact
+self-adjoint operator on L²(Σ).
 
-The spurious formal solution at μ = 3 (λ_comp = 2/3) found by the Bessel-mode
-boundary analysis is NOT physically relevant: its coefficients C_p grow
-super-exponentially, so the eigenfunction is not in L²(Σ). The physical
-eigenvalue (μ ≈ 5.73) is selected by L²-normalizability.
+**Spectral approximation.** Let V_P = span{u^a v^b : a+b ≤ P} be the polynomial
+trial space. The Galerkin eigenvalue problem A_s C = λ_s^{(P)} B C (with mass
+matrix B and symmetrized stiffness matrix A_s) is solved in arbitrary-precision
+arithmetic (mpmath Cholesky + eigsy at 100-digit working precision).
 
-### Certified Enclosure
+**Result.** The principal eigenvalue λ_s = λ_comp/2 and the bulk gap constant
+γ₂ = 1 − ⟨u+v⟩_{ψ_s²} are numerically resolved:
 
-Theorem-grade certification via monotone Ritz + Richardson extrapolation
-using P=14,15,16,17 (120–171 basis functions, 100-digit mpmath):
+  λ_comp = 0.3491649455123988110851824...  (26 stable digits)
+  γ₂     = 0.276413736069962658284966...   (25 stable digits)
 
-**Stable prefix** (25 common digits across P=14..17):
-  λ_comp = 0.3491649455123988110851824...
-  γ₂     = 0.276413736069962658284966...
+These are the 25 digits common to ALL of P = 14, 15, 16, 17.
+
+**Rigorous lower bound.** Since K_s is self-adjoint and V_P ⊂ V_{P+1}, the
+Rayleigh-Ritz theorem guarantees λ_s^{(P)} ≤ λ_s^{(P+1)} ≤ λ_s. The Galerkin
+eigenvalue converges monotonically from below. Confirmed: λ_comp is strictly
+increasing through P = 14 → 15 → 16 → 17.
+
+  Rigorous: λ_comp ≥ 0.349164945512398811085182458609714784...  (P=17 Ritz value)
+
+**Upper estimate.** Richardson extrapolation of the geometric convergence
+(ratio |Δ(17)|/|Δ(16)| = 0.007) gives an upper estimate:
+
+  λ_comp ≲ 0.349164945512398811085182458609716...
+
+This is strongly supported but not rigorous without a proof that the
+extrapolation model applies. A fully rigorous enclosure would require
+an interval-arithmetic eigensolver or a spectral a posteriori bound.
 
 **A posteriori checks:**
-- Residual: ||A_s c - λ_s B c|| / ||B c|| = 10⁻¹⁰² (mpmath noise floor)
-- Rayleigh quotient matches eigsy to 10⁻¹⁰⁰
-- Monotone Ritz convergence from below: CONFIRMED (self-adjoint compact operator)
-- Convergence ratio |Δ(P=17)|/|Δ(P=16)| = 0.007 (geometric)
+- Residual: ||A_s c − λ_s B c|| / ||B c|| = 10⁻¹⁰² (at mpmath noise floor)
+- Rayleigh quotient matches eigsy eigenvalue to 10⁻¹⁰⁰
+- Convergence ratio: geometric, ~4 stable digits per degree increase
+- PSLQ search: no closed form found involving π, e, √n, ln(n), or Bessel zeros
 
-**Enclosure** (Ritz lower bound + 2× Richardson upper bound):
-  λ_comp ∈ [0.34916494551239881108518245860971478,
-            0.34916494551239881108518245860971652]
-
-Enclosure width: 1.7 × 10⁻³⁴.
+**Spurious formal solutions.** The Bessel-mode boundary equation admits a
+formal solution at μ = 3 (λ_comp = 2/3) with super-exponentially growing
+coefficients. This is NOT in L²(Σ) and is not physically relevant. The true
+spectral problem requires PDE + BCs + L²-normalizability jointly. The
+polynomial Galerkin enforces L² membership by construction, avoiding such
+spurious branches.
 
 ### Status
 
 | Component | Status |
 |-----------|--------|
 | Operator derivation | Established (exact Riemann limit of discrete model) |
-| PDE derivation | Numerically verified to discretization accuracy |
-| Boundary conditions | Derived from integral equation, not guessed |
-| Symmetry ψ_s(u,v) = ψ_s(v,u) | Exact (machine precision) |
-| Spectral constants | 25 stable digits, certified enclosure width 10⁻³⁴ |
-| Monotone Ritz convergence | CONFIRMED (P=14..17) |
-| Closed form for γ₂ | **Open** (PSLQ negative for π, e, √n, ln(n), Bessel zeros) |
+| PDE and BCs | Derived from integral equation, numerically verified |
+| Self-adjointness / compactness | K_s self-adjoint and compact on L²(Σ) |
+| Monotone Ritz convergence | CONFIRMED (P=14..17, strictly increasing) |
+| Spectral constants | 25 stable digits, rigorous lower bound |
+| Rigorous upper bound | **Open** (needs interval eigensolver or a posteriori bound) |
+| Closed form for γ₂ | **Open** (PSLQ negative) |
 | d=3 continuum operator | **Open** (state space is infinite-dimensional) |
 
 ## What Is Open
