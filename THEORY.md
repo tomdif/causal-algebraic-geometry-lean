@@ -99,6 +99,23 @@ The angular correction Δγ ≈ 0.004 is genuinely non-perturbative:
 it arises from the hypotenuse BC coupling all modes, not from
 a small perturbation of the p=1 solution.
 
+### Numerical Resolution
+
+The L² Galerkin with mpmath Gram-Schmidt orthogonalization (50-digit precision)
+gives spectral convergence. At polynomial degree P=10 (66 basis functions):
+
+**λ_comp = 0.34916494551240** (comparability kernel eigenvalue, 14 digits)
+**γ₂ = 0.276413736070** (bulk gap, 12 digits)
+
+Convergence is spectral (each increase in P adds ~2 digits) up to P=12,
+then limited by scipy's double-precision eigensolver. The Galerkin matrices
+are computed in 50-digit precision; the bottleneck is the backend eigendecomposition.
+
+The spurious formal solution at μ = 3 (λ_comp = 2/3) found by the Bessel-mode
+boundary analysis is NOT physically relevant: its coefficients C_p grow
+super-exponentially, so the eigenfunction is not in L²(Σ). The physical
+eigenvalue (μ ≈ 5.73) is selected by L²-normalizability.
+
 ### Status
 
 | Component | Status |
@@ -107,8 +124,10 @@ a small perturbation of the p=1 solution.
 | PDE derivation | Numerically verified to discretization accuracy |
 | Boundary conditions | Derived from integral equation, not guessed |
 | Symmetry ψ_s(u,v) = ψ_s(v,u) | Exact (machine precision) |
-| Bulk gap | Converging to γ₂ ≈ 0.2764 |
+| Spectral constants | λ_comp = 0.34916494551240, γ₂ = 0.276413736070 (12 digits) |
+| Galerkin convergence | Spectral, stable through P=12 |
 | Closed form for γ₂ | **Open** |
+| Certified enclosure | **Open** (needs interval-arithmetic eigensolver) |
 | d=3 continuum operator | **Open** (state space is infinite-dimensional) |
 
 ## What Is Open
