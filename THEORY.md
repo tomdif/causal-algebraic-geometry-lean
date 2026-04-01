@@ -104,12 +104,12 @@ a small perturbation of the p=1 solution.
 The L² Galerkin with mpmath Gram-Schmidt orthogonalization (50-digit precision)
 gives spectral convergence. At polynomial degree P=10 (66 basis functions):
 
-**λ_comp = 0.34916494551240** (comparability kernel eigenvalue, 14 digits)
-**γ₂ = 0.276413736070** (bulk gap, 12 digits)
+**λ_comp = 0.3491649455123988110851824586097...** (30+ digits)
+**γ₂ = 0.27641373606996265828496627577...** (28+ digits)
 
-Convergence is spectral (each increase in P adds ~2 digits) up to P=12,
-then limited by scipy's double-precision eigensolver. The Galerkin matrices
-are computed in 50-digit precision; the bottleneck is the backend eigendecomposition.
+Convergence is spectral (~4 digits per degree increase). Full mpmath eigensolver
+(Cholesky + eigsy) at P=17 (171 basis functions, 124s) gives 28 stable digits.
+Higher precision is limited only by mpmath precision setting and computation time.
 
 The spurious formal solution at μ = 3 (λ_comp = 2/3) found by the Bessel-mode
 boundary analysis is NOT physically relevant: its coefficients C_p grow
@@ -124,8 +124,8 @@ eigenvalue (μ ≈ 5.73) is selected by L²-normalizability.
 | PDE derivation | Numerically verified to discretization accuracy |
 | Boundary conditions | Derived from integral equation, not guessed |
 | Symmetry ψ_s(u,v) = ψ_s(v,u) | Exact (machine precision) |
-| Spectral constants | λ_comp = 0.34916494551240, γ₂ = 0.276413736070 (12 digits) |
-| Galerkin convergence | Spectral, stable through P=12 |
+| Spectral constants | λ_comp, γ₂ to 28+ digits (see above) |
+| Galerkin convergence | Spectral (~4 digits per degree), stable through P=17 |
 | Closed form for γ₂ | **Open** |
 | Certified enclosure | **Open** (needs interval-arithmetic eigensolver) |
 | d=3 continuum operator | **Open** (state space is infinite-dimensional) |
