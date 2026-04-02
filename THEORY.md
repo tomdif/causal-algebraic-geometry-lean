@@ -237,8 +237,31 @@ of nonincreasing functions, reducing cost to O(nf² × avg_pred).
 Extrapolation from 7 data points: **γ₃ = 0.035 ± 0.001**.
 All fitting models (a+b/m, a+b/m+c/m², a+b·m^{-α}) agree within ±0.001.
 The correction is O(1/m) with exponent α = 1.008.
-The ratio γ₃/γ₂ ≈ 0.126 (NOT γ₂² = 0.076 — the dimensional reduction
-is not a simple power law).
+The ratio γ₃/γ₂ ≈ 0.126 (NOT γ₂² = 0.076).
+
+### Two-Scale Decomposition
+
+The d=3 gap factorizes:
+
+**γ₃ = f_occ × γ_slice ≈ 0.138 × 0.254 = 0.035**
+
+where:
+- **γ_slice ≈ 0.254** = per-slice width fraction (92% of γ₂ = 0.276)
+- **f_occ ≈ 0.138** = fraction of effectively occupied slices
+
+Verified: ⟨w⟩ = 0.035m + 1.03 (linear), n_eff = γ₃m/γ_slice = 0.138m (linear).
+
+The precision matrix of the width correlations is **96% tridiagonal** (off-tridiagonal
+entries < 4% of diagonal), confirming a nearest-neighbor Gibbs model:
+
+  P(w) ∝ exp(-a Σ(w_j - w̄)² - b Σ(w_{j+1} - w_j)²)
+
+with b/a ≈ 1.53 (correlated regime), predicted ξ ≈ 1.27 (measured 1.35).
+
+The d=3 continuum theory is thus a **hierarchical transfer**:
+- Outer: d=2-type simplex transfer operator at each slice
+- Inner: 1D correlated width field with nearest-neighbor coupling
+- γ₃ = product of the two spectral constants
 
 ## What Is Open
 
