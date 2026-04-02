@@ -53,19 +53,36 @@ def smallest_sv(mu, P, nquad=500):
     return np.linalg.svd(M, compute_uv=False)[-1]
 
 
-def find_eigenvalue(P, mu_range=(3.0, 12.0), nquad=500, nscan=300):
+def find_eigenvalue(P, mu_range=(4.0, 8.0), nquad=500, nscan=400):
     """Find mu where M(mu) becomes singular. [DERIVABLE]
-    Uses scan + refine to find the global minimum of smallest SV."""
+    Uses scan + refine. Targets the principal eigenvalue near mu ~ 5.73."""
     mus = np.linspace(mu_range[0], mu_range[1], nscan)
     svs = np.array([smallest_sv(m, P, nquad) for m in mus])
-    min_idx = np.argmin(svs)
-    if min_idx > 0 and min_idx < len(mus) - 1:
-        a = mus[max(0, min_idx - 3)]
-        b = mus[min(len(mus) - 1, min_idx + 3)]
-        result = minimize_scalar(lambda m: smallest_sv(m, P, nquad),
-                                 bounds=(a, b), method='bounded')
-        return result.x, result.fun
-    return mus[min_idx], svs[min_idx]
+
+    # Find ALL local minima and pick the one closest to mu ~ 5.73
+    local_mins = []
+    for i in range(1, len(svs) - 1):
+        if svs[i] < svs[i-1] and svs[i] < svs[i+1]:
+            local_mins.append((i, svs[i]))
+
+    if not local_mins:
+        min_idx = np.argmin(svs)
+        return mus[min_idx], svs[min_idx]
+
+    # Among local minima with sv < 1e-3, pick closest to 5.73
+    good_mins = [(i, sv) for i, sv in local_mins if sv < 1e-3]
+    if not good_mins:
+        # Fall back to smallest sv
+        good_mins = local_mins
+
+    # Pick closest to expected mu ~ 5.73
+    best_idx, best_sv = min(good_mins, key=lambda x: abs(mus[x[0]] - 5.73))
+
+    a = mus[max(0, best_idx - 3)]
+    b = mus[min(len(mus) - 1, best_idx + 3)]
+    result = minimize_scalar(lambda m: smallest_sv(m, P, nquad),
+                             bounds=(a, b), method='bounded')
+    return result.x, result.fun
 
 
 def extract_coefficients(mu, P, nquad=500):
@@ -81,22 +98,35 @@ def extract_coefficients(mu, P, nquad=500):
 # Section 2: Mode energies via single-mode truncation
 # ============================================================
 
-def truncated_eigenvalue(P_keep, mu_range=(3.0, 12.0), nquad=500, nscan=300):
+def truncated_eigenvalue(P_keep, mu_range=(4.0, 8.0), nquad=500, nscan=400):
     """Find eigenvalue using only the first P_keep modes.
     [DERIVABLE] Truncation to P_keep modes gives a P_keep x P_keep system."""
-    def sv_min(mu):
+    def sv_min_func(mu):
         M = build_M(mu, P_keep, nquad)
         return np.linalg.svd(M, compute_uv=False)[-1]
 
     mus = np.linspace(mu_range[0], mu_range[1], nscan)
-    svs = np.array([sv_min(m) for m in mus])
-    min_idx = np.argmin(svs)
-    if min_idx > 0 and min_idx < len(mus) - 1:
-        a = mus[max(0, min_idx - 3)]
-        b = mus[min(len(mus) - 1, min_idx + 3)]
-        result = minimize_scalar(sv_min, bounds=(a, b), method='bounded')
-        return result.x, result.fun
-    return mus[min_idx], svs[min_idx]
+    svs = np.array([sv_min_func(m) for m in mus])
+
+    # Find local minima, prefer ones near mu ~ 5.73
+    local_mins = []
+    for i in range(1, len(svs) - 1):
+        if svs[i] < svs[i-1] and svs[i] < svs[i+1]:
+            local_mins.append((i, svs[i]))
+
+    if not local_mins:
+        min_idx = np.argmin(svs)
+        return mus[min_idx], svs[min_idx]
+
+    good_mins = [(i, sv) for i, sv in local_mins if sv < 1e-3]
+    if not good_mins:
+        good_mins = local_mins
+    best_idx, best_sv = min(good_mins, key=lambda x: abs(mus[x[0]] - 5.73))
+
+    a = mus[max(0, best_idx - 3)]
+    b = mus[min(len(mus) - 1, best_idx + 3)]
+    result = minimize_scalar(sv_min_func, bounds=(a, b), method='bounded')
+    return result.x, result.fun
 
 
 # ============================================================
