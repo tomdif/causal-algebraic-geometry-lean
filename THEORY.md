@@ -268,9 +268,43 @@ P(escape)/P(collapse) scaling: the ratio × m ≈ 13 is stable across
 m=3,4,5, confirming P(0→occ) ~ C/m. The width transfer eigenvalue
 λ₂/λ₁ ≈ 0.52 at m=5, giving ξ ≈ 1.5.
 
-The theorem-grade target: derive the width chain transfer law analytically
-from the antitone constraint combinatorics, extract f_occ from its
-spectral theory, and make γ₃ = f_occ × γ_slice a DERIVED quantity.
+### Phase Separation in the Width Profile
+
+The factorization γ₃ = f_occ × γ_slice arises from a **phase separation**
+at the state level: each d=3 bulk state has a humped width profile that
+becomes more peaked as m→∞.
+
+- State-level peakedness (max_w/avg_w): 1.87 (m=4) → 2.32 (m=6) → ~7.3 (m→∞)
+- Bulk fraction (slices with w > max_w/2): 0.51 (m=4) → 0.41 (m=6) → ~0.14 (m→∞)
+- Single-slice P(w>0) → 0.55 (occupancy), but f_area = γ₃/γ_slice → 0.138
+
+The eigenvector-averaged profile is FLAT (by symmetry: peak location varies
+uniformly), but individual states have humped profiles with width concentrated
+on ~14% of slices. The remaining ~86% have O(1) width (boundary zone).
+
+### Exact Continuum Width Kernel (derived)
+
+The antitone constraint gives an exact combinatorial width transition:
+
+  K(s,s') = −ln(s)/(1−s) for 0 < s' ≤ s (flat below diagonal)
+  K(s,s') = [(s−s')ln((1−s)/(s'−s)) − s'ln(s')] / (s(1−s)) for s' > s
+  P(0|s) = 1/2 + s·ln(s)/(2(1−s))
+
+Verified: P(0) + ∫K ds' = 1 exactly. Self-loop P(0|0) = 1/2.
+
+The h-function from d=2 spectral theory: h(s) ∝ s^{0.28}(1−s)^{1.26},
+peak at s ≈ 0.25 ≈ γ₂. The naive Doob transform K_eff = K_comb × h/h
+captures ~90% but not the full profile correlations.
+
+### Theorem Program
+
+The correct framework is a **fiber decomposition** of the full profile
+transfer operator, with K_comb and h(s) as the leading skeleton:
+1. Fiber F_w = profile states at width w (approximately uniform within)
+2. Block transfer T_{w,w'} between fibers
+3. Reduced kernel K̃(w,w') ≈ K_comb × spectral_tilt + O(4% correction)
+4. Prove phase separation: bulk zone (w~γ_slice×m on ~14% of slices)
+5. Conclude γ₃ = f_bulk × γ_slice
 
 ## What Is Open
 
