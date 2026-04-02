@@ -263,6 +263,15 @@ The d=3 continuum theory is thus a **hierarchical transfer**:
 - Inner: 1D correlated width field with nearest-neighbor coupling
 - γ₃ = product of the two spectral constants
 
+The 2-state (occupied/unoccupied) reduction of the width chain confirms
+P(escape)/P(collapse) scaling: the ratio × m ≈ 13 is stable across
+m=3,4,5, confirming P(0→occ) ~ C/m. The width transfer eigenvalue
+λ₂/λ₁ ≈ 0.52 at m=5, giving ξ ≈ 1.5.
+
+The theorem-grade target: derive the width chain transfer law analytically
+from the antitone constraint combinatorics, extract f_occ from its
+spectral theory, and make γ₃ = f_occ × γ_slice a DERIVED quantity.
+
 ## What Is Open
 
 1. **Exact closed form of the bulk gap γ₂.** The eigenvalue condition couples
