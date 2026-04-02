@@ -217,13 +217,18 @@ Transfer matrix computation at m=2,...,6:
 | 4 | 1120 | 0.2911 | 0.473 |
 | 5 | 14700 | 0.2397 | 0.428 |
 | 6 | 199584 | 0.2056 | 0.395 |
+| 7 | 2,774,772 | 0.1812 | 0.369 |
+| 8 | 39,262,080 | 0.1628 | 0.348 |
 
-Extrapolation: gap(m) ≈ 0.035 + 1.03/m (fits all 5 points to < 0.03%).
-Extrapolated **γ₃ ≈ 0.035**, consistent across multiple fitting models
-(range: 0.033 to 0.036). The O(1/m) correction coefficient is ~1.03.
+Computed via factored prefix sum (173× faster than brute force):
+the O(n²) matvec factors into two prefix sums on the nf-element poset
+of nonincreasing functions, reducing cost to O(nf² × avg_pred).
 
-For m=7 (2.8M states): one matvec takes ~47 min on 6 cores. This is the
-AWS frontier — feasible on 192 cores in ~2 min/matvec.
+Extrapolation from 7 data points: **γ₃ = 0.035 ± 0.001**.
+All fitting models (a+b/m, a+b/m+c/m², a+b·m^{-α}) agree within ±0.001.
+The correction is O(1/m) with exponent α = 1.008.
+The ratio γ₃/γ₂ ≈ 0.126 (NOT γ₂² = 0.076 — the dimensional reduction
+is not a simple power law).
 
 ## What Is Open
 
