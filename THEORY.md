@@ -296,15 +296,43 @@ The h-function from d=2 spectral theory: h(s) ∝ s^{0.28}(1−s)^{1.26},
 peak at s ≈ 0.25 ≈ γ₂. The naive Doob transform K_eff = K_comb × h/h
 captures ~90% but not the full profile correlations.
 
-### Theorem Program
+### Local Reduction: (w, a) as Minimal State
 
-The correct framework is a **fiber decomposition** of the full profile
-transfer operator, with K_comb and h(s) as the leading skeleton:
-1. Fiber F_w = profile states at width w (approximately uniform within)
-2. Block transfer T_{w,w'} between fibers
-3. Reduced kernel K̃(w,w') ≈ K_comb × spectral_tilt + O(4% correction)
-4. Prove phase separation: bulk zone (w~γ_slice×m on ~14% of slices)
-5. Conclude γ₃ = f_bulk × γ_slice
+The two-slice Markov test identifies the minimal hidden variable:
+- **State (w, a)** = (width, lower boundary) at each slice position
+- Augmenting width by center reduces memory KL by **91%** (0.0074 → 0.0007)
+- P(collapse | w=1, a=0) = 0.000 exactly (vs Markov-in-width 0.239)
+- Exact transition counts: a+1 for w'≤w, max(0, a+w-w'+1) for w'>w
+
+### Degree Approximation
+
+The principal eigenvector is approximately a **power of the comparability
+degree**: ψ ∝ deg^α with α ≈ 0.8 (ψ² ∝ deg^{~1.6}).
+- R² ≈ 95-98%, gap prediction error ≈ 1%
+- BUT: the exponent drifts with m (1.77 → 1.65 → 1.58 for m=3,4,5)
+- Self-consistency CV grows: 4% → 7% → 9%
+- This is a strong approximation, not an exact identity
+
+### What Is and Is Not Reducible
+
+**d=3 does not collapse to a closed formula like d=2.** Instead it defines
+a genuinely infinite-dimensional spectral theory with:
+- Tractable local reduction via (w, a) chain (91% Markov)
+- Strong approximate degree power law (R² ≈ 96%)
+- Exact combinatorial width kernel K_comb
+- But no exact scalar reduction to a 1D eigenvalue problem
+
+The global observable f_bulk = 0.138 requires the full profile theory.
+The factorization γ₃ = f_bulk × γ_slice is empirically verified but
+not derivable from any single-slice reduction.
+
+### Provable Targets
+
+1. **K_comb(s,s') in closed form** — three exact formulas (done)
+2. **P(0|0) = 1/2** — exact continuum self-loop (done)
+3. **Monotonicity of ψ with degree** — from Perron-Frobenius + graph structure
+4. **Rigorous bounds on γ₃** — from degree-weighted averages
+5. **Explicit error bound** for the (w,a) + degree^α approximation
 
 ## What Is Open
 
