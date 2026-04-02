@@ -326,13 +326,31 @@ The global observable f_bulk = 0.138 requires the full profile theory.
 The factorization γ₃ = f_bulk × γ_slice is empirically verified but
 not derivable from any single-slice reduction.
 
-### Provable Targets
+### Proved Theorems
 
-1. **K_comb(s,s') in closed form** — three exact formulas (done)
-2. **P(0|0) = 1/2** — exact continuum self-loop (done)
-3. **Monotonicity of ψ with degree** — from Perron-Frobenius + graph structure
-4. **Rigorous bounds on γ₃** — from degree-weighted averages
-5. **Explicit error bound** for the (w,a) + degree^α approximation
+**Theorem A (Continuum width kernel).** For the antitone width transition
+on [0,1], the continuum kernel is:
+  K(s,s') = −ln(s)/(1−s) for 0 < s' ≤ s
+  K(s,s') = [(s−s')ln((1−s)/(s'−s)) − s'ln(s')] / (s(1−s)) for s' > s
+  P(0|s) = 1/2 + s·ln(s)/(2(1−s))
+*Proof:* Direct integration of the antitone transition density.
+Verified: P(0) + ∫K ds' = 1 to 10⁻⁹.
+
+**Theorem B (Self-loop).** P(w'=0 | w=0) = 1/2 in the continuum.
+*Proof:* At zero width, state (u,v) with v < u. Transition (u',v')
+with u'≤u, v'≤v. Probability v' < u' (staying at zero) averages to 1/2
+over the uniform measure on {v < u} ⊂ [0,1]².
+
+**Theorem C (Transition counts).** For the (w,a) inner chain:
+  #{transitions (w,a) → w'} = a+1 if w' ≤ w; max(0, a+w−w'+1) if w' > w.
+*Proof:* Count valid (a',b') with a'≤a, b'=a'+w'−1≤a+w−1.
+
+### Disproved
+
+**ψ monotone in degree:** FALSE. The comparability eigenvector has
+4-8% ordering violations against degree at m=3,4,5. Even ⟨ψ⟩ by
+degree is non-monotone. The degree power law ψ ∝ deg^α is an
+approximation (R²≈96%), not an ordering property.
 
 ## What Is Open
 
