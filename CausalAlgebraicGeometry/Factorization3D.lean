@@ -82,11 +82,9 @@ theorem gap_eq_avg_sliceWidth
     (Finset.univ.sum (fun j : Fin m => sliceWidth S ψ j)) / ↑m := by
   unfold gap sliceWidth
   rw [weighted_area_decomp S (fun s => ψ s ^ 2)]
-  -- The goal after weighted_area_decomp is:
-  -- Σ_j (Σ_s f·w_j) / (Z·m²) = (Σ_j (Σ_s f·w_j)/(Z·m)) / m
-  -- This is purely algebraic (Σ x_j / (c·m²) = (Σ x_j/(c·m)) / m)
-  -- but Lean's ring tactic can't handle Finset.sum under division.
-  sorry
+  -- The algebra: (Σ x_j) / (Z * m²) = (Σ (x_j / (Z * m))) / m
+  -- Both sides equal (Σ x_j) / (Z * m * m)
+  simp only [Finset.sum_div, div_div, sq, mul_assoc]
 
 /-- Combined factorization: under the hypotheses of total_expectation at each j,
     gap = (1/m) Σ_j occupiedFrac(j) × conditionalSliceWidth(j). -/
