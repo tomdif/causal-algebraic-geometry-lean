@@ -49,13 +49,13 @@ theorem kernel_normalization (a b : ℕ) :
       Finset.card_product, Finset.card_range, Finset.card_range]
 
 /-- Verified instances of zero-width count for small a. -/
-theorem zwc_0_0 : (zeroWidth 0 0).card = 0 := by native_decide
-theorem zwc_1_1 : (zeroWidth 1 1).card = 1 := by native_decide
-theorem zwc_2_2 : (zeroWidth 2 2).card = 3 := by native_decide
-theorem zwc_3_3 : (zeroWidth 3 3).card = 6 := by native_decide
-theorem zwc_4_4 : (zeroWidth 4 4).card = 10 := by native_decide
-theorem zwc_2_5 : (zeroWidth 2 5).card = 3 := by native_decide
-theorem zwc_3_7 : (zeroWidth 3 7).card = 6 := by native_decide
+theorem zwc_0_0 : (zeroWidth 0 0).card = 0 := by decide
+theorem zwc_1_1 : (zeroWidth 1 1).card = 1 := by decide
+theorem zwc_2_2 : (zeroWidth 2 2).card = 3 := by decide
+theorem zwc_3_3 : (zeroWidth 3 3).card = 6 := by decide
+theorem zwc_4_4 : (zeroWidth 4 4).card = 10 := by decide
+theorem zwc_2_5 : (zeroWidth 2 5).card = 3 := by decide
+theorem zwc_3_7 : (zeroWidth 3 7).card = 6 := by decide
 
 -- The positive-width count when a ≤ b: (a+1)(b+1) - a(a+1)/2.
 -- Follows from kernel_normalization + zero_width_count_pos_slab.

@@ -38,17 +38,20 @@ theorem total_outgoing_width (a w : ℕ) (hw : 0 < w) :
   rw [kernel_normalization, hb]
 
 -- Verified: total counts match (a+1)(b+1) for small cases.
-example : (zeroWidth 2 4).card + (posWidth 2 4).card = 3 * 5 := by native_decide
-example : (zeroWidth 3 5).card + (posWidth 3 5).card = 4 * 6 := by native_decide
-example : (zeroWidth 1 3).card + (posWidth 1 3).card = 2 * 4 := by native_decide
-example : (zeroWidth 0 2).card + (posWidth 0 2).card = 1 * 3 := by native_decide
+example : (zeroWidth 2 4).card + (posWidth 2 4).card = 3 * 5 := kernel_normalization 2 4
+example : (zeroWidth 3 5).card + (posWidth 3 5).card = 4 * 6 := kernel_normalization 3 5
+example : (zeroWidth 1 3).card + (posWidth 1 3).card = 2 * 4 := kernel_normalization 1 3
+example : (zeroWidth 0 2).card + (posWidth 0 2).card = 1 * 3 := kernel_normalization 0 2
 
 /-- The zero-width fraction for a square state (a = b) is
     the triangular number a(a+1)/2 out of (a+1)². -/
 -- Verified instances:
-example : 2 * (zeroWidth 3 3).card = 3 * 4 := by native_decide  -- 6 out of 16
-example : 2 * (zeroWidth 4 4).card = 4 * 5 := by native_decide  -- 10 out of 25
-example : 2 * (zeroWidth 5 5).card = 5 * 6 := by native_decide  -- 15 out of 36
+-- These follow from the square case of the self-loop identity.
+-- zeroWidth a a on [0,a]×[0,a] has |Z| = a(a+1)/2, so 2|Z| = a(a+1).
+-- The general proof uses the same Gauss sum argument as SelfLoop3D.
+example : 2 * (zeroWidth 3 3).card = 3 * 4 := by decide
+example : 2 * (zeroWidth 4 4).card = 4 * 5 := by decide
+example : 2 * (zeroWidth 5 5).card = 5 * 6 := by decide
 
 -- When a = b (square), zero-width fraction = a(a+1)/(2(a+1)²) = a/(2(a+1)) → 1/2.
 -- This connects to Theorem B: as a → ∞, P(w'=0) → 1/2 for "symmetric" states.
