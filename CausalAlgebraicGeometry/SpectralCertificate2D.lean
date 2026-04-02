@@ -13,7 +13,7 @@
   (known exact: gamma_2 = 0.27641...)
 -/
 
-import Mathlib.Data.Rat.Basic
+import Mathlib.Data.Rat.Defs
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.Fin.VecNotation
 import Mathlib.Tactic.NormNum
