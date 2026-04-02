@@ -201,10 +201,20 @@ R² analysis of the d=3 principal eigenvector at m=5 (14,700 states):
 | Total volume V alone | 0.148 |
 | Quadratic in (a,b) values | 0.726 |
 
-Only 15% of eigenvector variance is captured by total volume. This is a
-qualitative difference from d=2, where the 1D reduction (Bessel skeleton)
-captures 95%+ of the eigenfunction. The d=3 eigenvector has genuinely
-high-dimensional structure concentrated at the boundary of the cross-section.
+Only 15% of eigenvector variance is captured by total volume. However,
+the eigenvector has rich INTERNAL structure:
+
+- **Perfect symmetry**: ⟨w(j)⟩ = ⟨w(m-1-j)⟩ to machine precision
+- **Toeplitz width correlations**: corr(w(i), w(j)) depends only on |i-j|,
+  with exponential decay ξ ≈ 1.35 positions
+- **Per-slice height → 0.254** (vs γ₂ = 0.276): the 3D constraint reduces
+  per-slice width by ~8%
+- **Effective occupied fraction**: γ₃/(per-slice height) ≈ 0.14
+
+Physical picture: the d=3 bulk state is a thin correlated strip,
+concentrated in ~14% of available cross-section slices, each with
+width ~92% of the d=2 bulk width. The Toeplitz structure signals
+a 1D transfer matrix operating WITHIN the cross-section direction.
 
 ### Numerical Values
 
