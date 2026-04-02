@@ -32,3 +32,5 @@ import CausalAlgebraicGeometry.GaugeConnection
 import CausalAlgebraicGeometry.DPVerifier
 import CausalAlgebraicGeometry.RhoCrossing
 import CausalAlgebraicGeometry.RhoEquals16
+import CausalAlgebraicGeometry.IntervalLowerBound
+import CausalAlgebraicGeometry.SlabGauge
