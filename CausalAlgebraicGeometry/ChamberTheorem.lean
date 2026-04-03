@@ -29,6 +29,7 @@ import Mathlib.Data.Fintype.Pi
 import Mathlib.Order.Basic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
+import Mathlib.Order.Interval.Finset.Fin
 
 namespace CausalAlgebraicGeometry.ChamberTheorem
 
@@ -273,10 +274,49 @@ theorem strictMono_perm_eq_id (d : ℕ) (σ : Perm (Fin d))
   -- Use Fin.strictMono_unique: a strict mono from Fin n to Fin n is the identity
   -- (Equivalently, two strict mono functions Fin n → α that are bijections onto
   --  the same set must be equal.)
-  -- Pigeon-hole: for each i, σ i ≥ i (σ maps {0..i-1} into {0..σ(i)-1}) and
-  -- σ⁻¹ i ≥ i (same for σ⁻¹), giving σ i ≤ i. Hence σ i = i.
-  -- The full combinatorial argument involves Finset cardinality on Fin.
-  sorry
+  -- Helper: for strict mono f on Fin d, f i ≥ i (pigeon-hole)
+  have mono_ge : ∀ (f : Fin d → Fin d), StrictMono f → Function.Injective f →
+      ∀ i : Fin d, i ≤ f i := by
+    intro f hf hinj i
+    by_contra hlt; push_neg at hlt
+    -- f maps {0,...,i-1} injectively into {0,...,f(i)-1}.
+    -- Since f(i) < i, this is an injection from a larger to a smaller finite set.
+    -- Contradiction.
+    -- Use Finset: image of {j ∈ univ | j < i} under f is inside {j ∈ univ | j < f i}
+    have himg : (Finset.univ.filter (· < i)).image f ⊆ Finset.univ.filter (· < f i) := by
+      simp only [Finset.subset_iff, Finset.mem_image, Finset.mem_filter, Finset.mem_univ,
+        true_and]
+      rintro x ⟨a, ha, rfl⟩; exact hf ha
+    have hcard1 : ((Finset.univ.filter (· < i)).image f).card =
+        (Finset.univ.filter (· < i)).card :=
+      Finset.card_image_of_injective _ hinj
+    have hcard2 := Finset.card_le_card himg
+    rw [hcard1] at hcard2
+    -- card {j | j < i} = i.val, card {j | j < f i} = (f i).val
+    -- These are both Finset.card (Finset.univ.filter (· < k)) for Fin d,
+    -- which equals k.val.
+    have filter_eq_Iio : ∀ k : Fin d, Finset.univ.filter (· < k) = Finset.Iio k := by
+      intro k; ext j; simp [Finset.mem_filter, Finset.mem_Iio]
+    have hci : (Finset.univ.filter (fun j : Fin d => j < i)).card = i.val := by
+      rw [filter_eq_Iio, Fin.card_Iio]
+    have hcfi : (Finset.univ.filter (fun j : Fin d => j < f i)).card = (f i).val := by
+      rw [filter_eq_Iio, Fin.card_Iio]
+    rw [hci, hcfi] at hcard2
+    omega
+  ext i; simp
+  apply le_antisymm
+  · -- σ i ≤ i: σ⁻¹ is also strict mono, so σ⁻¹ j ≥ j for all j.
+    -- At j = σ i: σ⁻¹(σ i) = i ≥ σ i.
+    have hσinv_mono : StrictMono σ.symm := by
+      intro a b hab; by_contra hle; push_neg at hle
+      rcases lt_or_eq_of_le hle with h | h
+      · -- σ.symm b < σ.symm a, so σ(σ.symm b) < σ(σ.symm a), i.e., b < a. Contradicts a < b.
+        have := hσ h; simp at this; exact absurd hab (not_lt.mpr (le_of_lt this))
+      · -- σ.symm a = σ.symm b, so a = b. Contradicts a < b.
+        exact absurd hab (not_lt.mpr (le_of_eq (σ.symm.injective h ▸ rfl)))
+    have := mono_ge σ.symm hσinv_mono σ.symm.injective (σ i)
+    simp at this; exact this
+  · exact mono_ge σ hσ σ.injective i
 
 /-- If two chamber points are in the same S_d orbit, they are equal. -/
 theorem chamber_orbit_unique (d m : ℕ) (y₁ y₂ : Fin d → Fin m)
