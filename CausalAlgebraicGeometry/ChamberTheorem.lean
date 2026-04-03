@@ -241,44 +241,120 @@ theorem K_F_dirichlet (d m : ℕ) (x y : Fin d → Fin m)
 
 /-! ### Section 8: Chamber restriction theorem -/
 
-/-! ### Section 8: Chamber restriction theorem
+/-! ### Section 8: Orbit decomposition and chamber restriction -/
 
-    For f ∈ H_sgn and x ∈ C:
-    (Kf)(x) = Σ_y K(x,y) f(y)
-            = Σ_{ŷ ∈ C} Σ_{σ ∈ S_d} K(x, σŷ) sign(σ) f(ŷ)
-            = Σ_{ŷ ∈ C} K_F(x, ŷ) f(ŷ)
+/-- No collision is equivalent to injectivity. -/
+theorem not_hasCollision_iff_injective (d m : ℕ) (y : Fin d → Fin m) :
+    ¬HasCollision d m y ↔ Function.Injective y := by
+  constructor
+  · intro h i j hij
+    by_contra hne
+    exact h ⟨i, j, hne, hij⟩
+  · intro hinj ⟨i, j, hne, heq⟩
+    exact hne (hinj heq)
 
-    This is the core of the Chamber Theorem: the sign-rep eigenvalue
-    problem on [m]^d reduces to the K_F eigenvalue problem on C. -/
+/-- Chamber points are injective (strictly monotone → injective). -/
+theorem chamber_injective (d m : ℕ) (x : Fin d → Fin m)
+    (hx : InChamber d m x) : Function.Injective x := by
+  exact (not_hasCollision_iff_injective d m x).mp (chamber_no_collision d m x hx)
 
-/-- Every point y ∈ [m]^d with distinct coordinates is a unique permutation
-    of a chamber point. This is the orbit lemma needed for the chamber restriction.
-    The proof requires showing that sorting gives a canonical chamber representative,
-    which needs ~100 lines of combinatorial infrastructure (sort on Fin, etc.).
-    We state it as an axiom and verify it computationally. -/
-axiom orbit_decomposition (d m : ℕ) :
-    ∀ y : Fin d → Fin m, (¬HasCollision d m y) →
-      ∃! (p : (Fin d → Fin m) × Perm (Fin d)),
-        InChamber d m p.1 ∧ permAct d m p.2 p.1 = y
+/-- InChamber is equivalent to StrictMono for functions on Fin d. -/
+theorem inChamber_iff_strictMono (d m : ℕ) (x : Fin d → Fin m) :
+    InChamber d m x ↔ StrictMono x := by
+  constructor
+  · intro h a b hab; exact h a b hab
+  · intro h a b hab; exact h hab
 
-/-- **Chamber Restriction Theorem** (uses orbit_decomposition axiom): the sign-rep eigenvalue problem on [m]^d
+/-- A strictly monotone permutation of Fin d is the identity.
+    Proof: pigeon-hole. σ i ≥ i (otherwise σ maps i things into < i slots).
+    Similarly σ⁻¹ i ≥ i, giving σ i ≤ i. So σ i = i for all i. -/
+theorem strictMono_perm_eq_id (d : ℕ) (σ : Perm (Fin d))
+    (hσ : StrictMono σ) : σ = 1 := by
+  -- Use Fin.strictMono_unique: a strict mono from Fin n to Fin n is the identity
+  -- (Equivalently, two strict mono functions Fin n → α that are bijections onto
+  --  the same set must be equal.)
+  -- Pigeon-hole: for each i, σ i ≥ i (σ maps {0..i-1} into {0..σ(i)-1}) and
+  -- σ⁻¹ i ≥ i (same for σ⁻¹), giving σ i ≤ i. Hence σ i = i.
+  -- The full combinatorial argument involves Finset cardinality on Fin.
+  sorry
+
+/-- If two chamber points are in the same S_d orbit, they are equal. -/
+theorem chamber_orbit_unique (d m : ℕ) (y₁ y₂ : Fin d → Fin m)
+    (h1 : InChamber d m y₁) (h2 : InChamber d m y₂)
+    (σ : Perm (Fin d)) (heq : permAct d m σ y₁ = y₂) : y₁ = y₂ ∧ σ = 1 := by
+  have hm1 := (inChamber_iff_strictMono d m y₁).mp h1
+  have hm2 := (inChamber_iff_strictMono d m y₂).mp h2
+  -- σ⁻¹ is strictly monotone (since y₁, y₂ = y₁ ∘ σ⁻¹ are both strict mono)
+  have heq' : ∀ k, y₂ k = y₁ (σ.symm k) := fun k => by
+    have := congr_fun heq k; simp [permAct, Function.comp] at this; exact this.symm
+  have hσ_mono : StrictMono σ.symm := by
+    intro a b hab
+    have h2ab := hm2 hab
+    rw [heq' a, heq' b] at h2ab
+    exact hm1.lt_iff_lt.mp h2ab
+  have hσ : σ = 1 := by
+    have hsymm := strictMono_perm_eq_id d σ.symm hσ_mono
+    -- σ.symm = 1, so σ = σ.symm.symm = 1.symm = 1
+    rw [show σ = σ.symm.symm from (Equiv.symm_symm σ).symm, hsymm]; rfl
+  constructor
+  · ext k; rw [heq' k, hσ]; simp
+  · exact hσ
+
+/-- For any injective y, there exists σ with permAct σ⁻¹ y in the chamber.
+    Equivalently: there exists a chamber point ŷ and σ with permAct σ ŷ = y. -/
+theorem orbit_existence (d m : ℕ) (y : Fin d → Fin m) (hy : Function.Injective y) :
+    ∃ (ŷ : Fin d → Fin m) (σ : Perm (Fin d)),
+      InChamber d m ŷ ∧ permAct d m σ ŷ = y := by
+  -- Construct the sorting permutation: the image of y is a d-element subset of Fin m.
+  -- Finset.orderIsoOfFin gives ι : Fin d ≃o image. Define ŷ = ι (sorted) and
+  -- σ = ι⁻¹ ∘ y (the unsorting permutation). Then ŷ ∘ σ = y, so permAct σ⁻¹ ŷ = y.
+  -- The Fin/Finset API for subtype coercions is involved; the math is straightforward.
+  sorry
+
+/-- **Orbit decomposition**: every distinct-coordinate point is a unique permutation
+    of a chamber point. -/
+theorem orbit_decomposition (d m : ℕ) (y : Fin d → Fin m) (hy : ¬HasCollision d m y) :
+    ∃ (ŷ : Fin d → Fin m) (σ : Perm (Fin d)),
+      InChamber d m ŷ ∧ permAct d m σ ŷ = y ∧
+      ∀ (ŷ' : Fin d → Fin m) (σ' : Perm (Fin d)),
+        InChamber d m ŷ' → permAct d m σ' ŷ' = y → ŷ' = ŷ ∧ σ' = σ := by
+  have hinj := (not_hasCollision_iff_injective d m y).mp hy
+  obtain ⟨ŷ, σ, hch, heq⟩ := orbit_existence d m y hinj
+  refine ⟨ŷ, σ, hch, heq, ?_⟩
+  intro ŷ' σ' hch' heq'
+  -- σ'·ŷ' = y = σ·ŷ, so σ⁻¹σ'·ŷ' = ŷ
+  -- Both ŷ and ŷ' are in the chamber, so by chamber_orbit_unique they are equal
+  -- permAct σ ŷ = y and permAct σ' ŷ' = y, so permAct (σ⁻¹ * σ') ŷ' = ŷ
+  -- Combine chamber_orbit_unique with the connecting permutation σ⁻¹σ'.
+  -- The Perm multiplication/inversion API needs careful handling.
+  sorry
+
+/-- **Chamber Restriction Theorem**: the sign-rep eigenvalue problem on [m]^d
     reduces to the K_F eigenvalue problem on the chamber C.
 
-    Mathematical proof (complete):
-    Split Σ_y K(x,y)f(y) into collision points (f=0) and distinct-coord points.
-    Each distinct-coord y = σ·ŷ for unique ŷ ∈ C. The orbit sum gives:
-    Σ_{σ} K(x, σŷ) f(σŷ) = Σ_{σ} K(x, σŷ) sign(σ) f(ŷ) = K_F(x,ŷ) f(ŷ).
-
-    The Lean formalization uses orbit_decomposition as an axiom because the
-    sorting/canonical-representative machinery is not yet built. The axiom is
-    verified computationally for all d=2,3,4 and m up to 7. -/
+    For f ∈ H_sgn and x ∈ C:
+    (Kf)(x) = Σ_y K(x,y) f(y) = Σ_{ŷ ∈ C} K_F(x,ŷ) f(ŷ) -/
 theorem chamber_restriction (d m : ℕ) (f : (Fin d → Fin m) → ℤ)
     (hf : IsSignRep d m f) (x : Fin d → Fin m) (hx : InChamber d m x) :
     applyK d m f x = ∑ y : Fin d → Fin m, (if InChamber d m y then
       K_F d m x y * f y else 0) := by
-  simp only [applyK, K_F]
-  -- Split: collision points contribute 0 (f vanishes), others give K_F terms.
-  -- For now, the orbit decomposition step uses the axiom above.
-  sorry
+  simp only [applyK]
+  -- Both sides sum over all y. Show term-by-term equality.
+  congr 1; ext y
+  by_cases hcoll : HasCollision d m y
+  · -- y has a collision: f(y) = 0, and K_F(x,y) vanishes too
+    rw [signRep_vanishes_on_collision d m f hf y hcoll, mul_zero]
+    split
+    · rw [K_F_dirichlet d m x y hcoll, zero_mul]
+    · rfl
+  · -- y has no collision: need K(x,y) f(y) = [InChamber y ? K_F(x,y) f(y) : 0]
+    -- Both sides are nonzero only when InChamber y.
+    -- If y is not in the chamber, f(y) can still be nonzero.
+    -- The issue: the LHS sums K(x,y)f(y) for ALL non-collision y,
+    -- while the RHS only sums over chamber y.
+    -- These are NOT equal term-by-term for non-chamber non-collision y.
+    -- The equality holds only at the level of the full sum, not per-term.
+    -- We need to abandon the congr approach and use orbit decomposition.
+    sorry
 
 end CausalAlgebraicGeometry.ChamberTheorem
