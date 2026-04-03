@@ -4,6 +4,7 @@
   Provides `crossing_pairs_le` used by RhoEquals16.lean.
 -/
 import CausalAlgebraicGeometry.AntitoneCount
+import CausalAlgebraicGeometry.CrossingBound
 import Mathlib.Data.Fintype.Pi
 import Mathlib.Order.Monotone.Basic
 import Mathlib.Tactic
@@ -32,6 +33,21 @@ theorem crossing_pairs_le (m : ℕ) :
   --
   -- The full proof is a routine but lengthy (~200 line) case analysis.
   -- We verify it computationally for m ≤ 3 and use the injection for m ≥ 4.
-  sorry
+  rcases m with _ | m
+  · -- m = 0: the source type Fin 0 → _ makes ∃ i : Fin 0, _ impossible
+    apply le_of_eq_of_le _ (Nat.zero_le _)
+    rw [Finset.card_eq_zero]
+    apply Finset.filter_eq_empty_iff.mpr
+    intro p _
+    simp only [not_and]
+    intro _ _
+    exact fun ⟨i, _⟩ => Fin.elim0 i
+  · -- m + 1 ≥ 1: use CrossingBound.crossing_pairs_le
+    have : (Finset.univ.filter
+      (fun p : (Fin (m + 1) → Fin (m + 1 + 1)) × (Fin (m + 1) → Fin (m + 1 + 1)) =>
+        Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val)) =
+      CausalAlgebraicGeometry.CrossingBound.crossingPairs (m + 1) := rfl
+    rw [this]
+    exact CausalAlgebraicGeometry.CrossingBound.crossing_pairs_le (m + 1) (by omega)
 
 end CausalAlgebraicGeometry.LGV

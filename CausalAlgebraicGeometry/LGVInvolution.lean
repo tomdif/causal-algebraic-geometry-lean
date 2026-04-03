@@ -368,15 +368,6 @@ lemma suffixSwap_recoverable {m : ℕ}
     (hD : suffixSwapD d₁ u₁ i₁ = suffixSwapD d₂ u₂ i₂)
     (hU : suffixSwapU d₁ u₁ i₁ hbound₁ = suffixSwapU d₂ u₂ i₂ hbound₂) :
     d₁ = d₂ ∧ u₁ = u₂ := by
-  -- Step 1: Show i₁ = i₂ from the structure of D
-  -- For i < i₁: D₁(i) = d₁(i) and U₁(i) = u₁(i), both in Fin(m+1) original values
-  -- For i ≥ i₁: D₁(i) = u₁(i)+1 and U₁(i) = d₁(i)
-  -- The transition at i₁ is detectable: at i₁, D(i₁) = u₁(i₁)+1 ≥ d₁(i₁)+1 > d₁(i₁)
-  -- while before i₁, D(i) = d(i).
-  -- Recovery: for i < i₁, d₁(i) = D₁(i) and u₁(i) = U₁(i)
-  --           for i ≥ i₁, u₁(i) = D₁(i) - 1 and d₁(i) = U₁(i)
-  -- So if D₁ = D₂ and U₁ = U₂ and i₁ = i₂, then d₁ = d₂ and u₁ = u₂.
-  -- The key is showing i₁ = i₂.
   sorry
 
 /-! ## Main theorem: crossing_pairs_bound -/

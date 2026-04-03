@@ -72,6 +72,9 @@ theorem count_paths (n a b : ℕ) (hab : b ≤ a) :
     (pathSubsets (n + (a - b)) n).card = Nat.choose (n + (a - b)) n := by
   -- Each path is determined by choosing which n positions (out of n+(a-b)) are East steps.
   -- This is C(n + (a-b), n) by definition of binomial coefficients.
-  sorry -- TODO: use Finset.card_powersetCard
+  have : pathSubsets (n + (a - b)) n = Finset.powersetCard n Finset.univ := by
+    ext s
+    simp [pathSubsets, Finset.mem_powersetCard]
+  rw [this, Finset.card_powersetCard, Finset.card_univ, Fintype.card_fin]
 
 end CausalAlgebraicGeometry.LGV

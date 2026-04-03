@@ -14,6 +14,7 @@
   Main result:
   - `crossing_pairs_le_product`: |crossing pairs| ≤ |antitone(m,m+2)| * |antitone(m,m)|
 -/
+import CausalAlgebraicGeometry.AntitoneCount
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Fin.Basic
@@ -121,7 +122,22 @@ lemma reflectD_antitone {m : ℕ} (d u : Fin m → Fin (m + 1))
     (hcross : ∃ i, (u i).val ≥ (d i).val)
     (i₀ : Fin m) (hi₀ : i₀ = firstCrossingIndex d u hcross) :
     Antitone (reflectD d u i₀) := by
-  sorry
+  intro a b hab
+  simp only [reflectD, Fin.le_def, reflectD_val]
+  by_cases ha : a < i₀
+  · by_cases hb : b < i₀
+    · -- Both before i₀: follows from d antitone
+      simp [ha, hb]; exact hd hab
+    · -- a before, b after: D(a) = d(a), D(b) = u(b)+1
+      simp [ha, hb]
+      have hub : (u b).val ≤ (u a).val := hu hab
+      have hua_lt : (u a).val < (d a).val :=
+        firstCrossingIndex_minimal d u hcross a (hi₀ ▸ ha)
+      omega
+  · -- a ≥ i₀
+    have hb : ¬(b < i₀) := not_lt.mpr (le_trans (not_lt.mp ha) hab)
+    simp [ha, hb]
+    have := hu hab; omega
 
 lemma reflectU_antitone {m : ℕ} (hm : 0 < m)
     (d u : Fin m → Fin (m + 1))
@@ -129,7 +145,23 @@ lemma reflectU_antitone {m : ℕ} (hm : 0 < m)
     (hcross : ∃ i, (u i).val ≥ (d i).val)
     (i₀ : Fin m) (hi₀ : i₀ = firstCrossingIndex d u hcross) :
     Antitone (reflectU hm d u hd hu hcross i₀ hi₀) := by
-  sorry
+  intro a b hab
+  simp only [reflectU, Fin.le_def, reflectU_val]
+  by_cases ha : a < i₀
+  · by_cases hb : b < i₀
+    · simp [ha, hb]; exact hu hab
+    · -- a < i₀ ≤ b: U(a) = u(a), U(b) = d(b)
+      simp [ha, hb]
+      -- u(i₀) ≥ d(i₀) (crossing), d(i₀) ≥ d(b) (antitone, i₀ ≤ b)
+      -- u(a) ≥ u(i₀) (antitone, a < i₀ → a ≤ i₀)
+      have hcross_val := firstCrossingIndex_spec d u hcross
+      rw [← hi₀] at hcross_val
+      have hua_ge_ui0 : (u a).val ≥ (u i₀).val := hu (le_of_lt ha)
+      have hdi0_ge_db : (d i₀).val ≥ (d b).val := hd (not_lt.mp hb)
+      omega
+  · have hb : ¬(b < i₀) := not_lt.mpr (le_trans (not_lt.mp ha) hab)
+    simp [ha, hb]
+    exact hd hab
 
 /-! ## Injectivity of the reflection -/
 
@@ -191,25 +223,35 @@ theorem crossing_pairs_le_product (m : ℕ) :
 theorem card_antitone_fin (m n : ℕ) (hn : 0 < n) :
     ((Finset.univ : Finset (Fin m → Fin n)).filter Antitone).card =
     Nat.choose (m + n - 1) m := by
-  sorry
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 1 := ⟨n - 1, by omega⟩
+  have := CausalAlgebraicGeometry.AntitoneCount.card_antitone_eq_choose m k
+  rw [show m + k = m + (k + 1) - 1 from by omega] at this
+  exact this
 
 /-- Corollary: antitone functions Fin m → Fin (m+1) are counted by C(2m, m). -/
 theorem card_antitone_m_mplus1 (m : ℕ) :
     ((Finset.univ : Finset (Fin m → Fin (m + 1))).filter Antitone).card =
     Nat.choose (2 * m) m := by
-  sorry
+  have := CausalAlgebraicGeometry.AntitoneCount.card_antitone_eq_choose m m
+  rw [show m + m = 2 * m from by ring] at this
+  exact this
 
 /-- Corollary: antitone functions Fin m → Fin (m+2) are counted by C(2m+1, m). -/
 theorem card_antitone_m_mplus2 (m : ℕ) :
     ((Finset.univ : Finset (Fin m → Fin (m + 2))).filter Antitone).card =
     Nat.choose (2 * m + 1) m := by
-  sorry
+  have := CausalAlgebraicGeometry.AntitoneCount.card_antitone_eq_choose m (m + 1)
+  rw [show m + (m + 1) = 2 * m + 1 from by ring] at this
+  exact this
 
 /-- Corollary: antitone functions Fin m → Fin m are counted by C(2m-1, m).
     (With the convention C(-1, 0) = 1 for m = 0.) -/
 theorem card_antitone_m_m (m : ℕ) (hm : 0 < m) :
     ((Finset.univ : Finset (Fin m → Fin m)).filter Antitone).card =
     Nat.choose (2 * m - 1) m := by
-  sorry
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 1 := ⟨m - 1, by omega⟩
+  have := CausalAlgebraicGeometry.AntitoneCount.card_antitone_eq_choose (k + 1) k
+  rw [show k + 1 + k = 2 * (k + 1) - 1 from by omega] at this
+  exact this
 
 end CausalAlgebraicGeometry.LindstromReflection
