@@ -53,17 +53,50 @@ noncomputable def gamma5 (n : ℕ) : Matrix (Fin n ⊕ Fin n) (Fin n ⊕ Fin n) 
 
 /-! ### Section 2: Exact chirality -/
 
-/-- **THE CHIRALITY THEOREM**: {γ₅, D} = 0 exactly.
+/-- Helper: γ₅ acts as a scalar on each block. -/
+private theorem gamma5_apply_inl (i j : Fin n) :
+    gamma5 n (Sum.inl i) (Sum.inl j) = if i = j then 1 else 0 := by
+  simp [gamma5, Matrix.of_apply]
 
-    Proof: D is off-diagonal (zero on the diagonal blocks),
-    γ₅ is diagonal with +I and -I blocks.
-    Their anticommutator vanishes by block multiplication:
-      γ₅ D = [[0, A], [-Aᵀ, 0]]
-      D γ₅ = [[0, -A], [Aᵀ, 0]]
-      γ₅ D + D γ₅ = 0. -/
+private theorem gamma5_apply_inr (i j : Fin n) :
+    gamma5 n (Sum.inr i) (Sum.inr j) = if i = j then -1 else 0 := by
+  simp [gamma5, Matrix.of_apply]
+
+private theorem gamma5_apply_cross_lr (i j : Fin n) :
+    gamma5 n (Sum.inl i) (Sum.inr j) = 0 := by
+  simp [gamma5, Matrix.of_apply]
+
+private theorem gamma5_apply_cross_rl (i j : Fin n) :
+    gamma5 n (Sum.inr i) (Sum.inl j) = 0 := by
+  simp [gamma5, Matrix.of_apply]
+
 theorem exact_chirality :
     gamma5 n * diracDoubled A + diracDoubled A * gamma5 n = 0 := by
-  sorry -- Block computation: γ₅D + Dγ₅ = [[0,A],[−Aᵀ,0]] + [[0,−A],[Aᵀ,0]] = 0
+  ext i j
+  simp only [Matrix.add_apply, Matrix.mul_apply, Matrix.zero_apply]
+  -- Unfold and simplify all 4 block cases
+  have key : ∀ (a b : Fin n),
+      (∑ x : Fin n, (if a = x then (1:ℤ) else 0) * A x b) = A a b := by
+    intro a b
+    simp_rw [show ∀ x : Fin n, (a = x) = (x = a) from fun x => propext eq_comm]
+    simp [Finset.sum_ite_eq', Finset.mem_univ]
+  have key2 : ∀ (a b : Fin n),
+      (∑ x : Fin n, A a x * (if x = b then (-1:ℤ) else 0)) = -(A a b) := by
+    intro a b; simp [Finset.sum_ite_eq', Finset.mem_univ]
+  have key3 : ∀ (a b : Fin n),
+      (∑ x : Fin n, (if a = x then (-1:ℤ) else 0) * A b x) = -(A b a) := by
+    intro a b
+    simp_rw [show ∀ x : Fin n, (a = x) = (x = a) from fun x => propext eq_comm]
+    simp [Finset.sum_ite_eq', Finset.mem_univ]
+  have key4 : ∀ (a b : Fin n),
+      (∑ x : Fin n, A x a * (if x = b then (1:ℤ) else 0)) = A b a := by
+    intro a b; simp [Finset.sum_ite_eq', Finset.mem_univ]
+  rcases i with a | a <;> rcases j with b | b <;>
+  simp only [gamma5, diracDoubled, Matrix.of_apply, Fintype.sum_sum_type,
+    Sum.inl.injEq, Sum.inr.injEq, Sum.inl_ne_inr, Sum.inr_ne_inl,
+    ite_false, ite_true, mul_zero, zero_mul, Finset.sum_const_zero,
+    key, key2, key3, key4] <;>
+  ring
 
 /-! ### Section 3: Zero index for square blocks -/
 
