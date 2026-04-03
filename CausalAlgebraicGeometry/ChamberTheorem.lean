@@ -345,11 +345,36 @@ theorem chamber_orbit_unique (d m : ℕ) (y₁ y₂ : Fin d → Fin m)
 theorem orbit_existence (d m : ℕ) (y : Fin d → Fin m) (hy : Function.Injective y) :
     ∃ (ŷ : Fin d → Fin m) (σ : Perm (Fin d)),
       InChamber d m ŷ ∧ permAct d m σ ŷ = y := by
-  -- Construct the sorting permutation: the image of y is a d-element subset of Fin m.
-  -- Finset.orderIsoOfFin gives ι : Fin d ≃o image. Define ŷ = ι (sorted) and
-  -- σ = ι⁻¹ ∘ y (the unsorting permutation). Then ŷ ∘ σ = y, so permAct σ⁻¹ ŷ = y.
-  -- The Fin/Finset API for subtype coercions is involved; the math is straightforward.
-  sorry
+  -- Image S = {y 0, ..., y(d-1)} has card d (by injectivity)
+  let S := Finset.image y Finset.univ
+  have hcard : S.card = d := by
+    rw [Finset.card_image_of_injective _ hy, Finset.card_univ, Fintype.card_fin]
+  -- ι : Fin d ≃o S (the order isomorphism from Fin d to the d-element sorted set)
+  let ι := S.orderIsoOfFin hcard
+  -- ŷ(i) = the i-th smallest element of S (the sorted version)
+  let ŷ : Fin d → Fin m := fun i => (ι i).val
+  have hŷ_chamber : InChamber d m ŷ := by
+    intro a b hab; exact ι.strictMono hab
+  -- For each i, y i ∈ S
+  have hy_mem : ∀ i, y i ∈ S := fun i => Finset.mem_image_of_mem y (Finset.mem_univ i)
+  -- σ_fun(i) = ι⁻¹(y i): the position of y(i) in the sorted order
+  let σ_fun : Fin d → Fin d := fun i => (ι.symm ⟨y i, hy_mem i⟩ : Fin d)
+  have hσ_inj : Function.Injective σ_fun := by
+    intro a b hab
+    have h1 := congr_arg (fun k => ((ι k) : Fin m).val) hab
+    simp only [σ_fun, OrderIso.apply_symm_apply] at h1
+    exact hy (Fin.val_injective h1)
+  -- σ is a bijection (injective endo on finite type)
+  have hσ_bij : Function.Bijective σ_fun :=
+    (Fintype.bijective_iff_injective_and_card σ_fun).mpr ⟨hσ_inj, rfl⟩
+  let σ : Perm (Fin d) := Equiv.ofBijective σ_fun hσ_bij
+  -- ŷ(σ(i)) = y(i) for all i
+  have hcomp : ∀ i, ŷ (σ i) = y i := by
+    intro i; show (ι (σ i)).val = y i
+    simp only [σ, σ_fun, Equiv.ofBijective_apply, OrderIso.apply_symm_apply]
+  -- permAct σ.symm ŷ = ŷ ∘ σ.symm.symm = ŷ ∘ σ = y
+  exact ⟨ŷ, σ.symm, hŷ_chamber, funext fun i => by
+    simp only [permAct, Function.comp, Equiv.symm_symm]; exact hcomp i⟩
 
 /-- **Orbit decomposition**: every distinct-coordinate point is a unique permutation
     of a chamber point. -/
@@ -362,12 +387,37 @@ theorem orbit_decomposition (d m : ℕ) (y : Fin d → Fin m) (hy : ¬HasCollisi
   obtain ⟨ŷ, σ, hch, heq⟩ := orbit_existence d m y hinj
   refine ⟨ŷ, σ, hch, heq, ?_⟩
   intro ŷ' σ' hch' heq'
-  -- σ'·ŷ' = y = σ·ŷ, so σ⁻¹σ'·ŷ' = ŷ
-  -- Both ŷ and ŷ' are in the chamber, so by chamber_orbit_unique they are equal
-  -- permAct σ ŷ = y and permAct σ' ŷ' = y, so permAct (σ⁻¹ * σ') ŷ' = ŷ
-  -- Combine chamber_orbit_unique with the connecting permutation σ⁻¹σ'.
-  -- The Perm multiplication/inversion API needs careful handling.
-  sorry
+  -- Show: permAct (σ⁻¹ * σ') ŷ' = ŷ
+  -- permAct τ z = z ∘ τ⁻¹, so permAct (σ⁻¹ σ') ŷ' = ŷ' ∘ (σ⁻¹ σ')⁻¹ = ŷ' ∘ σ'⁻¹ ∘ σ
+  -- And ŷ' ∘ σ'⁻¹ = y (from heq'), so ŷ' ∘ σ'⁻¹ ∘ σ = y ∘ σ.
+  -- Also ŷ ∘ σ⁻¹ = y (from heq), so ŷ = y ∘ σ... wait, ŷ(k) = y(σ⁻¹ k)⁻¹...
+  -- Let's just compute pointwise.
+  -- Build connecting permutation: τ = σ⁻¹ * σ' satisfies permAct τ ŷ' = ŷ
+  -- Then chamber_orbit_unique gives ŷ' = ŷ and τ = 1, hence σ' = σ.
+  -- Pointwise: (permAct τ ŷ')(k) = ŷ'(τ⁻¹(k)) = ŷ'(σ'⁻¹(σ(k)))
+  --   = (permAct σ' ŷ')(σ(k)) = y(σ(k)) = (permAct σ ŷ)(σ(k)) = ŷ(σ⁻¹(σ(k))) = ŷ(k)
+  have hconn : permAct d m (σ.symm * σ') ŷ' = ŷ := by
+    have hy_eq : ∀ k, (permAct d m σ' ŷ') k = (permAct d m σ ŷ) k := by
+      intro k; rw [heq, heq']
+    ext k; simp only [permAct, Function.comp, Perm.mul_apply] at *
+    -- Goal: ŷ' ((σ' * σ.symm.symm)⁻¹ k) = ŷ k ... actually let me just unfold
+    -- permAct (σ.symm * σ') ŷ' at k = ŷ'(((σ.symm * σ').symm) k)
+    -- We need the value. Let's use hy_eq.
+    specialize hy_eq (σ k)
+    -- hy_eq : ŷ'(σ'.symm(σ k)) = ŷ(σ.symm(σ k)) = ŷ k
+    simp at hy_eq
+    -- Goal is about (σ.symm * σ').symm k
+    -- (σ.symm * σ').symm = σ'.symm * (σ.symm).symm = σ'.symm * σ
+    -- The goal is definitionally equal to ŷ'(σ'.symm(σ k)) = ŷ k
+    -- after unfolding (σ.symm * σ').symm = σ'.symm * σ.
+    sorry
+  obtain ⟨heq_y, heq_τ⟩ := chamber_orbit_unique d m ŷ' ŷ hch' hch (σ.symm * σ') hconn
+  constructor
+  · exact heq_y
+  · -- σ.symm * σ' = 1 → σ' = σ
+    have h1 : σ.symm * σ' = 1 := heq_τ
+    -- σ.symm * σ' = 1 means σ'.symm * σ.symm.symm = 1, so σ' = σ.symm.symm = σ
+    sorry
 
 /-- **Chamber Restriction Theorem**: the sign-rep eigenvalue problem on [m]^d
     reduces to the K_F eigenvalue problem on the chamber C.
