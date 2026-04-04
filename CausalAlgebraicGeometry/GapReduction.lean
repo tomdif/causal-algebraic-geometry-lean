@@ -26,6 +26,7 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Analysis.Complex.Trigonometric
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.Tactic.Linarith
 
 namespace CausalAlgebraicGeometry.GapReduction
@@ -101,9 +102,43 @@ theorem svRatio_bounded (m : ℕ) (hm : 1 ≤ m) :
     -- since π/(4m+2) ≤ π/6 < 1 for m ≥ 1, and sin(x) < x < 1,
     -- so sin²(x) < 1 and 4sin² < 4·(π/(4m+2))² < 4·(π/6)² ≈ 1.1 < 3.
     simp only [svRatio]
-    -- 3 - 4sin²(θ) > 0 for θ = π/(4m+2) ≤ π/6, since sin(θ) < θ < 1
-    -- and 4θ² < 4(π/6)² ≈ 1.1 < 3.
-    sorry
+    -- Need: 0 < 3 - 4 * sin(θ)² where θ = π/(4m+2)
+    -- Chain: sin(θ) < θ < π/6 < 1, so sin²(θ) < θ² < π²/36
+    -- and 4π²/36 = π²/9 < 16/9 < 3 (using π < 4).
+    have hθ_pos : (0 : ℝ) < Real.pi / (4 * ↑m + 2) := by positivity
+    have hm_cast : (1 : ℝ) ≤ ↑m := Nat.one_le_cast.mpr hm
+    have h4m : (6 : ℝ) ≤ 4 * ↑m + 2 := by linarith
+    -- sin(θ) < θ
+    have h1 : sin (Real.pi / (4 * ↑m + 2)) < Real.pi / (4 * ↑m + 2) := sin_lt hθ_pos
+    -- sin(θ) ≥ 0
+    have h2 : 0 ≤ sin (Real.pi / (4 * ↑m + 2)) :=
+      sin_nonneg_of_nonneg_of_le_pi (le_of_lt hθ_pos)
+        (by have : (0:ℝ) < 4*↑m+2 := by linarith
+            rw [div_le_iff₀ this]; nlinarith [Real.pi_pos])
+    -- sin²(θ) < θ²
+    have h3 : sin (Real.pi / (4 * ↑m + 2)) ^ 2 <
+              (Real.pi / (4 * ↑m + 2)) ^ 2 := by nlinarith
+    -- θ < π/6 ≤ π/6
+    -- 4θ² < 4(π/(4m+2))² ≤ 4(π/6)² = 4π²/36
+    -- π < 4 → π² < 16 → 4π²/36 < 64/36 < 3
+    have hpi : Real.pi ≤ 4 := Real.pi_le_four
+    have h4 : 4 * sin (Real.pi / (4 * ↑m + 2)) ^ 2 < 3 := by
+      -- sin(θ)² < θ² (from h1, h2 above) and θ = π/(4m+2)
+      -- 4θ² = 4π²/(4m+2)². Since π ≤ 4 and 4m+2 ≥ 6:
+      -- 4·16/36 = 64/36 ≈ 1.78 < 3.
+      calc 4 * sin (Real.pi / (4 * ↑m + 2)) ^ 2
+          < 4 * (Real.pi / (4 * ↑m + 2)) ^ 2 := by nlinarith
+        _ ≤ 4 * (4 / 6) ^ 2 := by
+            apply mul_le_mul_of_nonneg_left _ (by norm_num)
+            apply sq_le_sq'
+            · linarith [Real.pi_pos]
+            · calc Real.pi / (4 * ↑m + 2)
+                  ≤ Real.pi / 6 := by
+                    apply div_le_div_of_nonneg_left (le_of_lt Real.pi_pos) (by norm_num) (by linarith)
+                _ ≤ 4 / 6 := by
+                    apply div_le_div_of_nonneg_right Real.pi_le_four (by norm_num)
+        _ < 3 := by norm_num
+    linarith
   · -- svRatio ≤ 3: immediate since 4sin² ≥ 0
     simp only [svRatio]
     linarith [sq_nonneg (sin (Real.pi / (4 * ↑m + 2)))]
