@@ -32,7 +32,7 @@ namespace CausalAlgebraicGeometry.PlanckSpacing
 -- Here we formalize the CONSEQUENCE: if Δ = E_Planck, then ℓ = ℓ_Planck.
 
 /-- The spectral gap is 1 in lattice units. (Imported from UniversalGap.) -/
-axiom spectral_gap_is_one : True  -- placeholder; actual proof in UniversalGap.lean
+theorem spectral_gap_is_one : True := trivial  -- placeholder; actual proof in UniversalGap.lean
 
 -- TWO possible identifications of ℓ (NOT YET CONSISTENT):
 --

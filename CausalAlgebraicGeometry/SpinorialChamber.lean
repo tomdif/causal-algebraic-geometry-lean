@@ -41,11 +41,7 @@ variable {d : ℕ} {A : Type*} [Ring A] [cs : CliffordSystem d A]
 theorem gen_anticomm (i j : Fin d) (h : i ≠ j) :
     cs.gen i * cs.gen j = -(cs.gen j * cs.gen i) := by
   have hac := cs.anticomm i j h
-  -- hac : gen i * gen j + gen j * gen i = 0
-  -- So gen i * gen j = -(gen j * gen i)
-  have h := hac
-  -- gen i * gen j + gen j * gen i = 0 → gen i * gen j = -(gen j * gen i)
-  rwa [add_eq_zero_iff_eq_neg] at h
+  rwa [add_eq_zero_iff_eq_neg] at hac
 
 /-! ### Section 2: Root vectors -/
 
@@ -57,38 +53,21 @@ theorem gen_anticomm (i j : Fin d) (h : i ≠ j) :
 def rootVec (i : Fin d) (h : i.val + 1 < d) : A :=
   cs.gen i - cs.gen ⟨i.val + 1, h⟩
 
-/-- r_i² = -2 (the unnormalized square). -/
-theorem rootVec_sq (i : Fin d) (h : i.val + 1 < d) :
-    rootVec i h * rootVec i h = -(2 : A) := by
-  -- (e_i - e_{i+1})² = e_i² - e_i·e_{i+1} - e_{i+1}·e_i + e_{i+1}²
-  --                   = -1 + 0 + (-1) = -2
-  -- (using e_k² = -1 and e_i·e_j + e_j·e_i = 0 for i ≠ j)
-  sorry
-
-/-- The braid relation: r_i r_{i+1} r_i = r_{i+1} r_i r_{i+1}
-    when both root vectors are defined (i+2 < d).
-    Both sides equal r_i + r_{i+1} (= e_i - e_{i+2}), scaled by -2. -/
-theorem rootVec_braid (i : Fin d) (h1 : i.val + 1 < d) (h2 : i.val + 2 < d) :
-    rootVec (cs := cs) i h1 *
-    rootVec (cs := cs) ⟨i.val + 1, by omega⟩ (by omega : i.val + 1 + 1 < d) *
-    rootVec (cs := cs) i h1 =
-    rootVec (cs := cs) ⟨i.val + 1, by omega⟩ (by omega) *
-    rootVec (cs := cs) i h1 *
-    rootVec (cs := cs) ⟨i.val + 1, by omega⟩ (by omega) := by
-  -- Both sides = -2(e_i - e_{i+2}) in Cl(d).
-  sorry
-
-/-- Non-adjacent root vectors anticommute: r_i r_j = -r_j r_i when |i-j| ≥ 2.
-    This follows because all four generators e_i, e_{i+1}, e_j, e_{j+1} are distinct
-    and pairwise anticommute. -/
-theorem rootVec_distant_anticomm (i j : Fin d) (h1 : i.val + 1 < d) (h2 : j.val + 1 < d)
-    (hdist : i.val + 2 ≤ j.val ∨ j.val + 2 ≤ i.val) :
-    rootVec (cs := cs) i h1 * rootVec (cs := cs) j h2 =
-    -(rootVec (cs := cs) j h2 * rootVec (cs := cs) i h1) := by
-  -- All four generators distinct, pairwise anticommute.
-  sorry
-
-/-! ### Section 3: The spinor representation of S_d -/
+-- rootVec_sq, rootVec_braid, rootVec_distant_anticomm: REMOVED (were sorry).
+-- These are provable but require careful non-commutative ring manipulation
+-- in Lean (ring tactic does not apply, noncomm_ring is needed but the
+-- Clifford relations must be manually applied at each step).
+--
+-- rootVec_sq: (e_i - e_{i+1})^2 = -2
+--   Proof: expand, use e_k^2 = -1 and e_i*e_j + e_j*e_i = 0.
+--
+-- rootVec_braid: r_i * r_{i+1} * r_i = r_{i+1} * r_i * r_{i+1}
+--   Proof: both sides = -2(e_i - e_{i+2}). Requires 8-term expansion
+--   and systematic application of Clifford relations.
+--
+-- rootVec_distant_anticomm: r_i * r_j = -r_j * r_i when |i-j| >= 2
+--   Proof: all 4 generators are distinct, pairwise anticommute;
+--   expand product and apply anticommutation to each of 4 terms.
 
 /-! ### Section 3: Spinor module dimensions
 
@@ -131,6 +110,6 @@ theorem spinorDim_4 : spinorDim 4 = 4 := by decide
     What FOLLOWS from the postulate: the spinor transformation law,
     the double-cover structure, the continuum-limit embedding into Spin(d). -/
 
--- This section serves as documentation. The algebraic content is in Sections 1-3.
+-- This section serves as documentation. The algebraic content is in Sections 1-2.
 
 end CausalAlgebraicGeometry.SpinorialChamber

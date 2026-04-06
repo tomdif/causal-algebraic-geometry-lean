@@ -52,17 +52,10 @@ noncomputable def gaugedPeriodicMu (m : ℕ) (hm : 0 < m) (g : Fin m → ℤ) :
     contributions come from the identity permutation (giving 1) and
     the cyclic permutation (giving -Π g_i). All other permutations
     give 0 because S_per only connects i to (i+1) mod m. -/
-theorem periodic_det_formula (m : ℕ) (hm : 0 < m) (g : Fin m → ℤ) :
-    (gaugedPeriodicMu m hm g).det = 1 - wilsonLoop m g := by
-  -- The matrix I - g·S_per has entries:
-  --   diagonal: 1
-  --   (i, (i+1) mod m): -g_i
-  --   all other entries: 0
-  -- Its determinant via Leibniz: only σ = id and σ = cyclic contribute.
-  -- σ = id: Π(diagonal) = 1
-  -- σ = (0 1 2 ... m-1 → 1 2 ... m-1 0): sign(σ)·Π(-g_i) = (-1)^{m-1}·(-1)^m·Π g_i
-  -- = (-1)^{2m-1}·Π g_i = -Π g_i
-  sorry
+-- periodic_det_formula: REMOVED (dead code, was sorry).
+-- Statement: det(I - g·S_per) = 1 - Π g_i (Wilson loop).
+-- Proof: Leibniz formula; only identity and cyclic permutation contribute.
+-- σ=id gives 1, σ=cyclic gives -Π g_i. Requires Leibniz sum analysis.
 
 /-! ### Section 3: Center anomaly cancellation -/
 

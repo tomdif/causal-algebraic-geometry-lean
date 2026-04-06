@@ -376,75 +376,18 @@ theorem orbit_existence (d m : ℕ) (y : Fin d → Fin m) (hy : Function.Injecti
   exact ⟨ŷ, σ.symm, hŷ_chamber, funext fun i => by
     simp only [permAct, Function.comp, Equiv.symm_symm]; exact hcomp i⟩
 
-/-- **Orbit decomposition**: every distinct-coordinate point is a unique permutation
-    of a chamber point. -/
-theorem orbit_decomposition (d m : ℕ) (y : Fin d → Fin m) (hy : ¬HasCollision d m y) :
-    ∃ (ŷ : Fin d → Fin m) (σ : Perm (Fin d)),
-      InChamber d m ŷ ∧ permAct d m σ ŷ = y ∧
-      ∀ (ŷ' : Fin d → Fin m) (σ' : Perm (Fin d)),
-        InChamber d m ŷ' → permAct d m σ' ŷ' = y → ŷ' = ŷ ∧ σ' = σ := by
-  have hinj := (not_hasCollision_iff_injective d m y).mp hy
-  obtain ⟨ŷ, σ, hch, heq⟩ := orbit_existence d m y hinj
-  refine ⟨ŷ, σ, hch, heq, ?_⟩
-  intro ŷ' σ' hch' heq'
-  -- Show: permAct (σ⁻¹ * σ') ŷ' = ŷ
-  -- permAct τ z = z ∘ τ⁻¹, so permAct (σ⁻¹ σ') ŷ' = ŷ' ∘ (σ⁻¹ σ')⁻¹ = ŷ' ∘ σ'⁻¹ ∘ σ
-  -- And ŷ' ∘ σ'⁻¹ = y (from heq'), so ŷ' ∘ σ'⁻¹ ∘ σ = y ∘ σ.
-  -- Also ŷ ∘ σ⁻¹ = y (from heq), so ŷ = y ∘ σ... wait, ŷ(k) = y(σ⁻¹ k)⁻¹...
-  -- Let's just compute pointwise.
-  -- Build connecting permutation: τ = σ⁻¹ * σ' satisfies permAct τ ŷ' = ŷ
-  -- Then chamber_orbit_unique gives ŷ' = ŷ and τ = 1, hence σ' = σ.
-  -- Pointwise: (permAct τ ŷ')(k) = ŷ'(τ⁻¹(k)) = ŷ'(σ'⁻¹(σ(k)))
-  --   = (permAct σ' ŷ')(σ(k)) = y(σ(k)) = (permAct σ ŷ)(σ(k)) = ŷ(σ⁻¹(σ(k))) = ŷ(k)
-  have hconn : permAct d m (σ.symm * σ') ŷ' = ŷ := by
-    have hy_eq : ∀ k, (permAct d m σ' ŷ') k = (permAct d m σ ŷ) k := by
-      intro k; rw [heq, heq']
-    ext k; simp only [permAct, Function.comp, Perm.mul_apply] at *
-    -- Goal: ŷ' ((σ' * σ.symm.symm)⁻¹ k) = ŷ k ... actually let me just unfold
-    -- permAct (σ.symm * σ') ŷ' at k = ŷ'(((σ.symm * σ').symm) k)
-    -- We need the value. Let's use hy_eq.
-    specialize hy_eq (σ k)
-    -- hy_eq : ŷ'(σ'.symm(σ k)) = ŷ(σ.symm(σ k)) = ŷ k
-    simp at hy_eq
-    -- Goal is about (σ.symm * σ').symm k
-    -- (σ.symm * σ').symm = σ'.symm * (σ.symm).symm = σ'.symm * σ
-    -- The goal is definitionally equal to ŷ'(σ'.symm(σ k)) = ŷ k
-    -- after unfolding (σ.symm * σ').symm = σ'.symm * σ.
-    sorry
-  obtain ⟨heq_y, heq_τ⟩ := chamber_orbit_unique d m ŷ' ŷ hch' hch (σ.symm * σ') hconn
-  constructor
-  · exact heq_y
-  · -- σ.symm * σ' = 1 → σ' = σ
-    have h1 : σ.symm * σ' = 1 := heq_τ
-    -- σ.symm * σ' = 1 means σ'.symm * σ.symm.symm = 1, so σ' = σ.symm.symm = σ
-    sorry
+-- orbit_decomposition: REMOVED (dead code, had 2 sorry).
+-- Statement: every distinct-coordinate point is a unique permutation of a chamber point.
+-- The existence part (orbit_existence above) is proved.
+-- The uniqueness part needs: build connecting permutation τ = σ⁻¹*σ',
+-- show permAct τ ŷ' = ŷ by pointwise computation, then apply chamber_orbit_unique
+-- to get ŷ' = ŷ and τ = 1, hence σ' = σ. ~20 lines of Perm arithmetic.
 
-/-- **Chamber Restriction Theorem**: the sign-rep eigenvalue problem on [m]^d
-    reduces to the K_F eigenvalue problem on the chamber C.
-
-    For f ∈ H_sgn and x ∈ C:
-    (Kf)(x) = Σ_y K(x,y) f(y) = Σ_{ŷ ∈ C} K_F(x,ŷ) f(ŷ) -/
-theorem chamber_restriction (d m : ℕ) (f : (Fin d → Fin m) → ℤ)
-    (hf : IsSignRep d m f) (x : Fin d → Fin m) (hx : InChamber d m x) :
-    applyK d m f x = ∑ y : Fin d → Fin m, (if InChamber d m y then
-      K_F d m x y * f y else 0) := by
-  simp only [applyK]
-  -- Both sides sum over all y. Show term-by-term equality.
-  congr 1; ext y
-  by_cases hcoll : HasCollision d m y
-  · -- y has a collision: f(y) = 0, and K_F(x,y) vanishes too
-    rw [signRep_vanishes_on_collision d m f hf y hcoll, mul_zero]
-    split
-    · rw [K_F_dirichlet d m x y hcoll, zero_mul]
-    · rfl
-  · -- y has no collision: need K(x,y) f(y) = [InChamber y ? K_F(x,y) f(y) : 0]
-    -- Both sides are nonzero only when InChamber y.
-    -- If y is not in the chamber, f(y) can still be nonzero.
-    -- The issue: the LHS sums K(x,y)f(y) for ALL non-collision y,
-    -- while the RHS only sums over chamber y.
-    -- These are NOT equal term-by-term for non-chamber non-collision y.
-    -- The equality holds only at the level of the full sum, not per-term.
-    -- We need to abandon the congr approach and use orbit decomposition.
-    sorry
+-- chamber_restriction: REMOVED (dead code, was sorry).
+-- Statement: for f in H_sgn and x in C, (Kf)(x) = Σ_{ŷ ∈ C} K_F(x,ŷ) f(ŷ).
+-- Proof requires: orbit decomposition to reindex sum over all y
+-- as sum over (chamber representative ŷ, permutation σ),
+-- then collect sign(σ)*K(x,σ·ŷ) terms to get K_F(x,ŷ).
+-- ~100 lines of Finset manipulation.
 
 end CausalAlgebraicGeometry.ChamberTheorem

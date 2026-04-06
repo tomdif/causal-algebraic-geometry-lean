@@ -91,14 +91,31 @@ lemma reflectD_val_lt {m : ℕ} (d u : Fin m → Fin (m + 1)) (i₀ i : Fin m) :
 
 /-- When i₀ > 0 or d(i₀) < m, the U values are in Fin m.
     The general bound proof is subtle and requires case analysis on i₀ and d(i₀). -/
+-- reflectU_val_lt: REMOVED (dead code, was sorry).
+-- Note: the lemma as stated is FALSE in the edge case where i₀ = 0
+-- and d(0) = m (then reflectU_val = d(0) = m, which is not < m).
+-- The LGVInvolution.lean handles this edge case separately via
+-- suffixSwapU_val_lt_when_i0_pos and suffixSwapU_val_lt_when_i0_zero_nonmax.
+-- This file's approach needs the additional hypothesis d(i₀) < m.
+-- Since this file is dead code, the issue is documented but not fixed.
+-- We provide a version with the needed hypothesis:
 lemma reflectU_val_lt {m : ℕ} (hm : 0 < m)
     (d u : Fin m → Fin (m + 1))
     (hd : Antitone d) (hu : Antitone u)
     (hcross : ∃ i, (u i).val ≥ (d i).val)
     (i₀ : Fin m) (hi₀ : i₀ = firstCrossingIndex d u hcross)
+    (hnonmax : (d i₀).val < m)
     (i : Fin m) :
     reflectU_val d u i₀ i < m := by
-  sorry
+  unfold reflectU_val
+  split
+  · -- i < i₀: u(i) < d(i) ≤ m
+    have hlt := firstCrossingIndex_minimal d u hcross i (hi₀ ▸ ‹_›)
+    have : (d i).val ≤ m := Nat.lt_succ_iff.mp (d i).isLt
+    omega
+  · -- i ≥ i₀: d(i) ≤ d(i₀) < m
+    have hle : (d i).val ≤ (d i₀).val := hd (not_lt.mp ‹_›)
+    omega
 
 /-! ## Constructing the reflected pair as Fin-valued functions -/
 
@@ -106,16 +123,12 @@ lemma reflectU_val_lt {m : ℕ} (hm : 0 < m)
 def reflectD {m : ℕ} (d u : Fin m → Fin (m + 1)) (i₀ : Fin m) : Fin m → Fin (m + 2) :=
   fun i => ⟨reflectD_val d u i₀ i, reflectD_val_lt d u i₀ i⟩
 
-/-- The U component of the Lindström reflection, as a function Fin m → Fin m.
-    Requires the range proof. -/
-noncomputable def reflectU {m : ℕ} (hm : 0 < m)
-    (d u : Fin m → Fin (m + 1))
-    (hd : Antitone d) (hu : Antitone u)
-    (hcross : ∃ i, (u i).val ≥ (d i).val)
-    (i₀ : Fin m) (hi₀ : i₀ = firstCrossingIndex d u hcross) : Fin m → Fin m :=
-  fun i => ⟨reflectU_val d u i₀ i, reflectU_val_lt hm d u hd hu hcross i₀ hi₀ i⟩
-
-/-! ## Antitonicity of reflected pair -/
+-- reflectU, reflectU_antitone, lindstromReflection, lindstromReflection_injective,
+-- lindstromReflection_fst/snd_antitone, crossing_pairs_le_product:
+-- ALL REMOVED (dead code chain, depended on reflectU_val_lt which needed
+-- additional hypothesis hnonmax for the edge case d(0) = m).
+-- The LGVInvolution.lean file handles this correctly with separate cases.
+-- reflectD_antitone is kept as it is self-contained and sorry-free.
 
 lemma reflectD_antitone {m : ℕ} (d u : Fin m → Fin (m + 1))
     (hd : Antitone d) (hu : Antitone u)
@@ -126,94 +139,15 @@ lemma reflectD_antitone {m : ℕ} (d u : Fin m → Fin (m + 1))
   simp only [reflectD, Fin.le_def, reflectD_val]
   by_cases ha : a < i₀
   · by_cases hb : b < i₀
-    · -- Both before i₀: follows from d antitone
-      simp [ha, hb]; exact hd hab
-    · -- a before, b after: D(a) = d(a), D(b) = u(b)+1
-      simp [ha, hb]
+    · simp [ha, hb]; exact hd hab
+    · simp [ha, hb]
       have hub : (u b).val ≤ (u a).val := hu hab
       have hua_lt : (u a).val < (d a).val :=
         firstCrossingIndex_minimal d u hcross a (hi₀ ▸ ha)
       omega
-  · -- a ≥ i₀
-    have hb : ¬(b < i₀) := not_lt.mpr (le_trans (not_lt.mp ha) hab)
-    simp [ha, hb]
-    have := hu hab; omega
-
-lemma reflectU_antitone {m : ℕ} (hm : 0 < m)
-    (d u : Fin m → Fin (m + 1))
-    (hd : Antitone d) (hu : Antitone u)
-    (hcross : ∃ i, (u i).val ≥ (d i).val)
-    (i₀ : Fin m) (hi₀ : i₀ = firstCrossingIndex d u hcross) :
-    Antitone (reflectU hm d u hd hu hcross i₀ hi₀) := by
-  intro a b hab
-  simp only [reflectU, Fin.le_def, reflectU_val]
-  by_cases ha : a < i₀
-  · by_cases hb : b < i₀
-    · simp [ha, hb]; exact hu hab
-    · -- a < i₀ ≤ b: U(a) = u(a), U(b) = d(b)
-      simp [ha, hb]
-      -- u(i₀) ≥ d(i₀) (crossing), d(i₀) ≥ d(b) (antitone, i₀ ≤ b)
-      -- u(a) ≥ u(i₀) (antitone, a < i₀ → a ≤ i₀)
-      have hcross_val := firstCrossingIndex_spec d u hcross
-      rw [← hi₀] at hcross_val
-      have hua_ge_ui0 : (u a).val ≥ (u i₀).val := hu (le_of_lt ha)
-      have hdi0_ge_db : (d i₀).val ≥ (d b).val := hd (not_lt.mp hb)
-      omega
   · have hb : ¬(b < i₀) := not_lt.mpr (le_trans (not_lt.mp ha) hab)
     simp [ha, hb]
-    exact hd hab
-
-/-! ## Injectivity of the reflection -/
-
-/-- The Lindström reflection map from crossing pairs to
-    (antitone Fin m → Fin (m+2)) × (antitone Fin m → Fin m). -/
-noncomputable def lindstromReflection (m : ℕ) (hm : 0 < m)
-    (p : (Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)))
-    (hp : Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val) :
-    (Fin m → Fin (m + 2)) × (Fin m → Fin m) :=
-  let d := p.1
-  let u := p.2
-  let hcross := hp.2.2
-  let i₀ := firstCrossingIndex d u hcross
-  (reflectD d u i₀, reflectU hm d u hp.1 hp.2.1 hcross i₀ rfl)
-
-lemma lindstromReflection_fst_antitone (m : ℕ) (hm : 0 < m)
-    (p : (Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)))
-    (hp : Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val) :
-    Antitone (lindstromReflection m hm p hp).1 :=
-  reflectD_antitone p.1 p.2 hp.1 hp.2.1 hp.2.2 _ rfl
-
-lemma lindstromReflection_snd_antitone (m : ℕ) (hm : 0 < m)
-    (p : (Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)))
-    (hp : Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val) :
-    Antitone (lindstromReflection m hm p hp).2 :=
-  reflectU_antitone hm p.1 p.2 hp.1 hp.2.1 hp.2.2 _ rfl
-
-lemma lindstromReflection_injective (m : ℕ) (hm : 0 < m) :
-    ∀ p₁ p₂ : (Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)),
-    ∀ hp₁ : Antitone p₁.1 ∧ Antitone p₁.2 ∧ ∃ i, (p₁.2 i).val ≥ (p₁.1 i).val,
-    ∀ hp₂ : Antitone p₂.1 ∧ Antitone p₂.2 ∧ ∃ i, (p₂.2 i).val ≥ (p₂.1 i).val,
-    lindstromReflection m hm p₁ hp₁ = lindstromReflection m hm p₂ hp₂ → p₁ = p₂ := by
-  sorry
-
-/-! ## The main cardinality bound -/
-
-/-- Helper: the m = 0 case is trivial since Fin 0 → X is unique. -/
-lemma crossing_pairs_le_product_zero :
-    (crossingPairs 0).card ≤ (antitoneSet 0 2).card * (antitoneSet 0 0).card := by
-  simp [crossingPairs, antitoneSet]
-
-/-- The main inequality: the number of crossing pairs (d,u) with d,u : Fin m → Fin (m+1)
-    antitone and ∃ i, u(i) ≥ d(i) is at most |antitone(m, m+2)| × |antitone(m, m)|. -/
-theorem crossing_pairs_le_product (m : ℕ) :
-    ((Finset.univ : Finset ((Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)))).filter
-      (fun p => Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val)).card ≤
-    ((Finset.univ : Finset (Fin m → Fin (m + 2))).filter Antitone).card *
-    ((Finset.univ : Finset (Fin m → Fin m)).filter Antitone).card := by
-  -- The proof proceeds by constructing the Lindström reflection injection.
-  -- For m = 0, the source set is empty (no Fin 0 → X has a crossing).
-  -- For m > 0, we use the injection into the product of antitone sets.
-  sorry
+    have := hu hab; omega
 
 /-! ## Counting antitone functions via binomial coefficients -/
 

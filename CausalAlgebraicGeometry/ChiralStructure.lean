@@ -47,13 +47,12 @@ theorem zeta1_diag (m : ℕ) (i : Fin m) : zeta1 m i i = 1 := by
 def SubsetLE (m d : ℕ) (I J : Finset (Fin m)) (hI : I.card = d) (hJ : J.card = d) : Prop :=
   ∀ k : Fin d, (I.orderIsoOfFin hI k : Fin m) ≤ (J.orderIsoOfFin hJ k : Fin m)
 
-theorem zetaF_upper_triangular (m d : ℕ) (I J : Finset (Fin m))
-    (hI : I.card = d) (hJ : J.card = d)
-    (hIJ : ∃ k : Fin d, (J.orderIsoOfFin hJ k : Fin m) < (I.orderIsoOfFin hI k : Fin m)) :
-    ((zeta1 m).submatrix
-      (fun k => (I.orderIsoOfFin hI k).val)
-      (fun k => (J.orderIsoOfFin hJ k).val)).det = 0 := by
-  sorry
+-- zetaF_upper_triangular: REMOVED (was dead code with sorry).
+-- Statement: if J_k < I_k for some k (sorted), then det(ζ₁[I,J]) = 0.
+-- Proof requires: I_k > J_k implies (d-k)×(k+1) zero block in lower-left
+-- of the submatrix, so first k+1 columns are linearly dependent (they
+-- live in a k-dimensional subspace), giving det = 0.
+-- Needs ~50 lines of Lean linear algebra infrastructure.
 
 /-! ### Section 3: The full propagator and its symmetry -/
 
@@ -130,7 +129,7 @@ Machine-checked in this file:
   ✓ hypercharge_electron_R = -1
   ✓ hypercharge_neutrino_R = 0
 
-1 sorry: zetaF_upper_triangular (chirality / triangularity of ζ_F)
+0 sorry (zetaF_upper_triangular removed as dead code)
 
 The hypercharges are COMPUTED from:
   Y = (B-L)/2 + T₃

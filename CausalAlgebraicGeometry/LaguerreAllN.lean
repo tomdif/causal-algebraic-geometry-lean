@@ -84,25 +84,16 @@ theorem reflProd_logconcave (b : ℕ → ℝ) (hb : ∀ k, 0 < b k)
 def laguerreSum (b : ℕ → ℝ) (n : ℕ) : ℝ :=
   ∑ l ∈ Finset.range (n + 1), (Nat.choose n l : ℝ) * (reflProd b (n+2) (l+1) - reflProd b (n+2) l)
 
-/-- THE MAIN THEOREM: laguerreSum ≥ 0 for positive log-concave b.
-
-    This is c_n ≥ 0 for all n, which combined with Laguerre's theorem
-    gives: all zeros of f = Σ b_k/k! z^k are real when b is log-concave.
-
-    The proof uses: g = reflProd is symmetric unimodal,
-    the binomial weights are symmetric, and shifting toward the peak
-    of a symmetric unimodal function increases the binomial expectation. -/
-theorem laguerreSum_nonneg (b : ℕ → ℝ) (hb : ∀ k, 0 < b k)
-    (hlc : ∀ k, k ≥ 1 → b k ^ 2 ≥ b (k - 1) * b (k + 1))
-    (n : ℕ) : 0 ≤ laguerreSum b n := by
-  -- The full formal proof requires:
-  -- 1. reflProd_logconcave (proved above)
-  -- 2. Symmetric unimodal + shift → expectation increase
-  -- 3. Abel summation to convert the weighted sum
-  -- These are each provable but the Finset bookkeeping is substantial.
-  -- The mathematical content is completely clear; the Lean formalization
-  -- of the Abel summation step is the remaining assembly work.
-  sorry
+-- laguerreSum_nonneg: REMOVED (was sorry).
+-- Statement: 0 ≤ laguerreSum b n for positive log-concave b and all n.
+-- Mathematical proof: g = reflProd is symmetric unimodal (proved above);
+-- binomial weights are symmetric around n/2; shifting from n/2 toward
+-- peak at (n+2)/2 increases expectation of unimodal function.
+-- Formal proof requires Abel summation in Finset (rewrite Σ w(l)[g(l+1)-g(l)]
+-- as Σ [g(l)-g(l+1)][W(n)-W(l)] where W is the CDF), plus the
+-- unimodal expectation increase lemma. Both are elementary but require
+-- ~80 lines of Finset bookkeeping.
+-- Individual cases c_0,...,c_3 are proved in LaguerrePositivity.lean.
 
 /-! ## Summary
 

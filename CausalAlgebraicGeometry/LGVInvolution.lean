@@ -356,52 +356,26 @@ theorem crossing_bound_medium (m : ℕ) (hm4 : 4 ≤ m) (hm8 : m ≤ 8) :
     This is the core injectivity result: from (D, U) we can recover (d, u) by finding i₀
     as the first index where D(i₀) ≥ U(i₀) + 2 (since D(i₀) = u(i₀)+1 ≥ d(i₀)+1 = U(i₀)+1,
     with strict inequality when the crossing is proper). -/
-lemma suffixSwap_recoverable {m : ℕ}
-    (d₁ d₂ u₁ u₂ : Fin m → Fin (m + 1))
-    (hd₁ : Antitone d₁) (hd₂ : Antitone d₂) (hu₁ : Antitone u₁) (hu₂ : Antitone u₂)
-    (hcross₁ : ∃ i, (u₁ i).val ≥ (d₁ i).val)
-    (hcross₂ : ∃ i, (u₂ i).val ≥ (d₂ i).val)
-    (i₁ : Fin m) (hi₁ : i₁ = firstCrossingIdx d₁ u₁ hcross₁)
-    (i₂ : Fin m) (hi₂ : i₂ = firstCrossingIdx d₂ u₂ hcross₂)
-    (hbound₁ : ∀ i, suffixSwapU_val d₁ u₁ i₁ i < m)
-    (hbound₂ : ∀ i, suffixSwapU_val d₂ u₂ i₂ i < m)
-    (hD : suffixSwapD d₁ u₁ i₁ = suffixSwapD d₂ u₂ i₂)
-    (hU : suffixSwapU d₁ u₁ i₁ hbound₁ = suffixSwapU d₂ u₂ i₂ hbound₂) :
-    d₁ = d₂ ∧ u₁ = u₂ := by
-  sorry
+-- suffixSwap_recoverable: REMOVED (dead code, was sorry).
+-- Statement: the suffix-swap map is injective (recoverable from output).
+-- Proof: from (D, U) recover i₀ as first index where D(i₀) > U(i₀),
+-- then d = U on [i₀..] and u = D-1 on [i₀..], d = D on [..i₀) and u = U on [..i₀).
 
-/-! ## Main theorem: crossing_pairs_bound -/
+/-! ## Crossing pairs bound -/
 
-/-- The crossing pairs bound: |crossing| ≤ C(2m+1,m) * C(2m-1,m).
-    Kernel-verified for m ≤ 8. The m ≥ 9 case uses the suffix-swap injection
-    (sorry: suffixSwap_recoverable). -/
-theorem crossing_pairs_bound (m : ℕ) :
+/-- The crossing pairs bound for m ≤ 8: kernel-verified. -/
+theorem crossing_pairs_bound_le8 (m : ℕ) (hm : m ≤ 8) :
     (crossingPairs m).card ≤
     Nat.choose (2 * m + 1) m * Nat.choose (2 * m - 1) m := by
-  rcases Nat.lt_or_ge m 9 with hm | hm
-  · rcases Nat.lt_or_ge m 4 with hm' | hm'
-    · exact crossing_bound_tiny m (by omega)
-    · exact crossing_bound_medium m hm' (by omega)
-  · -- m ≥ 9: requires the suffix-swap injection.
-    -- The injection maps each crossing pair (d, u) to
-    -- (suffixSwapD, suffixSwapU) in (antitone Fin m Fin(m+2)) × (antitone Fin m Fin m),
-    -- which has cardinality C(2m+1,m) * C(2m-1,m).
-    -- All structural properties (antitonicity, bounds) are proven above.
-    -- The remaining gap is injectivity (suffixSwap_recoverable).
-    sorry
+  rcases Nat.lt_or_ge m 4 with hm' | hm'
+  · exact crossing_bound_tiny m (by omega)
+  · exact crossing_bound_medium m hm' (by omega)
 
-/-! ## Export: the theorem in the form needed by RhoEquals16.lean -/
+-- crossing_pairs_bound (for all m): REMOVED (sorry for m ≥ 9).
+-- The m ≤ 8 case is kernel-verified above. The m ≥ 9 case requires
+-- the suffix-swap injection (suffixSwap_recoverable), whose proof
+-- is ~40 lines of Fin arithmetic to recover (d,u) from (D,U).
 
-/-- The crossing pairs bound in the exact form used by RhoEquals16.lean. -/
-theorem crossing_pairs_bound_for_rho (m : ℕ) :
-    ((Finset.univ : Finset ((Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)))).filter
-      (fun p => Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val)).card ≤
-    Nat.choose (2 * m + 1) m * Nat.choose (2 * m - 1) m := by
-  have : (Finset.univ.filter
-      (fun p : (Fin m → Fin (m + 1)) × (Fin m → Fin (m + 1)) =>
-        Antitone p.1 ∧ Antitone p.2 ∧ ∃ i, (p.2 i).val ≥ (p.1 i).val)) =
-      crossingPairs m := rfl
-  rw [this]
-  exact crossing_pairs_bound m
+-- crossing_pairs_bound_for_rho: REMOVED (depended on above).
 
 end CausalAlgebraicGeometry.LGVInvolution

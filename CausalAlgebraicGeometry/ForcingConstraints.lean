@@ -101,7 +101,7 @@ theorem gauge_links_finite (m : ℕ) (hm : 0 < m) :
 /-- The total degrees of freedom of d fermions on [m] is C(m,d) (finite). -/
 theorem chamber_dof_finite (m d : ℕ) :
     Fintype.card { S : Finset (Fin m) // S.card = d } = Nat.choose m d := by
-  sorry -- standard Finset cardinality
+  simp [Fintype.card_finset_len]
 
 /-! ### Section 4: Chirality from pseudo-real vs complex representations -/
 

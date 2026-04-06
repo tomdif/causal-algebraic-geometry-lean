@@ -62,29 +62,11 @@ theorem screening_one {m : ℕ} (hm : 2 ≤ m)
     zify [this, show 1 ≤ m from by omega]; ring
   omega
 
-/-- The general screening theorem for k separated violations.
-    Verified computationally for k=1,...,6, m up to 24.
-
-    PROOF REQUIRES: Finset sum-splitting into k+2 regions
-    (left of first violation, between each pair, right of last violation)
-    with monotonicity bounds in each region. The ℤ arithmetic then
-    gives the screening formula via the product (m-k) appearing as
-    the effective depth stiffness after k screenings. -/
-theorem screening_general {m : ℕ} (hm : 2 ≤ m)
-    (a b : Fin m → ℕ)
-    (ha_mono : ∀ i j : Fin m, i ≤ j → a i ≤ a j)
-    (hb_anti : ∀ i j : Fin m, i ≤ j → b j ≤ b i)
-    (ha_bound : ∀ i, a i ≤ m) (hb_bound : ∀ i, b i ≤ m)
-    (k : ℕ) (hk : 1 ≤ k) (hk_bound : 2 * k ≤ m)
-    (violations : Fin k → Fin m)
-    (h_sorted : ∀ i j : Fin k, i ≤ j → violations i ≤ violations j)
-    (h_separated : ∀ i j : Fin k, i.val + 1 = j.val →
-        (violations i).val + 2 ≤ (violations j).val)
-    (h_left_half : ∀ i : Fin k, 2 * (violations i).val + 1 ≤ m)
-    (h_violations : ∀ i : Fin k, m + 1 ≤ a (violations i) + b (violations i)) :
-    let d := (violations ⟨k - 1, by omega⟩).val
-    screenThreshold k d m ≤ Finset.univ.sum (fun x => a x + b x) := by
-  sorry
+-- screening_general: REMOVED (dead code, was sorry).
+-- Statement: for k separated violations in the left half, deepest at d,
+--   Σ(a+b) ≥ (k+1)m + d(m-k).
+-- Proof requires: Finset sum-splitting into k+2 regions.
+-- Verified computationally for k=1,...,6, m up to 24.
 
 /-! ## Summary
 

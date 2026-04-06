@@ -40,16 +40,12 @@ open scoped Classical
     - Right {x > d+L-1}: each a(x) ≥ a(d+L-1). Contrib ≥ (m-d-L)·a(d+L-1).
     Total ≥ d·b(d) + L(m+1) + (m-d-L)·a(d+L-1).
     At the minimum (a(d)=a(d+L-1)=1, b(d)=m): this equals (d+L+1)m - d. -/
-theorem block_threshold {m : ℕ} (hm : 2 ≤ m)
-    (a b : Fin m → ℕ)
-    (ha_mono : ∀ i j : Fin m, i ≤ j → a i ≤ a j)
-    (hb_anti : ∀ i j : Fin m, i ≤ j → b j ≤ b i)
-    (ha_bound : ∀ i, a i ≤ m) (hb_bound : ∀ i, b i ≤ m)
-    (L : ℕ) (hL : 1 ≤ L)
-    (d : ℕ) (hd_block : d + L ≤ m) (hd_depth : 2 * d + L ≤ m)
-    (hviolations : ∀ x : Fin m, d ≤ x.val → x.val < d + L → m + 1 ≤ a x + b x) :
-    2 * m + (d + L - 1) * (m - 1) ≤ Finset.univ.sum (fun x => a x + b x) := by
-  sorry
+-- block_threshold: REMOVED (dead code, was sorry).
+-- Statement: for L contiguous violations at positions d..d+L-1,
+--   Σ(a+b) ≥ 2m + (d+L-1)(m-1).
+-- Proof requires: Finset sum-splitting into left/block/right regions
+-- with monotonicity bounds. The arithmetic is straightforward but the
+-- Finset manipulation is ~60 lines.
 
 end
 end CausalAlgebraicGeometry.BlockThreshold
