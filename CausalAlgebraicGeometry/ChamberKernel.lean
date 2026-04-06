@@ -85,11 +85,24 @@ theorem zeta_reflect (m i j : ℕ) (hi : i < m) (hj : j < m) :
 theorem KF_comm_R :
     -- For any d and any chamber points P, Q:
     -- K_F(R(P), R(Q)) = K_F(P, Q)
-    -- i.e., det(ζ[R(P),R(Q)]) + det(ζ[R(Q),R(P)]) = det(ζ[P,Q]) + det(ζ[Q,P])
-    -- Proof: det(ζ[R(P),R(Q)]) = det(ζ[Q,P]) and det(ζ[R(Q),R(P)]) = det(ζ[P,Q])
-    -- So the sum is unchanged.
-    True := trivial  -- The proof is captured in the docstring; the formal version
-                      -- requires defining det on variable-size matrices.
+    -- The formal proof reduces to the ζ reflection identity:
+    --   ζ(m-1-i, m-1-j) = ζ(j, i)
+    -- which is proved as `zeta_reflect` above (and as `zeta1_reflect` in ChamberGap.lean).
+    --
+    -- The argument:
+    -- 1. Each entry of ζ[R(P),R(Q)] is ζ(m-1-p_a, m-1-q_b) = ζ(q_b, p_a) by zeta_reflect
+    -- 2. So ζ[R(P),R(Q)] = ζ[Q,P] with rows and cols reversed
+    -- 3. Row/col reversal gives sign (-1)^{d(d-1)/2} twice = (+1)
+    -- 4. Therefore det(ζ[R(P),R(Q)]) = det(ζ[Q,P])
+    -- 5. Similarly det(ζ[R(Q),R(P)]) = det(ζ[P,Q])
+    -- 6. K_F = det(ζ[P,Q]) + det(ζ[Q,P]) - δ is unchanged under R
+    --
+    -- We capture this as: the ζ reflection identity holds for all m, i, j.
+    -- This is the essential algebraic content; the variable-dimension det
+    -- formalization is not attempted here.
+    ∀ (m i j : ℕ) (hi : i < m) (hj : j < m),
+      zeta (m - 1 - i) (m - 1 - j) = zeta j i :=
+  fun m i j hi hj => zeta_reflect m i j hi hj
 
 /-! ## The R-decomposition
 

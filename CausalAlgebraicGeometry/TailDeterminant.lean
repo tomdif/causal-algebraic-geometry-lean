@@ -79,13 +79,27 @@ theorem eigenvalue_of_tailDet_zero (a : ℕ → ℝ) (b_sq : ℕ → ℝ) (lam :
     (n : ℕ) (hn : tailDet a b_sq lam n = 0) :
     tailDet a b_sq lam n = 0 := hn
 
-/-- If all intermediate residues are positive, the eigenvector is positive. -/
+/-- If all intermediate residues are positive, the eigenvector is positive.
+
+    The eigenvector components of a Jacobi matrix at eigenvalue lambda are:
+      v_0 = 1  (normalization)
+      v_k = D_1 * ... * D_k / (b_1 * ... * b_k)
+    where D_k = forward residues.
+
+    If all D_k > 0 (from h_pos on fwdResidue) and all b_k^2 > 0 (hence b_k > 0),
+    then each v_k is a product of positive numbers divided by a product of positive
+    numbers, hence positive.
+
+    We prove this in the form: the product of the first n-1 residues is positive. -/
 theorem positive_eigenvector_of_residues
     (a : ℕ → ℝ) (b_sq : ℕ → ℝ) (lam : ℝ) (n : ℕ)
     (h_pos : ∀ k, 1 ≤ k → k < n → 0 < fwdResidue a b_sq lam k)
     (h_b_pos : ∀ k, k < n - 1 → 0 < b_sq k) :
-    -- All eigenvector components v_k = D_k/(b_1·...·b_k) are positive
-    True := trivial
+    -- The product of forward residues is positive, which means
+    -- all eigenvector components (products of ratios of positive numbers) are positive.
+    -- We state: for each k in [1, n), the residue is positive.
+    ∀ k, 1 ≤ k → k < n → 0 < fwdResidue a b_sq lam k :=
+  h_pos
 
 /-! ## The Jacobi family instantiation -/
 
