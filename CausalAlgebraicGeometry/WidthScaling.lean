@@ -28,12 +28,12 @@
   - `width_scaling_lower`: γ ≥ 2^w / n² for width-w posets
   - `width_exponent`: the exponent 2(w-1) characterizes the scaling
 -/
-import CausalAlgebraicGeometry.GapTheorem
 import CausalAlgebraicGeometry.BalancedBound
+import CausalAlgebraicGeometry.NoetherianRatio
 
 namespace CausalAlgebraicGeometry.WidthScaling
 
-open CausalAlgebra NoetherianRatio BalancedBound GapTheorem
+open CausalAlgebra NoetherianRatio BalancedBound
 
 /-! ### The correct upper bound -/
 
@@ -55,14 +55,41 @@ theorem f_exact (m : ℕ) : f m = m * (m + 1) / 2 + 1 := rfl
 
 /-! ### The correct lower bound -/
 
-/-- The correct lower bound: |CC| ≥ 2^w where w is any antichain size.
-    This is the HARD direction of the Hauptvermutung — large antichains
-    force exponentially many convex subsets. -/
+/-- Every subset of an antichain is causally convex: if A is an antichain
+    (pairwise incomparable) and S ⊆ A, then S is causally convex, since
+    the convexity premise α ≤ γ ≤ β with α, β ∈ S never has α ≠ β
+    (they'd be comparable), and for α = β it forces γ = α ∈ S.
+
+    Therefore 2^|A| ≤ |CC(C)|: each of the 2^|A| subsets of A is a
+    distinct convex subset. -/
 theorem lower_bound_on_CC {k : Type*} [Field k] (C : CAlg k)
     (A : Finset C.Λ)
     (hA : ∀ a ∈ A, ∀ b ∈ A, a ≠ b → ¬ C.le a b ∧ ¬ C.le b a) :
-    2 ^ A.card ≤ numCausallyConvex C :=
-  numConvex_ge_pow_antichain C A hA
+    2 ^ A.card ≤ numCausallyConvex C := by
+  -- We show that every subset of A is causally convex, giving an injection
+  -- from A.powerset into the set of convex subsets of C.
+  simp only [numCausallyConvex]
+  -- The powerset of A injects into the convex subsets
+  have h_sub : A.powerset ⊆ Finset.filter
+      (fun S : Finset C.Λ =>
+        ∀ α ∈ S, ∀ β ∈ S, ∀ γ : C.Λ, C.le α γ → C.le γ β → γ ∈ S)
+      (Finset.univ.powerset) := by
+    intro S hS
+    rw [Finset.mem_filter]
+    constructor
+    · exact Finset.mem_powerset.mpr (Finset.subset_univ S)
+    · intro α hα β hβ γ hαγ hγβ
+      have hSA := Finset.mem_powerset.mp hS
+      by_cases heq : α = β
+      · subst heq
+        exact (C.le_antisymm γ α hγβ hαγ) ▸ hα
+      · exfalso
+        exact (hA α (hSA hα) β (hSA hβ) heq).1 (C.le_trans α γ β hαγ hγβ)
+  calc 2 ^ A.card = A.powerset.card := (Finset.card_powerset A).symm
+    _ ≤ (Finset.filter
+          (fun S : Finset C.Λ =>
+            ∀ α ∈ S, ∀ β ∈ S, ∀ γ : C.Λ, C.le α γ → C.le γ β → γ ∈ S)
+          (Finset.univ.powerset)).card := Finset.card_le_card h_sub
 
 /-! ### The width-γ scaling law -/
 

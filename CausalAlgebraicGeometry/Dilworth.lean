@@ -240,4 +240,67 @@ theorem dilworth_from_inductive_step {k : Type*} [Field k] (C : CAlg k)
   refine ⟨chains, ⟨hchain, fun x => hcover x (Finset.mem_univ x)⟩, ?_⟩
   rwa [inducedWidth_univ] at hcard
 
+/-! ### Converting Finset-based covers to Fin-indexed covers -/
+
+/-- Given a chain cover as a Finset of Finsets with cardinality w,
+    produce a Fin w-indexed chain cover suitable for PolynomialBound.lean. -/
+theorem indexed_chain_cover_of_finset_cover {k : Type*} [Field k] (C : CAlg k)
+    (chains : Finset (Finset C.Λ)) (hcover : IsChainCover C chains) :
+    ∃ (f : Fin chains.card → Finset C.Λ),
+      (∀ i, IsChainFS C (f i)) ∧
+      (∀ x : C.Λ, ∃ i, x ∈ f i) := by
+  -- Use Finset.equivFin to index chains by Fin
+  let e := chains.equivFin
+  -- e : { x // x ∈ chains } ≃ Fin chains.card
+  let f : Fin chains.card → Finset C.Λ := fun i => (e.symm i).val
+  refine ⟨f, fun i => hcover.1 _ (e.symm i).prop, fun x => ?_⟩
+  obtain ⟨M, hM, hx⟩ := hcover.2 x
+  exact ⟨e ⟨M, hM⟩, by show x ∈ (e.symm (e ⟨M, hM⟩)).val; simp [e, hx]⟩
+
+/-- **Chain cover existence (from Dilworth's inductive step)**:
+    Given the inductive step hypothesis, any finite poset of width w
+    admits a Fin w-indexed chain cover.
+
+    This is the interface that PolynomialBound.lean needs:
+    chains : Fin w → Finset C.Λ with each chain totally ordered
+    and every element covered. -/
+theorem chain_cover_exists {k : Type*} [Field k] (C : CAlg k)
+    (h_step : ∀ (S : Finset C.Λ), S.Nonempty → inducedWidth C S > 0 →
+      ∃ (L : Finset C.Λ), L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
+        inducedWidth C (S \ L) < inducedWidth C S) :
+    ∃ (w : ℕ) (chains : Fin w → Finset C.Λ),
+      w ≤ width C ∧
+      (∀ i, IsChainFS C (chains i)) ∧
+      (∀ x : C.Λ, ∃ i, x ∈ chains i) := by
+  obtain ⟨cs, hcover, hcard⟩ := dilworth_from_inductive_step C h_step
+  obtain ⟨f, hf_chain, hf_cover⟩ := indexed_chain_cover_of_finset_cover C cs hcover
+  exact ⟨cs.card, f, hcard, hf_chain, hf_cover⟩
+
+/-- **Chain cover property**: in a chain cover obtained from Dilworth,
+    every element belongs to at least one chain. -/
+theorem chain_cover_property {k : Type*} [Field k] (C : CAlg k)
+    {w : ℕ} (chains : Fin w → Finset C.Λ)
+    (hcover : ∀ x : C.Λ, ∃ i, x ∈ chains i) (x : C.Λ) :
+    ∃ i : Fin w, x ∈ chains i :=
+  hcover x
+
+/-- **Dilworth partition**: the complete package for downstream use.
+
+    Given the inductive step, produces w ≤ width(C) chains that:
+    (1) are each totally ordered (IsChainFS)
+    (2) cover every element of C.Λ
+
+    Combined with ConvexFactorization.convex_factorization and
+    PolynomialBound.polynomial_bound_statement, this gives the
+    end-to-end polynomial width bound on |CC(C)|. -/
+theorem dilworth_partition {k : Type*} [Field k] (C : CAlg k)
+    (h_step : ∀ (S : Finset C.Λ), S.Nonempty → inducedWidth C S > 0 →
+      ∃ (L : Finset C.Λ), L ⊆ S ∧ IsChainFS C L ∧ L.Nonempty ∧
+        inducedWidth C (S \ L) < inducedWidth C S) :
+    ∃ (w : ℕ) (chains : Fin w → Finset C.Λ),
+      w ≤ width C ∧
+      (∀ i, IsChainFS C (chains i)) ∧
+      (∀ x : C.Λ, ∃ i, x ∈ chains i) :=
+  chain_cover_exists C h_step
+
 end CausalAlgebraicGeometry.Dilworth
