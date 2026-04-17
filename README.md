@@ -4,7 +4,7 @@ Formal verification of the mathematical framework deriving the Standard Model fr
 
 ## Codebase
 
-**245 files, 44,569 lines.** Zero sorry. Zero custom axioms beyond Lean's core (propext, choice, quot.sound).
+**254 files, 45,856 lines.** Zero sorry. Zero custom axioms beyond Lean's core (propext, choice, quot.sound).
 
 Build: `lake build` (Lean 4 v4.28.0, Mathlib v4.28.0).
 
@@ -68,15 +68,31 @@ The physics derivation (gauge group, Higgs mass, electroweak scale, Born rule, E
 - `SpectralData.lean`: Feshbach discriminant symmetric around d=3; prime at d=2 AND d=4
 - `PartitionDimensionBridge.lean`: 2d+3 = d² selects d = 3 (independent of Lovelock)
 
-### New in This Session
+### RG Flow and Dynamics (0 sorry)
 
-- `NearVacuumD3.lean`: All 4 sorry eliminated (antitone2D_zero_at_boundary, PP2D stabilization)
-- `BottleneckLemma.lean` + `TrivialTopologicalOrder.lean`: Trivial topological order proved structurally
-- `UvarovChebyshev.lean`: Chamber polynomials correctly identified as Uvarov-modified Chebyshev
+- `GrowthRule.lean`: 3-slice convexity constraint as Markov growth rule
+- `TransferMatrixComputable.lean`: Decidable growth rule with branching factors
+- `BottleneckLemma.lean`: Abstract bottleneck → unique ground state for all cylinders
+- `TrivialTopologicalOrder.lean`: No topological order (structural proof)
+- `PathGraphOrigin.lean`: K_F at minimal m is the path graph (bare RG theory)
+- `RGFlow.lean`: Parameter-free flow from path graph to Volterra fixed point
+- `Universality.lean`: The RG fixed point is unique and inescapable
+- `SpectralGapConvergence.lean`: Two routes to ln(5/3) unified
+- `FeshbachProjection.lean`: R-decomposition, target ratios, monotone convergence
+
+### Cosmological Constant (0 sorry)
+
+- `CosmologicalConstant.lean`: Λ = Δ²/√N structural theorem (Sorkin + spectral gap)
+- `CCCoefficient.lean`: Two candidates: c=1 (Sorkin) or c=Δ_raw=2 (BD action)
+
+### Structural Insights (0 sorry)
+
+- `UvarovChebyshev.lean`: Chamber polynomials as boundary-perturbed Chebyshev
 - `LandauGinzburg.lean`: Complete LG structure capstone
-- `RankOnePrinciple.lean`, `OddNumberTheorem.lean`, `HiggsCouplingThreshold.lean`: Deep structural insights
-- `ChargeQuantization.lean`, `CasimirFactorization.lean`, `ChiralityGradingObstruction.lean` (in UnifiedTheory)
-- `BoundaryHolography.lean`, `IntegrationSpectrum.lean`, `CSpecUniqueness.lean`, `VolterraConvergence.lean`
+- `BoundaryHolography.lean`: η(q)^{-2} exponent counts boundaries, not bosons
+- `IntegrationSpectrum.lean`: SM from singular values of integration operator
+- `CSpecUniqueness.lean`: CSpec is the unique compatible topology
+- `PartitionDimensionBridge.lean`: Two independent roads to d=3
 
 ## Axiom Audit
 
