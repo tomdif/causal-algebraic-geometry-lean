@@ -633,6 +633,36 @@ theorem near_vacuum_d3_generating_function :
 
 end -- noncomputable section
 
+/-! ### Dimensional ladder: antitone2DCount(k+1, k) = planePartCount(k)
+
+The key identity closing the d=3 dimensional ladder: for each k, the number
+of antitone functions on [k+1]² → Fin(k+2) summing to k equals the number
+of plane partitions of k.
+
+**Why this is true for all k (structural argument):**
+Any antitone f : Fin(k+1) × Fin(k+1) → Fin(k+2) with sum k satisfies
+f(i,j) ≤ f(0,0) ≤ Σ f(i,j) = k for all (i,j) (since all terms ≥ 0
+and f is one of them). So every entry is ≤ k < k+2, meaning the codomain
+Fin(k+2) does not bind. Similarly, a plane partition of k fits in a
+(k+1)×(k+1) box with entries ≤ k. The two sets are identical.
+
+**Machine-checked verification for k = 0, 1, 2:**
+-/
+
+/-- antitone2DCount(1, 0) = P₂(0) = 1. Space: 2^1 = 2 functions. -/
+theorem ladder_d3_k0 : antitone2DCount 1 0 = planePartCount 0 := by native_decide
+
+/-- antitone2DCount(2, 1) = P₂(1) = 1. Space: 3^4 = 81 functions. -/
+theorem ladder_d3_k1 : antitone2DCount 2 1 = planePartCount 1 := by native_decide
+
+/-- antitone2DCount(3, 2) = P₂(2) = 3. Space: 4^9 = 262144 functions. -/
+theorem ladder_d3_k2 : antitone2DCount 3 2 = planePartCount 2 := by native_decide
+
+/-- Combined: the dimensional ladder holds for k ≤ 2 (machine-checked). -/
+theorem antitone2D_eq_planePart_le2 (k : ℕ) (hk : k ≤ 2) :
+    antitone2DCount (k + 1) k = planePartCount k := by
+  interval_cases k <;> native_decide
+
 /-! ## Summary
 
 PROVED (zero sorry):
@@ -657,6 +687,8 @@ COMPUTATIONAL (machine-checked, zero sorry):
 10. d3_near_vacuum_m2: CC = PP2 for m=2, k ≤ 1.
 11. near_vacuum_d3_theorem: combined structural + computational theorem.
 12. near_vacuum_d3_generating_function: PP2 values.
+13. ladder_d3_k0/k1/k2: antitone2DCount(k+1, k) = planePartCount(k) for k=0,1,2.
+14. antitone2D_eq_planePart_le2: combined dimensional ladder for k ≤ 2.
 
 SORRY (4 declarations, all technical):
 1. antitone2D_zero_at_boundary: boundary entries are zero for m > k.
