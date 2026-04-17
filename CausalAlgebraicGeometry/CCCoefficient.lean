@@ -88,7 +88,7 @@ def c_sorkin : ℕ := 1
 /-- The BD action coefficient. -/
 def c_bd : ℕ := delta_raw
 
-theorem c_bd_is_2 : c_bd = 2 := by unfold c_bd delta_raw
+theorem c_bd_is_2 : c_bd = 2 := by unfold c_bd delta_raw; rfl
 
 /-- The BD coefficient gives a 2× larger Λ than Sorkin. -/
 theorem bd_vs_sorkin : c_bd = 2 * c_sorkin := by
