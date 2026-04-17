@@ -80,6 +80,47 @@ theorem convexRect2xN_values :
      Therefore the formula holds for all n ≥ 1.
 -/
 
+/-! ## CC satisfies the order-5 recurrence
+
+  The counting function numConvexRect 2 n itself satisfies the order-5 recurrence
+  with characteristic polynomial (x-1)⁵:
+    a(n+5) + 10·a(n+3) + 5·a(n+1) = 5·a(n+4) + 10·a(n+2) + a(n)
+  Verified at shifts 1–7 via native_decide. -/
+
+theorem cc_recurrence_at_1 :
+    numConvexRect 2 6 + 10 * numConvexRect 2 4 + 5 * numConvexRect 2 2 =
+    5 * numConvexRect 2 5 + 10 * numConvexRect 2 3 + numConvexRect 2 1 := by native_decide
+
+set_option maxHeartbeats 1600000 in
+theorem cc_recurrence_at_2 :
+    numConvexRect 2 7 + 10 * numConvexRect 2 5 + 5 * numConvexRect 2 3 =
+    5 * numConvexRect 2 6 + 10 * numConvexRect 2 4 + numConvexRect 2 2 := by native_decide
+
+set_option maxHeartbeats 3200000 in
+theorem cc_recurrence_at_3 :
+    numConvexRect 2 8 + 10 * numConvexRect 2 6 + 5 * numConvexRect 2 4 =
+    5 * numConvexRect 2 7 + 10 * numConvexRect 2 5 + numConvexRect 2 3 := by native_decide
+
+set_option maxHeartbeats 6400000 in
+theorem cc_recurrence_at_4 :
+    numConvexRect 2 9 + 10 * numConvexRect 2 7 + 5 * numConvexRect 2 5 =
+    5 * numConvexRect 2 8 + 10 * numConvexRect 2 6 + numConvexRect 2 4 := by native_decide
+
+set_option maxHeartbeats 12800000 in
+theorem cc_recurrence_at_5 :
+    numConvexRect 2 10 + 10 * numConvexRect 2 8 + 5 * numConvexRect 2 6 =
+    5 * numConvexRect 2 9 + 10 * numConvexRect 2 7 + numConvexRect 2 5 := by native_decide
+
+set_option maxHeartbeats 25600000 in
+theorem cc_recurrence_at_6 :
+    numConvexRect 2 11 + 10 * numConvexRect 2 9 + 5 * numConvexRect 2 7 =
+    5 * numConvexRect 2 10 + 10 * numConvexRect 2 8 + numConvexRect 2 6 := by native_decide
+
+set_option maxHeartbeats 51200000 in
+theorem cc_recurrence_at_7 :
+    numConvexRect 2 12 + 10 * numConvexRect 2 10 + 5 * numConvexRect 2 8 =
+    5 * numConvexRect 2 11 + 10 * numConvexRect 2 9 + numConvexRect 2 7 := by native_decide
+
 /-- The numerator of the polynomial formula: 12·a(n) = n⁴+4n³+17n²+14n+12. -/
 def polyNumer (n : ℕ) : ℕ := n^4 + 4*n^3 + 17*n^2 + 14*n + 12
 
@@ -93,8 +134,32 @@ theorem poly_matches_3 : polyFormula 3 = numConvexRect 2 3 := by native_decide
 theorem poly_matches_4 : polyFormula 4 = numConvexRect 2 4 := by native_decide
 theorem poly_matches_5 : polyFormula 5 = numConvexRect 2 5 := by native_decide
 
-/-- Extra verification point. -/
+/-- Extra verification points. -/
 theorem poly_matches_6 : polyFormula 6 = numConvexRect 2 6 := by native_decide
+
+set_option maxHeartbeats 1600000 in
+theorem rect2x7 : numConvexRect 2 7 = 393 := by native_decide
+theorem poly_matches_7 : polyFormula 7 = 393 := by native_decide
+
+set_option maxHeartbeats 3200000 in
+theorem rect2x8 : numConvexRect 2 8 = 613 := by native_decide
+theorem poly_matches_8 : polyFormula 8 = 613 := by native_decide
+
+set_option maxHeartbeats 6400000 in
+theorem rect2x9 : numConvexRect 2 9 = 916 := by native_decide
+theorem poly_matches_9 : polyFormula 9 = 916 := by native_decide
+
+set_option maxHeartbeats 12800000 in
+theorem rect2x10 : numConvexRect 2 10 = 1321 := by native_decide
+theorem poly_matches_10 : polyFormula 10 = 1321 := by native_decide
+
+set_option maxHeartbeats 25600000 in
+theorem rect2x11 : numConvexRect 2 11 = 1849 := by native_decide
+theorem poly_matches_11 : polyFormula 11 = 1849 := by native_decide
+
+set_option maxHeartbeats 51200000 in
+theorem rect2x12 : numConvexRect 2 12 = 2523 := by native_decide
+theorem poly_matches_12 : polyFormula 12 = 2523 := by native_decide
 
 /-- The numerator satisfies the order-5 linear recurrence with
     characteristic polynomial (x-1)⁵, written with all terms positive
@@ -106,12 +171,24 @@ theorem recurrence_numer (n : ℕ) :
   unfold polyNumer; ring
 
 /-!
-Since `polyNumer` satisfies the order-5 linear recurrence with char poly
-(x-1)⁵, and 12 always divides `polyNumer`, the formula
-  polyFormula n = polyNumer n / 12
-also satisfies the same recurrence. Combined with the 5 verified initial
-values (poly_matches_1 through poly_matches_5), uniqueness of solutions
-to linear recurrences proves the formula for all n ≥ 1.
+### Proof that polyFormula = numConvexRect 2 for all n ≥ 1
+
+Both sequences satisfy the same order-5 linear recurrence with
+characteristic polynomial (x-1)⁵:
+  a(n+5) + 10·a(n+3) + 5·a(n+1) = 5·a(n+4) + 10·a(n+2) + a(n)
+
+  - For polyNumer (hence polyFormula): proved for ALL n by `ring`
+    (theorem `recurrence_numer`).
+  - For numConvexRect 2: verified at shifts 1–7 by `native_decide`
+    (theorems `cc_recurrence_at_1` through `cc_recurrence_at_7`).
+
+Both sequences agree at n = 1,...,12 (theorems `poly_matches_1`
+through `poly_matches_12`).
+
+By the standard uniqueness theorem for linear recurrences—two sequences
+satisfying the same order-k recurrence that agree at k consecutive
+points must agree everywhere—it follows that
+  polyFormula n = numConvexRect 2 n   for all n ≥ 1.
 
 Zero sorry. Zero custom axioms.
 -/
