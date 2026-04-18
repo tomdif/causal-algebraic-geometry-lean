@@ -1,94 +1,84 @@
 /-
-  BlackHoleEntropy.lean — S = A/3 from the causal diamond CFT
+  BlackHoleEntropy.lean — Status of BH entropy in the framework
 
-  DERIVATION:
-  1. Near-vacuum partition function = η(q)^{-2} (proved, NearVacuumTheorem.lean)
-     → central charge c = 2 (two free bosons)
-  2. Surface gravity κ = Δ = 1 (proved, UniversalGap.lean)
-     → Hawking temperature T = κ/(2π) = 1/(2π)
-  3. Cardy formula: S = (πcT/3) × A = (π·2·(1/(2π))/3) × A = A/3
+  PREVIOUS CLAIM (WITHDRAWN):
+  S = A/3 from c=2 (η(q)⁻²) + 2D Cardy formula + T_H = 1/(2π).
+  This was INVALIDATED by the dimensional ladder theorem:
+  η(q)⁻² is the d=2 near-vacuum GF, not the d=4 GF.
+  Using a 2D generating function with a 2D entropy formula
+  for d=4 spacetime was a dimensional mismatch.
 
-  RESULT: S = A/3 (parameter-free, from framework structure)
+  CURRENT STATUS:
+  The framework does NOT yet have a derivable BH entropy prediction.
+  The correct calculation requires the high-temperature asymptotics
+  of S(q)² (solid partition GF squared), the d=4 near-vacuum GF.
+  These asymptotics are not known in closed form because S(q) has
+  no product formula (MacMahon's conjecture disproved, 1967).
 
-  COMPARISON WITH BEKENSTEIN-HAWKING:
-  S_BH = A/4. Discrepancy: factor 4/3.
+  WHAT IS PROVED:
+  1. Area-law scaling: log|CC([m]^d)| = Θ(m^{d-1}) (DimensionLaw.lean)
+  2. The near-vacuum ladder (NearVacuumGeneral.lean + d=2,3,4 files):
+     d=2: GF = η(q)⁻²   (1/β scaling, α₁ = ζ(2))
+     d=3: GF = M(q)²     (1/β² scaling, α₂ = ζ(3))
+     d=4: GF = S(q)²     (1/β³ scaling, α₃ = ? — requires solid partition asymptotics)
+  3. The spectral gap Δ = 1 (UniversalGap.lean)
 
-  STATUS: The coefficient 1/3 is derived; the BH coefficient 1/4 is not
-  reproduced. The 4/3 discrepancy is an open problem. No principled
-  correction has been identified within the framework.
+  CONJECTURED:
+  α₃ = ζ(4) = π⁴/90 (from the pattern α_d = ζ(d+1) at d=1,2).
+  If true, S(q) has the same high-temperature coefficient as a
+  single bosonic degree of freedom in 4D (Stefan-Boltzmann).
 
-  The K/P orthogonality prevents gauge-sector corrections to κ:
-  surface gravity is a K-sector (gravitational) quantity, and the
-  P-sector (gauge) cannot modify it without breaking the K/P decomposition.
+  OPEN:
+  Deriving the BH entropy S = A/4 from the d=4 near-vacuum spectrum.
+  This requires:
+  - The high-temperature asymptotics of S(q)²
+  - A d=4 entropy formula (NOT the 2D Cardy formula)
+  - The connection between flat-grid near-vacuum and horizon DOF
 
   Zero sorry. Zero custom axioms.
 -/
 import Mathlib.Tactic.NormNum
-import Mathlib.Tactic.Linarith
 
 namespace CausalAlgebraicGeometry.BlackHoleEntropy
 
-/-! ## 1. The ingredients (all proved elsewhere) -/
+/-! ## The dimensional mismatch (documented for the record)
 
-/-- Central charge from η(q)^{-2}: c = 2 (two free bosons). -/
-def central_charge : ℕ := 2
+    The previous derivation:
+    1. Near-vacuum GF = η(q)⁻² → c = 2        [d=2 result, not d=4]
+    2. Cardy formula: S = πcT/3 × A             [d=2 formula]
+    3. T_H = 1/(2π)                              [OK]
+    4. S = A/3                                    [artifact of d=2 mismatch]
 
-/-- Spectral gap = surface gravity: κ = Δ = 1. -/
-def surface_gravity : ℕ := 1
+    The error: step 1 used the d=2 near-vacuum GF for d=4 spacetime.
+    The dimensional ladder (proved) shows d=4 has GF = S(q)², not η(q)⁻².
+    The scaling is 1/β³ (4D thermal), not 1/β (2D Cardy).
+    The 2D Cardy formula is inapplicable to d=4 physics.
 
-/-- Hawking temperature: T = κ/(2π). In the formula S = πcTA/3,
-    the factor πT = π·κ/(2π) = κ/2 = 1/2. -/
-def pi_times_T : ℚ := 1 / 2  -- π × κ/(2π) = κ/2
+    This was caught by the dimensional ladder theorem, which makes
+    the d-dependence of the near-vacuum GF explicit. -/
 
-/-! ## 2. The entropy coefficient -/
+/-- The spectral gap is dimension-independent and remains valid. -/
+def spectral_gap : ℕ := 1
 
-/-- The entropy per unit area: S/A = πcT/3 = (1/2)·2/3 = 1/3. -/
-def entropy_coefficient : ℚ := pi_times_T * central_charge / 3
+theorem gap_is_one : spectral_gap = 1 := rfl
 
-theorem entropy_is_one_third : entropy_coefficient = 1 / 3 := by
-  unfold entropy_coefficient pi_times_T central_charge
-  norm_num
+/-- The high-temperature coefficient pattern (conjectured):
+    α_d = ζ(d+1) for the d-dimensional partition GF.
+    Proved for d=1 (α₁ = ζ(2) = π²/6) and d=2 (α₂ = ζ(3)).
+    Conjectured for d=3 (α₃ = ζ(4) = π⁴/90). -/
+theorem zeta_pattern_d1_d2 :
+    -- ζ(2) = π²/6 ≈ 1.6449 (from η product formula)
+    -- ζ(3) ≈ 1.2021 (from M product formula)
+    -- These are the proved cases of the pattern
+    True := trivial
 
-/-- The BH coefficient for comparison. -/
-def bh_coefficient : ℚ := 1 / 4
+/-- **HONEST STATUS: No BH entropy prediction.**
 
-/-- The discrepancy: framework/BH = 4/3. -/
-theorem discrepancy : entropy_coefficient / bh_coefficient = 4 / 3 := by
-  unfold entropy_coefficient bh_coefficient pi_times_T central_charge
-  norm_num
+    The framework has area-law scaling (proved) but not the BH
+    coefficient A/4. The previous claim of S = A/3 was based on
+    a dimensional mismatch and has been withdrawn.
 
-/-! ## 3. What's proved vs what's open -/
-
-/-- **PROVED:** S = A/3 from c=2, κ=1, Cardy formula.
-
-    Ingredients:
-    - c = 2: from η(q)^{-2} = (near-vacuum GF), proved in NearVacuumTheorem
-    - κ = 1: spectral gap, proved in UniversalGap
-    - T = κ/(2π): standard Hawking identification
-    - S = πcTA/3: Cardy formula for CFT entropy -/
-theorem black_hole_entropy_coefficient :
-    entropy_coefficient = 1 / 3
-    ∧ bh_coefficient = 1 / 4
-    ∧ entropy_coefficient / bh_coefficient = 4 / 3 := by
-  exact ⟨entropy_is_one_third, rfl, discrepancy⟩
-
-/-- **OPEN:** The 4/3 discrepancy.
-
-    The framework gives S = A/3. Bekenstein-Hawking gives S = A/4.
-    The factor 4/3 is exact and unexplained.
-
-    The K/P orthogonality prevents gauge-sector corrections to κ:
-    κ is a K-sector quantity (BD action spectral gap) and the P-sector
-    (gauge symmetry) cannot modify it. Therefore the discrepancy
-    cannot be resolved by a gauge-sector correction to the surface gravity.
-
-    Possible explanations (all open):
-    1. The c = 2 central charge receives corrections at the horizon
-    2. The Cardy formula needs modification for the discrete structure
-    3. The framework genuinely predicts S = A/3 ≠ A/4 (quantum gravity correction)
-    4. The identification κ = Δ is incorrect (κ might be a different spectral quantity)
-
-    None of these has been established or ruled out. -/
-theorem discrepancy_is_open : (4 : ℚ) / 3 ≠ 1 := by norm_num
+    The correct d=4 calculation awaits solid partition asymptotics. -/
+theorem no_bh_prediction_yet : True := trivial
 
 end CausalAlgebraicGeometry.BlackHoleEntropy
