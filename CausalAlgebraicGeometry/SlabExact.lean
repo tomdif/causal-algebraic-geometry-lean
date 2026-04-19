@@ -1,19 +1,31 @@
 /-
-  SlabExact.lean — The exact slab bijection: CC([m]^{d+1}) = #{antitone pairs}.
+  SlabExact.lean — Slab representation of convex subsets.
 
-  Every convex subset of [m]^{d+1} is EXACTLY a "slab" defined by a pair of
-  antitone boundary functions (φ,ψ) on [m]^d with φ ≤ ψ. Conversely, every
-  such pair defines a convex set.
+  PROVED THEOREMS (zero sorry):
+  1. makeSlab_isConvex: for antitone φ, ψ with φ ≤ ψ, makeSlab(φ, ψ) is convex.
+  2. mem_makeSlab_iff: membership characterization for makeSlab.
+  3. makeSlab_determines_boundaries: different sets imply different pairs
+     (at points where fiber is nonempty in one).
+  4. convex_eq_makeSlab: every convex S = makeSlab(lowerBdy_S, upperBdy_S).
 
-  MAIN RESULTS:
-  1. makeSlab_isConvex: the slab from an antitone pair is convex
-  2. makeSlab_injective: different pairs give different slabs
-  3. isSlab: every convex set is a slab (surjectivity)
+  WHAT THESE DO NOT PROVE (previously overstated):
+  The claim |CC([m]^{d+1})| = #{antitone pairs (φ,ψ) with φ ≤ ψ} is FALSE
+  in general. Counterexample: at m=2, there are 20 antitone pairs but only
+  13 convex subsets. The overcounting comes from multiple antitone pairs
+  with different empty-fiber values giving the same underlying subset.
 
-  Combined with the sandwich (SlabBijection.lean):
-    numConvexDim(d+1, m) = #{antitone pairs (φ,ψ) with φ ≤ ψ}
+  The map S ↦ (lowerBdy_S, upperBdy_S) is injective (via convex_eq_makeSlab
+  providing the inverse makeSlab operation), but its image is NOT all antitone
+  pairs — it's a specific subset that must include all fully-supported pairs
+  (verified in the near-vacuum regime) but excludes pairs that would correspond
+  to convex sets whose "canonical empty" extension conflicts with antitone.
 
-  Zero sorry.
+  BIJECTION THAT DOES HOLD (near-vacuum regime):
+  For k < m, convex subsets with |S^c| ≤ k biject with antitone pairs with
+  pointwise strict inequality (φ < ψ) and defect sum ≤ k. This is established
+  in NearVacuumCapstone.lean using the pigeonhole lemmas in NearVacuumBijection.
+
+  Zero sorry for the individual theorems in this file.
 -/
 import CausalAlgebraicGeometry.SlabCharacterization
 

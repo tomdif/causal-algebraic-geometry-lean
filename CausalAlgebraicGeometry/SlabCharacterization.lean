@@ -1,19 +1,28 @@
 /-
-  SlabCharacterization.lean — Every convex subset of [m]^{d+1} is a slab.
+  SlabCharacterization.lean — Forward direction: convex sets have antitone boundaries.
 
-  STRUCTURAL THEOREM: S is convex in [m]^{d+1} iff for each d-dimensional
-  coordinate tuple (i₁,...,i_d), the fiber {k : (i₁,...,i_d,k) ∈ S} is an
-  interval, and the lower/upper boundaries are antitone in (i₁,...,i_d).
+  WHAT IS PROVED (zero sorry):
+  For a convex subset S of [m]^{d+1}:
+    1. fiber_is_interval: each fiber {k : (f,k) ∈ S} is an interval.
+    2. lowerBdy_antitone: the lower boundary is antitone on support
+       (i.e., for f, g where both fibers are nonempty, f ≤ g ⟹ lowerBdy(f) ≥ lowerBdy(g)).
+    3. upperBdy_antitone: the upper boundary is antitone on support.
 
-  Equivalently: S = {(f, k) : φ(f) ≤ k < ψ(f)} where φ,ψ are antitone
-  functions [m]^d → {0,...,m} with φ ≤ ψ pointwise.
+  WHAT IS NOT PROVED (and previously overstated in this header):
+  The full biconditional "S convex iff boundaries antitone" is NOT established here.
+  The forward direction (above) is correct. The reverse direction is handled
+  separately in SlabExact.lean via makeSlab_isConvex (antitone pair ⟹ convex),
+  but the map S ↦ (lowerBdy, upperBdy) does NOT give a bijection in general:
+  in the presence of empty fibers, Lean's canonical-empty convention breaks
+  global antitone even for convex S.
 
-  This characterizes |CC([m]^{d+1})| as the number of normalized antitone
-  boundary pairs, which is ≤ PP_d(m)² where PP_d(m) = #downsets of [m]^{d+1}.
+  The near-vacuum bijection (for k < m) IS established rigorously in
+  NearVacuumBijection.lean + NearVacuumCapstone.lean, using the pigeonhole
+  fact that small defect forces all fibers nonempty.
 
-  CONSEQUENCE: c_{d+1} = 2 × (growth rate of downsets of [m]^{d+1}).
-
-  Zero sorry.
+  Zero sorry. The previously-claimed "iff characterization" and consequence
+  "c_{d+1} = 2 × (downset growth rate)" were overstatements of what's formally
+  proved here; see SlabBijection.lean for the actual sandwich L ≤ log|CC| ≤ 2L.
 -/
 import CausalAlgebraicGeometry.SlicingBound
 

@@ -104,15 +104,31 @@ theorem factored_form (d : ℕ) : d * d = 2 * d + 3 ↔ d = 3 := by
     interval_cases d <;> omega
   · intro h; subst h; rfl
 
-/-! ## Open question
+/-! ## Status: algebraic coincidence, not a selection principle
 
-The coincidence `self_conv_at_2 3 = 9 = 3^2 = N_c^2` is a theorem.
-Whether this reflects a structural decomposition of the k=2 defect
-space into representations of SU(N_c) is an OPEN QUESTION.
+The equation `2d + 3 = d²` (equivalently `D(D-4) = 0` in spacetime
+dimension `D = d+1`) has unique positive solution `d = 3` (`D = 4`).
 
-The defect space has symmetry `S_3 x Z_2` (permutations of spatial
-directions x boundary exchange), NOT `SU(3)`. The decomposition
-`9 = 8 + 1` (adjoint + singlet) is NOT supported by the symmetry
-structure of the defect configurations. -/
+The LHS `2d + 3` is the near-vacuum count `(P_d * P_d)(2)` — the
+number of k=2 defect configurations in `[m]^{d+1}`. This is a
+PROVED consequence of the near-vacuum theorem.
+
+The RHS `d²` has NO framework-derived interpretation. A systematic
+search checked:
+  - Jacobi matrix J_d: size (d-1)×(d-1), giving 2d-3 parameters ≠ d²
+  - Weyl chamber dimension: C(m+d-1, d) ≠ d²
+  - K/P decomposition: 1 + (n²-1) with n = spacetime dim ≠ d²
+  - Tensor counts: d(d+1)/2 (symmetric), d²-1 (traceless) ≠ d²
+  - Companion repo: d² = N_c² is a coincidence of d_spatial = N_c = 3
+
+The equation is therefore an ALGEBRAIC COINCIDENCE at d = 3, not
+an internal self-consistency condition of the framework. Dimension
+selection remains an open problem.
+
+Separately: `D = 4` is the first spacetime dimension where the
+near-vacuum partition function S(q)² has no product formula
+(MacMahon's conjecture for solid partitions was disproved in 1967).
+Whether this "complexity frontier" observation constitutes a
+selection principle is an interpretive question, not a theorem. -/
 
 end

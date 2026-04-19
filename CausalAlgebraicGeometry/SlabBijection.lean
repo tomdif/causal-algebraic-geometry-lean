@@ -1,14 +1,26 @@
 /-
-  SlabBijection.lean — Every downset is convex, giving the tight lower bound.
+  SlabBijection.lean — Sandwich bounds: L ≤ log|CC| ≤ 2L where L = log(#downsets).
 
-  MAIN RESULTS:
-  1. downsetCountDim d m ≤ numConvexDim d m  (downsets are convex)
-  2. numConvexDim d m ≤ downsetCountDim d m ^ 2  (from DownsetSymmetry)
-  3. log sandwich: log(#downsets) ≤ log(#convex) ≤ 2·log(#downsets)
+  PROVED (zero sorry):
+  1. downsetCountDim d m ≤ numConvexDim d m  (every downset is convex).
+  2. numConvexDim d m ≤ downsetCountDim d m ^ 2  (injection via (↓S, ↑S)).
+  3. log sandwich: log(#downsets) ≤ log(#convex) ≤ 2·log(#downsets).
 
-  Combined: c_{d+1} = 2 × (downset growth rate).
+  PREVIOUSLY OVERSTATED (retracted):
+  The summary line "c_{d+1} = 2 × (downset growth rate)" is NOT proved here.
+  The sandwich gives L ≤ c_{d+1} ≤ 2L, but whether the upper bound is TIGHT
+  (i.e., equality c_{d+1} = 2L) requires the biconditional between convex
+  subsets and antitone pairs, which is false in general (see SlabExact.lean
+  documentation for the counterexample).
 
-  Zero sorry.
+  What remains valid: the sandwich bounds L ≤ c_{d+1} ≤ 2L.
+
+  For d=2 specifically: c_2 = 2L can be shown by independent means
+  (GrowthRateIs16.lean proves ρ₂ = 16, and L_2 = log(4) via Catalan asymptotics,
+  so c_2 = log(16) = 2 log(4) = 2L_2). This equality is proved for d=2 but
+  not for general d.
+
+  Zero sorry for the theorems in this file.
 -/
 import CausalAlgebraicGeometry.DownsetSymmetry
 
