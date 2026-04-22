@@ -14,17 +14,23 @@
     If true, combined with the sandwich upper bound, this gives
         lim log|CC([m]³)|/m² = 2 L₃ = 9 ln 3 − 12 ln 2 = ln(19683/4096) ≈ 1.5697.
 
-  NUMERICAL EVIDENCE (exact TM computation, scripts/count_full_support_pairs_tm.py):
-     m    Q(m)                       log Q(m)/m²
-     1    1                          0.0000
-     2    20                         0.7489
-     3    8,790                      1.0090
-     4    89,613,429                 1.1444
-     5    21,493,411,201,893         1.2280
-     Target (2 L₃)                   1.5697
+  NUMERICAL EVIDENCE (exact TM computation, scripts/count_full_support_pairs_tm.py
+  and scripts/berman_koehler_m6.py for m=6 via Berman-Koehler method):
+     m    Q(m)                                  log Q(m)/m²
+     1    1                                     0.0000
+     2    20                                    0.7489
+     3    8,790                                 1.0090
+     4    89,613,429                            1.1444
+     5    21,493,411,201,893                    1.2280
+     6    121,692,074,796,863,105,211           1.2847   (NEW)
+     Target (2 L₃)                              1.5697
 
-    ln(Q(m) / PP(m,m,m)²) is linear in m with slope ≈ −1.705 (variance < 1%
-    across m = 2,3,4,5). If the linearity persists, log Q(m)/m² → 2 L₃.
+    ln(Q(m) / PP(m,m,m)²) is linear in m with slope ≈ −1.702 (variance < 1%
+    across m = 2, 3, 4, 5, 6). Successive differences: −1.698, −1.712, −1.703,
+    −1.688. If the linearity persists, log Q(m)/m² → 2 L₃ exactly.
+
+    Least-squares fit of log Q(m)/m² = L + a/m + b/m² over m = 2..6 gives
+    L ≈ 1.576, gap of +0.006 (0.4%) from 2 L₃ = 1.5697.
 
   PROOF PATHWAY (open): the asymptotic should follow from a determinantal
   identity for Q(m) in the Okounkov–Reshetikhin Schur process framework
