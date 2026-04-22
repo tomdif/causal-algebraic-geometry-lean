@@ -34,3 +34,4 @@ import CausalAlgebraicGeometry.RhoCrossing
 import CausalAlgebraicGeometry.RhoEquals16
 import CausalAlgebraicGeometry.IntervalLowerBound
 import CausalAlgebraicGeometry.SlabGauge
+import CausalAlgebraicGeometry.DivisibilityPoset
