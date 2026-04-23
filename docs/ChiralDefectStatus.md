@@ -3,11 +3,12 @@
 **Status:**
 - Stage 1 (ChiralNoGo numerical) ✅ PASS
 - Stage 2 (SSH-soliton proxy on A/B chain) ✅ PASS
-- **Stage 3 (bipartite-grading gate on Poisson causal sets) ❌ FAIL — hard obstruction found**
+- Stage 3 (bipartite-grading gate on Poisson causal sets) ❌ FAIL — substrate obstruction
+- **Stage 4 (γ₅-via-doubling index/spectral response) ❌ FAIL — three compounded obstructions**
 
-The naive Sharpe-style mechanism — "rank-parity grading bipartites the causal-set cover graph, giving A/B sublattice" — is **falsified on Poisson substrates**. The cover graph contains odd cycles; no Z₂ grading can make cover-adjacency anticommute.
+Stages 3 and 4 have independently falsified the two naive routes for Sharpe-style "matter as topological defect" on Poisson causal substrates. The γ₅ formalism of `ChiralDoubling.lean` still anticommutes with the doubled Dirac by construction, but a vortex cannot produce observable chirality without at least (a) rectangular blocks `n_L ≠ n_R`, (b) a non-pure-gauge U(1) configuration, and (c) a gauge perturbation that changes rank — in combination.
 
-Precommit: `memory/chiral_defect_PRECOMMIT_apr23.md`
+Precommits: `memory/chiral_defect_PRECOMMIT_apr23.md` (Stages 1-3), `memory/chiral_defect_stage4_PRECOMMIT.md` (Stage 4)
 
 ## Hypothesis tested today
 
@@ -87,6 +88,47 @@ Residual is **order-of-magnitude** above the stop threshold. The problem *worsen
 
 The Stage-3 gate precommit says STOP and write up obstruction. That's what's happening here. Stage 2 (vortex localization) via the naive bipartite route is **abandoned**.
 
+## Stage 4 — γ₅-via-doubling (FAIL, 2026-04-23)
+
+`scripts/chiral_defect_stage4_gamma5_doubling.py`
+
+**Hypothesis tested:** Does a U(1) vortex in the gauge field on cover relations change the Fredholm index of the cover adjacency `A` in the doubled Dirac `D = [[0, A], [A^T, 0]]`?
+
+**Pre-registered caveat 3 (structural):** For complex square `A`, rank-nullity forces `ind(A) = dim ker A − dim ker A^T = 0` identically. The index test cannot distinguish configurations on a square `A`. Running the test was nonetheless worthwhile because it also measures spectral response (not constrained by rank-nullity).
+
+### Three compounded obstructions found
+
+**Obstruction A — index is trivially zero (10/10 realizations, both densities):**
+`ind(A^g) = 0` for vacuum, continuous-winding vortex, AND Z₂ defect. This is the expected structural obstruction: rank-nullity for square A. Confirmed by direct SVD.
+
+**Obstruction B — gradient-winding vortex is pure gauge:**
+My construction `θ[i,j] = a_j − a_i` with `a_i = arctan2(dt_i, dx_i)` factors as `A^vortex = D·A·D^†` for diagonal unitary `D = diag(e^{−i·a_i})`. Verified numerically: `max‖A_vor − D A D^†‖ = 1.2e-15`; singular values identical to vacuum, `max|s_vac − s_vor| = 1.3e-16` (machine noise). The "vortex" is gauge-trivial and carries no physical content.
+
+**Obstruction C — non-pure-gauge Z₂ flux shifts bulk spectrum but preserves rank:**
+Flipping sign on a single link near `e*` creates a genuinely non-factorizable phase matrix. Bulk SVs shift by ~7.4e-02 on average (visible effect). But `rank(A) = rank(A_z2)` in every realization, and the bottom-10 singular values shift by only ~9e-18 (machine noise). **`dim ker A` is a gauge invariant** for all U(1) configurations tested — not just pure gauge — on this graph at these parameters.
+
+| Observable | Vacuum | Continuous vortex | Z₂ defect |
+|---|---|---|---|
+| `ind(A^g)` | 0 | 0 | 0 |
+| `dim ker A` | N−rank | same | same |
+| bulk-SV max shift vs vacuum | — | 1e-16 | 7e-02 |
+| bottom-10 SV L2 shift vs vacuum | — | 2e-17 | 9e-18 |
+
+### Implications
+
+- The three obstructions **compound**: any Stage 5 attempt must simultaneously (a) use rectangular `A` (bypasses A by making `n_L ≠ n_R`), (b) inject a non-factorizable U(1) configuration (bypasses B), and (c) engineer a flux pattern that shifts rank, not just bulk SVs (bypasses C).
+- Nothing here contradicts `ChiralDoubling.lean`'s anticommutation theorem, which is an exact matrix identity independent of substrate. What fails is the hope that γ₅ carries *observable* chiral content via vortex defects on a Poisson causal set.
+
+### What is NOT ruled out
+
+- **Rectangular A via geometric L/R partition.** If events are partitioned by some canonical criterion into unequal `n_L, n_R`, the resulting rectangular A could in principle have a nonzero index shift under vortex insertion. Needs a natural partition rule (Stage 5 precommit).
+- **Wilson-loop-driven observables.** Instead of the index, track the gauge-invariant Wilson-loop spectrum or the phase structure of `det(A^g)` restricted to subgraphs. Not explored here.
+- **Non-abelian flux.** A U(2) or larger gauge field may produce rank shifts that U(1) cannot.
+
+### Decision
+
+Stop on the U(1) + square-A route. Stage 5 precommit (rectangular A) is the natural next step but is not written here; it needs a principled choice of L/R partition first. Per discipline, do not scale up speculative variants without a precommit.
+
 ## What would be needed for a direct K/P causal-set test
 
 In order of estimated effort:
@@ -131,7 +173,8 @@ Neither the direct K/P test nor the Wilson-Dirac proxy is appropriate to run in 
 - `scripts/chiral_defect_stage1.py` — ChiralNoGo numerical verification (PASS)
 - `scripts/chiral_defect_stage2_ssh_proxy.py` — SSH soliton A/B localization (PASS, 5/5 precommit checks)
 - `scripts/chiral_defect_stage3_bipartite_gate.py` — bipartite-grading gate on Poisson causal sets (**FAIL**, obstruction found, pre-committed STOP verdict)
-- `memory/chiral_defect_PRECOMMIT_apr23.md` — precommit protocol (outside this repo)
+- `scripts/chiral_defect_stage4_gamma5_doubling.py` — γ₅-via-doubling index + spectral response (**FAIL**, three compounded obstructions A/B/C)
+- `memory/chiral_defect_PRECOMMIT_apr23.md`, `memory/chiral_defect_stage4_PRECOMMIT.md` — precommit protocols (outside this repo)
 
 ## What the retraction discipline saves
 
