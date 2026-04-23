@@ -1,8 +1,11 @@
 # Chiral defect on causal substrate — status (2026-04-23)
 
-**Status:** Stage 1 ✅  PASS.  Stage 2 (proxy) ✅ PASS.
-Stage 2 (direct K/P chamber-kernel test on causal set) **NOT RUN** — see
-"What was not tested" below.
+**Status:**
+- Stage 1 (ChiralNoGo numerical) ✅ PASS
+- Stage 2 (SSH-soliton proxy on A/B chain) ✅ PASS
+- **Stage 3 (bipartite-grading gate on Poisson causal sets) ❌ FAIL — hard obstruction found**
+
+The naive Sharpe-style mechanism — "rank-parity grading bipartites the causal-set cover graph, giving A/B sublattice" — is **falsified on Poisson substrates**. The cover graph contains odd cycles; no Z₂ grading can make cover-adjacency anticommute.
 
 Precommit: `memory/chiral_defect_PRECOMMIT_apr23.md`
 
@@ -49,6 +52,41 @@ The precommit's original Stage 2 asked for a test on a **(1+1)D topologically-co
 
 Running a test that uses the 1D chamber kernel and a 1D "vortex" would produce numbers but not distinguish vacuum from defect in a gauge-invariant way; it would be theater, not evidence. Running the SSH proxy is a legitimate intermediate step: it confirms the mechanism exists in the canonical setting before committing compute to the harder causal-set extension.
 
+## Stage 3 — bipartite gate (FAIL, 2026-04-23)
+
+`scripts/chiral_defect_stage3_bipartite_gate.py`
+
+**Pre-committed gate:** `residual(ρ) = ‖{Γ, A}‖_F / ‖A‖_F` < 0.1 across ρ ∈ {50, 200, 500} to PROCEED; > 0.3 to STOP.
+
+**Measured:**
+
+| ρ | N events | residual (rank-parity Γ) | frac covers jump rank=1 |
+|---|---|---|---|
+| 50 | ~52 | 1.15 ± 0.13 | 0.47 |
+| 200 | ~196 | 1.23 ± 0.02 | 0.35 |
+| 500 | ~513 | 1.38 ± 0.01 | 0.07 |
+
+Residual is **order-of-magnitude** above the stop threshold. The problem *worsens* with density: at ρ=500, only 7% of cover relations connect adjacent ranks, so the bipartite structure of the regular lattice is substrate-level destroyed by Poisson randomization.
+
+**Probed five alternative gradings** (temporal-index parity, spatial-halves, random benchmark, rank/2 parity, greedy-2-coloring):
+- All natural gradings residual in [1.26, 1.72], essentially at random-baseline ~1.40. Rank-parity is *barely better* than random.
+- **Greedy 2-coloring detects odd cycles in every realization** at ρ ∈ {200, 500}. The cover graph is literally not a bipartite graph. No Z₂ grading can anticommute with cover adjacency.
+
+### Implications (what IS ruled out)
+
+- **The naive Sharpe import** — "K/P ↔ A/B sublattice via cover-adjacency bipartiteness" — is falsified on Poisson causal substrates.
+- The direction map from `(Sharpe A/B, vortex)` → `(K/P, causal-set defect)` cannot go through a substrate-bipartite construction. Any such attempt will see random-level residuals because the cover graph has odd cycles.
+
+### Implications (what is NOT ruled out)
+
+- **The γ₅-via-doubling route.** The repo's actual chirality operator (`ChiralDoubling.lean`) is γ₅ on the *doubled* chamber Dirac `D = [[0, A], [A^T, 0]]`, not a grading internal to a single kernel. γ₅ anticommutes with D by construction regardless of substrate bipartiteness. So a Sharpe-analog via doubling is still in principle possible — it just isn't the "A/B sublattice" story.
+- **Regular / quasi-regular sprinklings.** If the substrate has more structure than Poisson (e.g., a stratified sprinkling respecting temporal layers), bipartiteness might be recoverable. But this would import the regular-lattice crutch the user's framework is trying to avoid.
+- **Alternative incidences.** "Chains of length exactly k" adjacency matrices may have different bipartite structure than covers. Not probed.
+
+### Decision
+
+The Stage-3 gate precommit says STOP and write up obstruction. That's what's happening here. Stage 2 (vortex localization) via the naive bipartite route is **abandoned**.
+
 ## What would be needed for a direct K/P causal-set test
 
 In order of estimated effort:
@@ -92,4 +130,11 @@ Neither the direct K/P test nor the Wilson-Dirac proxy is appropriate to run in 
 
 - `scripts/chiral_defect_stage1.py` — ChiralNoGo numerical verification (PASS)
 - `scripts/chiral_defect_stage2_ssh_proxy.py` — SSH soliton A/B localization (PASS, 5/5 precommit checks)
+- `scripts/chiral_defect_stage3_bipartite_gate.py` — bipartite-grading gate on Poisson causal sets (**FAIL**, obstruction found, pre-committed STOP verdict)
 - `memory/chiral_defect_PRECOMMIT_apr23.md` — precommit protocol (outside this repo)
+
+## What the retraction discipline saves
+
+Had we skipped Stage 3 and proceeded straight to a vortex test using rank-parity Γ, we would have seen *some* spectral signal (because random gradings produce noise that looks structured) and the natural narrative arc would have been "CAG framework predicts chiral zero modes from topological defects." With the bipartite cover graph assumption quietly false. Stage 3 caught that. Cost: ~30 minutes of compute and one clean "NO" answer. Savings: weeks of compute downstream plus the retraction letter afterwards.
+
+Same pattern as `ssh_hubbard_PRECOMMIT_v1_retraction.md` and the BM moiré β-falsification (see `project_cag_moire_week1_summary.md`). Audit discipline working as intended.
