@@ -275,6 +275,31 @@ def AntitoneSum (d m k : ℕ) : Type :=
     (∀ p q : Fin d → Fin m, (∀ i, p i ≤ q i) → f q ≤ f p) ∧
     Finset.univ.sum f = k }
 
+/-- Every value of a profile with total `k` is at most `k`. -/
+theorem antitoneSum_value_le {d m k : ℕ} (f : AntitoneSum d m k)
+    (p : Fin d → Fin m) : f.val p ≤ k := by
+  have hp_sum : f.val p ≤ Finset.univ.sum f.val :=
+    Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ p)
+  exact hp_sum.trans_eq f.property.2
+
+/-- `AntitoneSum` is genuinely finite: encode every value in `Fin (k+1)`. -/
+noncomputable instance antitoneSum_finite (d m k : ℕ) :
+    Finite (AntitoneSum d m k) := by
+  let toBounded : AntitoneSum d m k → ((Fin d → Fin m) → Fin (k + 1)) :=
+    fun f p => ⟨f.val p, Nat.lt_succ_of_le (antitoneSum_value_le f p)⟩
+  apply Finite.of_injective toBounded
+  intro f g h
+  apply Subtype.ext
+  funext p
+  exact congrArg Fin.val (congrFun h p)
+
+noncomputable instance antitoneSum_fintype (d m k : ℕ) :
+    Fintype (AntitoneSum d m k) := Fintype.ofFinite _
+
+/-- The finite number of antitone `[m]^d` profiles of total `k`. -/
+noncomputable def antitoneSumCount (d m k : ℕ) : ℕ :=
+  Fintype.card (AntitoneSum d m k)
+
 /-- **PACKAGED BIJECTION**: For m > k, the map f ↦ restrictFn f is a bijection
     AntitoneSum d m k ≃ AntitoneSum d (k+1) k. -/
 noncomputable def antitoneSum_stabilize_equiv {d m k : ℕ} (hkm : k < m) :
@@ -291,6 +316,13 @@ noncomputable def antitoneSum_stabilize_equiv {d m k : ℕ} (hkm : k < m) :
   right_inv g := by
     apply Subtype.ext
     exact restrict_extend hkm g.val
+
+/-- **GENERAL-D CARDINAL STABILIZATION.**  The number of antitone profiles of
+total `k` is independent of the box size as soon as `m > k`. -/
+theorem antitoneSumCount_stable {d m k : ℕ} (hkm : k < m) :
+    antitoneSumCount d m k = antitoneSumCount d (k + 1) k := by
+  unfold antitoneSumCount
+  exact Fintype.card_congr (antitoneSum_stabilize_equiv hkm)
 
 /-! ## Summary
 
@@ -310,16 +342,15 @@ STRUCTURAL CONSEQUENCE:
   The inverse map is zero-extension, mapping antitone g on [k+1]^d to the
   antitone f on [m]^d that equals g on the subbox and 0 elsewhere.
 
-  Together: the count is independent of m for m > k. The d=1 case
-  (NearVacuumFull.nonIncSeqCount_stable) is a special case.
+  Together: the count is independent of m for m > k. This is packaged as
+  antitoneSum_stabilize_equiv and the finite-cardinality theorem
+  antitoneSumCount_stable. The d=1 case (NearVacuumFull.nonIncSeqCount_stable)
+  is a special case.
 
   This generalizes the d=1 stabilization to arbitrary dimension d.
 
-FOR FULL BIJECTION (Equiv between subtypes):
-  The remaining step is packaging restrictFn and extendFn as an Equiv between
-  the subtypes {f : (Fin d → Fin m) → ℕ // antitone ∧ sum=k} and the analog
-  for [k+1]^d. The theorems above provide all the ingredients. The packaging
-  is a routine Lean Equiv construction.
+The full subtype equivalence and its finite cardinality consequence are both
+machine-checked above.
 -/
 
 end CausalAlgebraicGeometry.NearVacuumStabilizationGeneral

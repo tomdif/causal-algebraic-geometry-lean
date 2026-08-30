@@ -24,6 +24,8 @@
 import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Insert
+import Mathlib.Data.Finset.Powerset
+import Mathlib.Order.Interval.Finset.Nat
 
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
@@ -38,6 +40,13 @@ def IsDivConvex (N : ℕ) (S : Finset ℕ) : Prop :=
   (∀ x ∈ S, 1 ≤ x ∧ x ≤ N) ∧
   ∀ a ∈ S, ∀ b ∈ S, a ∣ b →
     ∀ c, 1 ≤ c → c ≤ N → a ∣ c → c ∣ b → c ∈ S
+
+noncomputable instance (N : ℕ) (S : Finset ℕ) : Decidable (IsDivConvex N S) :=
+  Classical.propDecidable _
+
+/-- The number of divisibility-convex subsets of {1, ..., N}. -/
+noncomputable def CC_div (N : ℕ) : ℕ :=
+  ((Finset.Icc 1 N).powerset.filter (IsDivConvex N)).card
 
 /-! ## Prime-doubling bijection lemmas -/
 
@@ -126,6 +135,144 @@ theorem convex_extend_with_p {N : ℕ} {T : Finset ℕ}
           le_trans (Nat.le_of_dvd (by omega) hcb) hbN
         exact Finset.mem_insert_of_mem
           (hT.2 a haT b hbT hab c hc1 hcN hac hcb)
+
+/-! ## Helper: removing p from a convex set preserves convexity
+
+If T is convex in [1, p] (with p = N+1 prime) and p ∈ T, then T.erase p is
+convex in [1, N]. This is the inverse operation to `convex_extend_with_p`. -/
+
+theorem convex_restrict_erase_p {N : ℕ} {T : Finset ℕ}
+    (hprime : Nat.Prime (N + 1)) (hpT : (N + 1) ∈ T)
+    (hT : IsDivConvex (N + 1) T) :
+    IsDivConvex N (T.erase (N + 1)) := by
+  refine ⟨?_, ?_⟩
+  · intro x hx
+    rw [Finset.mem_erase] at hx
+    obtain ⟨hxp, hxT⟩ := hx
+    obtain ⟨hx1, hxN1⟩ := hT.1 x hxT
+    refine ⟨hx1, ?_⟩
+    rcases Nat.lt_or_ge x (N + 1) with hxlt | hxge
+    · omega
+    · exact absurd (le_antisymm hxN1 hxge) hxp
+  · intro a ha b hb hab c hc1 hcN hac hcb
+    rw [Finset.mem_erase] at ha hb
+    obtain ⟨hap, haT⟩ := ha
+    obtain ⟨hbp, hbT⟩ := hb
+    have hcp_le : c ≤ N + 1 := by omega
+    have hc_in_T : c ∈ T := hT.2 a haT b hbT hab c hc1 hcp_le hac hcb
+    rw [Finset.mem_erase]
+    -- c ≤ N, so c ≠ N + 1 trivially.
+    refine ⟨by omega, hc_in_T⟩
+
+/-! ## Prime-doubling theorem as a named Lean theorem
+
+Using the three bijection lemmas, we now establish the card equality
+`CC_div (N + 1) = 2 · CC_div N` for N + 1 prime. The proof splits the
+filter into "contains p" and "doesn't contain p" halves, each bijecting
+with the smaller universe via the appropriate lemma.
+-/
+
+theorem prime_doubling {N : ℕ} (hprime : Nat.Prime (N + 1)) :
+    CC_div (N + 1) = 2 * CC_div N := by
+  classical
+  unfold CC_div
+  set p := N + 1 with hp_def
+  -- Split Pp = filter over IsDivConvex p on powerset of [1, p] by "p ∈ T"
+  -- Each half bijects with Pn = filter over IsDivConvex N on powerset of [1, N].
+  set Pp := (Finset.Icc 1 p).powerset.filter (IsDivConvex p) with hPp_def
+  set Pn := (Finset.Icc 1 N).powerset.filter (IsDivConvex N) with hPn_def
+  -- Pp.card = |{T ∈ Pp : p ∈ T}| + |{T ∈ Pp : p ∉ T}|
+  have hsplit : Pp.card =
+      (Pp.filter (fun T => p ∈ T)).card + (Pp.filter (fun T => p ∉ T)).card := by
+    exact (Finset.card_filter_add_card_filter_not (s := Pp)
+      (p := fun T : Finset ℕ => p ∈ T)).symm
+  -- Each half has card = Pn.card
+  have h_with : (Pp.filter (fun T => p ∈ T)).card = Pn.card := by
+    apply Finset.card_bij (fun T _ => T.erase p)
+    · -- image is in Pn
+      intro T hT
+      rw [Finset.mem_filter] at hT
+      obtain ⟨hT_Pp, hpT⟩ := hT
+      rw [Finset.mem_filter, Finset.mem_powerset] at hT_Pp
+      obtain ⟨hsub, hconv⟩ := hT_Pp
+      rw [Finset.mem_filter, Finset.mem_powerset]
+      refine ⟨?_, convex_restrict_erase_p hprime hpT hconv⟩
+      intro x hx
+      rw [Finset.mem_erase] at hx
+      obtain ⟨hxp, hxT⟩ := hx
+      have hx_range := hsub hxT
+      rw [Finset.mem_Icc] at hx_range ⊢
+      obtain ⟨hx1, hxp1⟩ := hx_range
+      refine ⟨hx1, ?_⟩
+      omega
+    · -- injective: T.erase p = T'.erase p and p ∈ T, p ∈ T' ⟹ T = T'
+      intros T₁ hT₁ T₂ hT₂ h
+      rw [Finset.mem_filter] at hT₁ hT₂
+      have hpT₁ : p ∈ T₁ := hT₁.2
+      have hpT₂ : p ∈ T₂ := hT₂.2
+      have : T₁ = insert p (T₁.erase p) := by
+        rw [Finset.insert_erase hpT₁]
+      rw [this, h, Finset.insert_erase hpT₂]
+    · -- surjective: ∀ T' ∈ Pn, ∃ T ∈ Pp ∩ {contains p}, T.erase p = T'
+      intro T' hT'
+      rw [Finset.mem_filter, Finset.mem_powerset] at hT'
+      obtain ⟨hsub', hconv'⟩ := hT'
+      have hpT' : p ∉ T' := by
+        intro hp
+        have := hsub' hp
+        rw [Finset.mem_Icc] at this
+        omega
+      refine ⟨insert p T', ?_, ?_⟩
+      · rw [Finset.mem_filter]
+        refine ⟨?_, Finset.mem_insert_self _ _⟩
+        rw [Finset.mem_filter, Finset.mem_powerset]
+        refine ⟨?_, convex_extend_with_p hprime hpT' hconv'⟩
+        intro x hx
+        rcases Finset.mem_insert.mp hx with rfl | hxT'
+        · rw [Finset.mem_Icc]
+          exact ⟨hprime.one_lt.le, le_refl _⟩
+        · have := hsub' hxT'
+          rw [Finset.mem_Icc] at this ⊢
+          exact ⟨this.1, by omega⟩
+      · rw [Finset.erase_insert hpT']
+  have h_without : (Pp.filter (fun T => p ∉ T)).card = Pn.card := by
+    apply Finset.card_bij (fun T _ => T)
+    · intro T hT
+      rw [Finset.mem_filter] at hT
+      obtain ⟨hT_Pp, hpT⟩ := hT
+      rw [Finset.mem_filter, Finset.mem_powerset] at hT_Pp
+      obtain ⟨hsub, hconv⟩ := hT_Pp
+      rw [Finset.mem_filter, Finset.mem_powerset]
+      refine ⟨?_, convex_restrict_of_not_mem hprime hconv hpT⟩
+      intro x hx
+      have hx_range := hsub hx
+      rw [Finset.mem_Icc] at hx_range ⊢
+      obtain ⟨hx1, hxp⟩ := hx_range
+      refine ⟨hx1, ?_⟩
+      rcases Nat.lt_or_ge x p with hxlt | hxge
+      · omega
+      · have : x = p := le_antisymm hxp hxge
+        exact absurd (this ▸ hx) hpT
+    · intros T₁ _ T₂ _ h
+      exact h
+    · intro T' hT'
+      rw [Finset.mem_filter, Finset.mem_powerset] at hT'
+      obtain ⟨hsub', hconv'⟩ := hT'
+      have hpT' : p ∉ T' := by
+        intro hp
+        have := hsub' hp
+        rw [Finset.mem_Icc] at this
+        omega
+      refine ⟨T', ?_, rfl⟩
+      rw [Finset.mem_filter]
+      refine ⟨?_, hpT'⟩
+      rw [Finset.mem_filter, Finset.mem_powerset]
+      refine ⟨?_, convex_extend_no_p hconv'⟩
+      intro x hx
+      have := hsub' hx
+      rw [Finset.mem_Icc] at this ⊢
+      exact ⟨this.1, by omega⟩
+  rw [hsplit, h_with, h_without, two_mul]
 
 /-! ## Abstract pendant-element theorem
 

@@ -1,8 +1,9 @@
 # Proof Paths for c_3 = 2 L_3
 
-Exploration of routes to a rigorous proof. Ranked by "distance to a Lean
-theorem." Includes one path that achieves a strict improvement over the
-sandwich lower bound (`c_3 ≥ 2 L_3 − log 2`) without Schur-process machinery.
+**Audit note (August 2026):** This is a historical exploration, not a list of
+established bounds. Path B misuses Paley--Zygmund, Path D lacks the claimed
+specialization, and Path F omits the constrained recovery-sequence argument.
+The current recommended route and exact gap are in `C3ResearchFrontier.md`.
 
 ---
 
@@ -70,6 +71,11 @@ for the distributive lattice is probably clean.
 
 ## Path B — Second-moment / Paley–Zygmund
 
+**Status: invalid as stated.** Paley--Zygmund lower-bounds the probability
+that a nonnegative random variable is appreciably positive; it does not give
+a lower bound for `P(X = 0)`. The variance discussion below therefore cannot
+prove the desired ordering probability.
+
 **Claim:** Same bound as Path A (`c_3 ≥ 2 L_3 − log 2`), different machinery.
 
 Let `X := #{ cells (i,j) : ψ(i,j) ≤ φ(i,j) }` on uniform `Ω`. Then
@@ -90,8 +96,8 @@ In fact for highly correlated indicators, `Var(X) ≈ E[X]²`, and
 Paley–Zygmund degenerates to `P(X = 0) ≥ 1/2` at best. That'd give
 `Q(m) ≥ |Ω|/2`, equivalent to `c_3 ≥ 2 L_3 − log 2 / m²` → `c_3 ≥ 2 L_3`.
 
-**This is the key observation.** If the antitone correlations are strong
-enough that `Var(X) = O(E[X]²)`, then Paley–Zygmund gives `c_3 = 2 L_3`.
+The former claim that `Var(X) = O(E[X]²)` would let Paley--Zygmund prove
+`c_3 = 2 L_3` is incorrect.
 
 **Status.** Requires proving `Var(X) = O(E[X]²)` for uniform antitone pairs.
 This is a concentration statement about the fluctuation of the "inversion
@@ -221,15 +227,20 @@ want the limit shape), the pair sup is `2 L_3`, achieved by `(σ*, τ*)` with
 pointwise inequality is `0` in the `m²` scaling (it's an `m`-scaling "edge"
 correction).
 
-**Conclusion.** `log Q(m) / m² → 2 L_3`.
+**Multiscale completion (current).** Uniform limit-shape concentration is not
+needed. Quantize every profile in height blocks of size `k+1`; a largest
+quantization fiber supplies the tube deterministically. Threshold-layer
+encoding bounds both the coarse-code count and the shift fibers using only
+`C(2m,m)≤4^m`. With `k=floor(sqrt(m))+1`, the total correction is
+`O(m^(3/2))`.
 
-**Status.** This IS the expected proof. It's rigorous at the level of
-variational calculus / calculus of variations. The Cerf–Kenyon machinery
-is in a series of published papers. Making it Lean-formal requires
-formalizing continuous-surface entropy and variational principles.
+The exact finite inequality and limit squeeze are machine-checked in
+`C3MultiscaleCompression.lean` and `C3AsymptoticClosure.lean`; see
+`C3ResearchFrontier.md`.
 
-**Lean feasibility.** Multi-year research project (Mathlib doesn't have
-any of this machinery).
+**Lean feasibility.** The CAG-specific combinatorial and asymptotic core is
+complete. The only remaining input for the numerical constant is the
+classical cubic MacMahon formula/asymptotic.
 
 ---
 

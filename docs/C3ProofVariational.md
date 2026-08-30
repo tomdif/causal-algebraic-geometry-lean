@@ -1,8 +1,14 @@
-# Proof of c_3 = 2 L_3 via the variational principle for plane partitions
+# Retired proof attempt: c_3 = 2 L_3 via a persistence estimate
 
-**Status:** Paper-level proof. Rigorous given cited external theorems. Not
-Lean-formalized — requires a variational-principle library Mathlib doesn't
-have.
+**Status:** Not a proof. Step 6 asserts a global hard-wall/persistence lower
+bound that is not supplied by the cited limit-shape, local-kernel, Airy, or GFF
+results. See `C3ShiftCompressionProof.md` for the finite-fiber argument that
+repairs the gap using uniform limit-shape concentration without asserting a
+hard-wall probability estimate.
+
+**Current status:** this route is superseded by deterministic multiscale
+compression (`C3MultiscaleCompression.lean`, `C3AsymptoticClosure.lean`),
+which needs no limit-shape or hard-wall estimate.
 
 **Compared to the Schur-process route (`C3Proof.md`, Step 4):** avoids the
 determinantal factorization, replaces it with the (better-established)
@@ -66,18 +72,17 @@ limit surface, twice).
 
 **Consequence:** `log |Π_m| / m² = 2 log PP(m,m,m)/m² → 2 L_3`.
 
-### Step 6 — large-deviation cost of the strict-gap constraint
+### Step 6 — unproved large-deviation claim for the strict-gap constraint
 
 Write `δ := ψ − φ`. On `A_m`, `δ ≥ 1` pointwise.
 
 Rescaled: `δ̃(x, y) := δ(⌊mx⌋, ⌊my⌋)/m`. On `A_m`, `δ̃ ≥ 1/m → 0`
 pointwise as `m → ∞`.
 
-By Step 5, `δ̃ → 0` in probability under the unconditional measure (both
-`π_1, π_2` converge to `σ_*`, so their difference goes to 0). So the event
-`A_m` is a "typical event" with no `m²`-scale deviation: it merely requires
-the typical `O(1/√m)`-scale fluctuations of `δ̃` to remain positive
-pointwise.
+By Step 5, `δ̃ → 0` in probability under the unconditional measure. This does
+**not** imply that `A_m` is typical or that it has sub-`m²` cost: convergence
+of a random field to zero gives no lower bound on the probability that it has
+one sign simultaneously at every lattice site.
 
 **Key quantitative claim.** The probability of `A_m` under `μ_m × μ_m`
 satisfies
@@ -88,27 +93,20 @@ i.e., the cost of enforcing `δ ≥ 1` pointwise is of order `m`, **not**
 `m²`.  The numerical fit (below) gives `−log P(A_m) ≈ 1.705 · m − 0.42`,
 which is clean linear behavior.
 
-**Justification.** This follows from the **quantitative limit-shape**
-(Petrov 2014 for random plane partitions; Borodin–Corwin–Sasamoto 2014
-for related models): the fluctuations of `π̃(x, y) − σ_*(x, y)` around
-the limit shape are Gaussian of magnitude `O(√(log m)/m)` in the bulk and
-`O(m^{−2/3})` in the edge region. The pair `(π_1, π_2)` thus has
-uncorrelated fluctuations of this magnitude, so the conditional event
-`δ ≥ 1` (i.e., `δ̃ ≥ 1/m`) requires the fluctuations to be aligned in a
-specific direction at a boundary layer of `O(m · log m)` cells. The cost
-of this alignment is `O(m · log m)` in log-probability, giving (‡).
+**No justification is currently known in the repository.** Quantitative
+one-point or local fluctuation estimates do not by themselves give a global
+persistence probability. Also, an `O(m log m)` cost would not imply the
+displayed `O(m)` claim, though it would still be enough for the limit theorem.
 
-*This is the step that relies on external theorems. It is rigorous in the
-Cerf–Kenyon–Okounkov–Reshetikhin framework but requires specific
-fluctuation estimates that are stated but not proved in full detail
-within any single paper. The reference chain is:*
+*The cited papers provide important local and variational input, but the
+required global hard-wall lower bound has not been derived from them here:*
 - [Cerf–Kenyon 2001], limit shape existence.
 - [Okounkov–Reshetikhin 2003], Schur-process and bulk correlation kernel.
 - [Kenyon–Okounkov–Sheffield 2006], surface tension `h` and variational
   principle.
 - [Petrov 2014], quantitative fluctuation bounds for plane partitions.
 
-### Step 7 — combining
+### Step 7 — conditional combination
 
 From (‡):
 
@@ -120,7 +118,7 @@ Dividing by `m²`:
 
     log Q(m) / m²  →  2 L_3.                              (†)
 
-This proves Step 3. ∎
+This would prove Step 3 **if** (‡) were established.
 
 ## Why this is cleaner than the Schur-process route
 
@@ -133,9 +131,8 @@ The variational route replaces this with:
 - A **general theorem** (limit shape exists, limit shape is `σ_*`).
 - A **quantitative fluctuation bound** (`O(m log m)` cost for edge events).
 
-Both are standard results in random-surface theory and are proved in the
-literature at full generality, not just for our specific problem. The
-specialization to our boundary data is routine.
+The specialization needed for the simultaneous pointwise ordering event is
+not routine; it is the central open step.
 
 ## Numerical cross-check of (‡)
 
@@ -166,8 +163,8 @@ specialization, but its exact value is not determined here.
    variational principle, specific fluctuation estimates (Petrov 2014) are
    their own chapter.
 
-3. **Therefore: Lean formalization is not in session reach.** But the
-   proof-at-math-paper-level is clean and referenceable.
+3. **Therefore:** neither a paper-level proof nor a Lean proof is completed by
+   this document.
 
 ## References
 

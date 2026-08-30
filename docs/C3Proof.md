@@ -1,9 +1,13 @@
-# Proof of c_3 = 2 L_3 (conditional on cited results)
+# Proposed Schur-process route to c_3 = 2 L_3
 
-**Status:** This is a mathematical proof at the paper/journal level, not a
-Lean-formalized proof. Steps 1–3 and 5 are elementary and reproducible;
-Step 4 invokes external machinery (Lindström–Gessel–Viennot + Schur process
-asymptotics) as a black box and cites the specific results used.
+**Status:** Not a proof, even conditional merely on the cited published
+theorems. Steps 1–3 are valid reductions, but Step 4 posits a specific
+determinant and product factorization that is neither derived here nor stated
+in the cited papers. See `C3ResearchFrontier.md` for the audited target.
+
+**Current status:** this determinant route is superseded by deterministic
+multiscale compression. The only remaining formal input is the classical
+cubic MacMahon formula/asymptotic.
 
 ## Theorem
 
@@ -69,7 +73,7 @@ Q(m) = #{A : [m] × [m] × [2] → [0, m−1] antitone in all three coordinates}
 ```
 This is a 4D solid-partition count (shape `m × m × 2`, entry bound `m−1`).
 
-### Step 4: Determinantal formula via LGV [external]
+### Step 4: Proposed determinantal formula via LGV [unproved]
 
 A 3D antitone array of shape `m × m × 2` with entries `≤ m − 1` decomposes
 into `m − 1` nested pairs of downsets of `[m]²`. Specifically, for each
@@ -86,18 +90,20 @@ top-left to the bottom-right, so `Q(m)` counts `2(m−1)`-tuples of
 non-intersecting lattice paths with specific source/sink data and
 interlacing between the two families.
 
-**By the Lindström–Gessel–Viennot lemma** (Lindström 1973; Gessel–Viennot
-1985),
+**Proposed use of the Lindström–Gessel–Viennot lemma** (Lindström 1973;
+Gessel–Viennot 1985): after explicit sources, sinks, and weights are supplied,
+one would seek an identity
 ```
 Q(m) = det(M_m),
 ```
 where `M_m` is a `2(m − 1) × 2(m − 1)` matrix whose entries are binomial
 coefficients counting single lattice paths.
 
-**By the Okounkov–Reshetikhin Schur-process framework** (arXiv:math/0107056,
+**Unproved specialization.** The Okounkov–Reshetikhin Schur-process framework (arXiv:math/0107056,
 Thm. 2 and §3.2) applied to our specialization, or equivalently by Borodin's
 periodic Schur process (arXiv:math/0601019, Duke Math. J. 140 (2007),
-Thm. 1), the determinant admits a product factorization of the form
+Thm. 1), does not by citation alone show that the determinant admits a product
+factorization of the form
 ```
 Q(m) = PP(m, m, m − 1)² · R(m),                                  (†)
 ```

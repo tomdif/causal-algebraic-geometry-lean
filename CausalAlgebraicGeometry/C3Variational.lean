@@ -4,15 +4,13 @@
   Formalizes the bridge from two external facts (which Mathlib does not
   currently contain) to the main conclusion, via the sandwich bound.
 
-  EXTERNAL FACTS taken as hypotheses (proved in the literature, not in
-  Mathlib; see docs/C3ProofVariational.md for citations):
+  FACTS taken as hypotheses (not proved in this repository):
 
     (hMacMahon) log(downsetCountDim 3 m) / m² → L_3       as m → ∞
                 (MacMahon box formula asymptotic, 1916 / Stanley EC Vol. 2)
 
     (hQ)        log(Q m) / m² → 2 L_3                      as m → ∞
-                (consequence of the Cerf–Kenyon–Okounkov–Reshetikhin
-                variational principle + Petrov fluctuation bounds)
+                (supplied later by C3AsymptoticClosure from hMacMahon alone)
 
   LEAN-PROVED (here, zero sorry): given these two hypotheses,
 
@@ -22,9 +20,9 @@
      log Q(m) ≤ log numConvexDim(3,m) ≤ 2 log downsetCountDim(3,m)
   divided by m², with both outer ends converging to 2 L_3.
 
-  THIS IS NOT A FULL LEAN PROOF of c_3 = 2 L_3. The hypotheses hMacMahon
-  and hQ would themselves require the full variational machinery, which is
-  years of Mathlib library development away. What this file provides is
+  This file is the generic two-hypothesis squeeze. The later deterministic
+  multiscale development discharges hQ from hMacMahon, so only the classical
+  MacMahon asymptotic remains outside the current Lean proof. This file gives
   a precise statement of what's needed and a rigorous bridge from there
   to the conclusion.
 
@@ -167,22 +165,15 @@ STATE OF THE ART IN THIS FILE:
       full-support lower      Q(m) ≤ numConvexDim(3, m)
       conditional closure     (hMacMahon) ∧ (hQ)  ⟹  c_3 = 2 L_3
 
-  • (External, cited but not Lean-formalized):
+  • (Classical but not Lean-formalized here):
       hMacMahon  — log PP(m,m,m) / m² → L_3
                    (classical, Stanley EC Vol. 2 §7.21)
-      hQ         — log Q(m) / m² → 2 L_3
-                   (Cerf–Kenyon 2001 + Okounkov–Reshetikhin 2003 +
-                    Kenyon–Okounkov–Sheffield 2006 + Petrov 2014)
+  • (Proved later from hMacMahon):
+      hQ         — `C3AsymptoticClosure.C3Conjecture_of_macmahon`
 
-WHAT'S ACHIEVED: the only gap between "conjecture" and "Lean theorem" is
-the formalization of `hMacMahon` and `hQ`. Those are deep analytic results
-(limit-shape theory, fluctuation bounds). The purely combinatorial side
-— sandwich + full-support injection — is closed in Lean.
-
-THE APRIL 19 RETRACTION: `C3Conjecture` remains a `Prop` without proof in
-this file. We establish only that `C3Conjecture ⟹ c_3 = 2 L_3`, plus the
-combinatorial infrastructure needed for the bridge. The proof of
-`C3Conjecture` itself requires the external variational machinery.
+CURRENT STATUS: this generic squeeze remains useful, but its hQ hypothesis is
+now discharged in `C3AsymptoticClosure.lean` by deterministic multiscale
+compression. The remaining formal input is hMacMahon.
 -/
 
 end -- noncomputable section

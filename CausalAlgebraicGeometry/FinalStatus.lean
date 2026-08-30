@@ -49,6 +49,16 @@
 
   The two approaches are COMPLEMENTARY, not contradictory.
 
+  NEW BOUNDARY-GEOMETRY SECTOR (August 2026):
+  • CAGBoundaryGeometry defines and proves a genuine L¹ metric on antitone
+    boundary states and a symmetric mixed plaquette-curvature tensor.
+  • CAGBoundaryDynamics derives a discrete Poisson equation and the exact
+    4sin²(q/2) Fourier symbol from an EXPLICIT Dirichlet effective-action
+    hypothesis.
+  • This does not retract the negative result above: it is boundary-state
+    effective geometry, not Einstein dynamics derived from the regular-grid
+    BD action.
+
   ═══════════════════════════════════════════════════════════════════════
   WHAT THIS WORK ESTABLISHES
   ═══════════════════════════════════════════════════════════════════════

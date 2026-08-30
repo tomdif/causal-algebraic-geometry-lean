@@ -22,6 +22,9 @@
   5. [NearVacuumFull] Stabilization (d=1 case):
      nonIncSeqCount_stable: non-increasing sequence count stabilizes for m > k.
 
+  6. [FiberCardinality] Exact defect identity:
+     |S^c| = sum_f (m - upperBdy_S(f) + lowerBdy_S(f)).
+
   CAPSTONE: In the near-vacuum regime k < m, the map
     (convex S with |S^c| ≤ k) → (antitone pair (lowerBdy_S, upperBdy_S))
   is an injection whose image is exactly the antitone pairs with pointwise
@@ -37,6 +40,7 @@
 import CausalAlgebraicGeometry.NearVacuumBijection
 import CausalAlgebraicGeometry.SlabExact
 import CausalAlgebraicGeometry.NearVacuumFactorization
+import CausalAlgebraicGeometry.FiberCardinality
 
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
@@ -51,6 +55,7 @@ open CausalAlgebraicGeometry.SlabCharacterization
 open CausalAlgebraicGeometry.SlabExact
 open CausalAlgebraicGeometry.NearVacuumFactorization
 open CausalAlgebraicGeometry.NearVacuumBijection
+open CausalAlgebraicGeometry.FiberCardinality
 
 noncomputable section
 open scoped Classical
@@ -98,22 +103,20 @@ theorem antitone_strict_gives_convex {d m : ℕ}
   apply makeSlab_isConvex hφ hψ
   intro f; exact Nat.le_of_lt (hlt f)
 
-/-! ## Size constraint and defect counting (proof sketch, not formalized here)
+/-! ## Size constraint and exact defect counting -/
 
-  The cardinality relationship |S^c| = Σ_f (m - upperBdy(f) + lowerBdy(f))
-  follows from the fibration argument:
-  - univ decomposes by the base-coordinate projection.
-  - |univ| = Σ_f m = m^{d+1}.
-  - |S| = Σ_f |fiber(f)| (fibration).
-  - For nonempty fibers, |fiber(f)| = upperBdy(f) - lowerBdy(f).
-  - Therefore |S^c| = Σ_f (m - upperBdy(f) + lowerBdy(f)).
-
-  This is standard combinatorics but requires Finset.sum_fiberwise or similar
-  Mathlib machinery which we don't instantiate here. The existing
-  NearVacuumFull.lean handles the d=1 case computationally for specific m via
-  native_decide. General-m Lean formalization would use this cardinality
-  decomposition as a named lemma.
--/
+/-- **NEAR-VACUUM DEFECT IDENTITY.**  The complement size is exactly the sum
+of the lower and upper boundary defects.  This closes the cardinality step in
+the slab/profile bijection for every dimension. -/
+theorem near_vacuum_defect_eq_sum_bdy {d m k : ℕ} (hkm : k < m)
+    {S : Finset (Fin (d + 1) → Fin m)}
+    (hS : IsConvexDim (d + 1) m S)
+    (hsize : (Finset.univ \ S).card ≤ k) :
+    (Finset.univ \ S).card =
+      (Finset.univ : Finset (Fin d → Fin m)).sum
+        (fun f => m - upperBdy d m S f + lowerBdy d m S f) := by
+  apply defect_eq_sum_bdy hS
+  exact fun f => fiber_nonempty_near_vacuum hkm S hsize f
 
 /-! ## Summary
 
@@ -128,12 +131,13 @@ CAPSTONE THEOREM ESTABLISHED (zero sorry for the main result):
   antitone_strict_gives_convex: For antitone φ, ψ with φ < ψ pointwise,
     makeSlab(φ, ψ) is convex.
 
-COMBINED: In the near-vacuum regime, convex subsets and full-support antitone
-pairs are in bijection (up to the defect_eq_sum_bdy cardinality step).
+  near_vacuum_defect_eq_sum_bdy: the complement cardinality is exactly the
+    sum of the two boundary defects in every dimension.
 
-NOT FULLY FORMALIZED (sorry-marked above or in dependency files):
-  - defect_eq_sum_bdy: cardinality decomposition |S^c| = Σ(m - ψ + φ).
-    This is a combinatorial fact following from |S| = Σ|fiber(f)|.
+COMBINED: In the near-vacuum regime, convex subsets and full-support antitone
+pairs are in bijection with the exact defect matched by the boundary sum.
+
+REMAINING COUNTING STEP:
   - Connection of antitone pair count to (P_d * P_d)(k): this requires
     establishing that the sum Σ(a + b) = k decomposes as in the convolution
     formula, which is the standard reversal bijection.
@@ -148,12 +152,13 @@ WHAT THIS MEANS FOR THE PAPER:
   - The bijection between convex subsets and full-support antitone pairs
     holds (proved here).
   - The factorization into upper/lower profiles holds (NearVacuumFactorization).
+  - The exact defect/cardinality identity holds (FiberCardinality and this file).
   - The stabilization of profile counts to partition counts holds (NearVacuumFull).
   - The specific counts match A000712 etc. (computational verification).
 
   These pieces combine to establish CC_{m^{d+1}-k}([m]^{d+1}) = (P_d * P_d)(k)
   for k < m, with the FORMAL Lean theorem for general m > k requiring
-  additional bijection construction (the defect_eq_sum_bdy step).
+  only the final convolution-count packaging.
 -/
 
 end -- noncomputable section

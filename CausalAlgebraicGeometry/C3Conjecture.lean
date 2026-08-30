@@ -32,10 +32,10 @@
     Least-squares fit of log Q(m)/m² = L + a/m + b/m² over m = 2..6 gives
     L ≈ 1.576, gap of +0.006 (0.4%) from 2 L₃ = 1.5697.
 
-  PROOF PATHWAY (open): the asymptotic should follow from a determinantal
-  identity for Q(m) in the Okounkov–Reshetikhin Schur process framework
-  (arXiv:math/0107056) or Borodin's periodic Schur / cylindric partition
-  framework (arXiv:math/0601019, Duke Math. J. 140, 2007).
+  PROOF PATHWAY (implemented in later modules): deterministic multiscale
+  height quantization plus shift compression proves this proposition from
+  MacMahon's cubic-box asymptotic alone; see C3MultiscaleCompression and
+  C3AsymptoticClosure.
 
   Zero `sorry`. The conjecture is a named `Prop` with no proof attempt.
 -/
@@ -89,10 +89,9 @@ theorem numConvex3_ge_Q (m : ℕ) : Q m ≤ numConvexDim 3 m :=
 
     The normalized log-count of full-support antitone pairs converges to 2 L₃.
 
-    Numerical evidence (m = 1..5) supports this with extrapolated limit
-    ≈ 1.574 versus target 2 L₃ ≈ 1.5697 — within 0.3%. The proof pathway
-    (Schur process determinantal asymptotics) is identified but not executed
-    here. -/
+    This file only names the proposition.  A later theorem,
+    `C3AsymptoticClosure.C3Conjecture_of_macmahon`, proves it from the
+    classical one-surface MacMahon asymptotic. -/
 def C3Conjecture : Prop :=
   Tendsto (fun m : ℕ => Real.log (Q m : ℝ) / (m : ℝ) ^ 2) atTop (𝓝 (2 * L3))
 
@@ -150,15 +149,16 @@ STATE OF c₃ AFTER THIS FILE:
   (ii) Conjectured (not proved here):
        • C3Conjecture:   log Q(m)/m² → 2 L₃.
        • Numerical support at m = 1..5: extrapolated limit within 0.3% of 2 L₃.
-  (iii) Proof pathway (external work, not attempted here):
-       • Okounkov–Reshetikhin Schur process (arXiv:math/0107056) or
-         Borodin periodic Schur / cylindric partitions (arXiv:math/0601019,
-         Duke Math. J. 140, 2007) — determinantal asymptotics for pairs of
-         plane partitions with pointwise strict gap.
+  (iii) Later closure in this repository:
+       • C3MultiscaleCompression replaces the probabilistic limit-shape tube
+         by deterministic height quantization at scale sqrt(m).
+       • C3AsymptoticClosure proves C3Conjecture from the single classical
+         MacMahon cubic-box asymptotic. No lozenge coordinate bridge remains.
 
-THE RETRACTION FROM APRIL 19 STANDS: c₃ = 2 L₃ remains an unproved conjecture
-in Lean. What this file adds is the formal statement of the conjecture and the
-identified pathway, with the numerical evidence recorded in the docstring.
+This file intentionally still only defines the conjecture.  The strongest
+theorem is `C3AsymptoticClosure.C3Conjecture_of_macmahon`: the CAG-specific
+part is closed, while the classical MacMahon asymptotic is not yet formalized
+in this repository.
 -/
 
 end -- noncomputable section

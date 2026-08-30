@@ -98,10 +98,9 @@ theorem log_sandwich (d m : ℕ) :
     L_d ≤ c_d ≤ 2·L_d
 
   The slab characterization (SlabCharacterization.lean) proves that EVERY
-  convex subset of [m]^d is a "slab" defined by antitone boundary functions.
-  This means |CC([m]^d)| ≈ (downsetCountDim d m)^2 up to subexponential factors.
-
-  Therefore: c_d = 2·L_d.
+  convex subset of [m]^d is a "slab", but empty fibers obstruct a bijection
+  with arbitrary antitone boundary pairs. It does NOT establish that the
+  upper bound is sharp up to subexponential factors.
 
   For d = 3:
     L_3 = lim log(downsetCountDim 3 m) / m^2
@@ -109,10 +108,11 @@ theorem log_sandwich (d m : ℕ) :
         = ∫₀¹∫₀¹ log((1+x+y)/(x+y)) dx dy
         = (9/2)ln 3 - 6 ln 2
 
-    c_3 = 2·L_3 = 9 ln 3 - 12 ln 2 = ln(19683/4096) ≈ 1.5697
+    L_3 ≤ c_3 ≤ 2·L_3.
+    The equality c_3 = 2·L_3 remains conjectural; see C3Conjecture.lean.
 
   For general d:
-    c_d = 2 × (growth rate of (d-1)-dimensional plane partitions in [m]^{d-1} box)
+    only the corresponding sandwich is proved here.
 -/
 
 end -- noncomputable section

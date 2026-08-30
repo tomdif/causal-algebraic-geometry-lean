@@ -64,6 +64,13 @@
   This is consistent with the causal-set philosophy:
   causal structure determines geometry POINTWISE (Malament),
   which is stronger than the integrated/averaged control of GR.
+
+  AUGUST 2026 ADDITION:
+  CAGBoundaryGeometry and CAGBoundaryDynamics supply a separate, explicitly
+  labeled boundary-state geometry: an L¹ profile metric, plaquette curvature,
+  and a Dirichlet-action Poisson equation with lattice dispersion.  The action
+  selection is an effective hypothesis, so these results do not turn the BD
+  action into Einstein-Hilbert or override the status above.
 -/
 
 -- This file contains no theorems — it is documentation only.

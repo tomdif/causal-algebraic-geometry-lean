@@ -249,9 +249,9 @@ WHAT THIS CANNOT RESOLVE YET:
 NUMERICAL DATA SUPPORTS c_3 = 2 L_3:
   At m = 2: |CC([2]³)| = 101, #full-support pairs = 20, PP(2,2,2) = 20.
   At m = 3: |CC([3]³)| = 114,797, #full-support pairs = 8,790, PP(3,3,3) = 980.
-  The ratio full-support / PP² is 0.05 at m=2 and 0.009 at m=3 — consistent
-  with polynomial decay (not exponential), so the growth rate matches 2 L_3.
-  But this is numerical evidence, not proof.
+  The available data through m=6 are consistent with an exp(-Theta(m))
+  ratio, hence with no m²-scale entropy loss. This is numerical evidence,
+  not a proof or a reliable identification of the subleading scale.
 -/
 
 end -- noncomputable section
