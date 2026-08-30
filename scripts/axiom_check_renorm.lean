@@ -1,0 +1,4 @@
+import CausalAlgebraicGeometry.DivisibilityRenormalization
+
+#print axioms CausalAlgebraicGeometry.DivisibilityRenormalization.renormalization
+#print axioms CausalAlgebraicGeometry.DivisibilityRenormalization.prime_doubling_of_renormalization

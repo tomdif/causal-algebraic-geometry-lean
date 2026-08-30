@@ -1,1 +1,4 @@
 .lake/
+.claude/
+*.so
+.DS_Store

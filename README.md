@@ -4,7 +4,7 @@ Formal verification of the mathematical framework deriving the Standard Model fr
 
 ## Codebase
 
-**254 files, 45,856 lines.** Zero sorry. Zero custom axioms beyond Lean's core (propext, choice, quot.sound).
+**308 files, 60,783 lines.** Zero sorry. Zero custom axioms beyond Lean's core (propext, choice, quot.sound).
 
 Build: `lake build` (Lean 4 v4.28.0, Mathlib v4.28.0).
 
@@ -48,11 +48,41 @@ The physics derivation (gauge group, Higgs mass, electroweak scale, Born rule, E
 
 ### Combinatorial Core (0 sorry)
 
-- `DimensionLaw.lean`: log|CC([m]^d)| = Θ(m^{d-1}) (area-law scaling)
+- `DimensionLawComplete.lean`: explicit all-d bounds proving log|CC([m]^d)| = Θ(m^{d-1})
+- `C3BarrierLowerBound.lean`: certified deterministic-barrier lower bound for the c₃ problem
+- `C3ShiftCompression.lean`: certified finite shift/fiber inequality
+- `C3MultiscaleCompression.lean`: deterministic height quantization eliminates the limit-shape input and bounds the total correction by `exp(O(m^(3/2)))`
+- `C3AsymptoticClosure.lean`: unconditionally proves two-boundary entropy factorization; proves the numerical `C3Conjecture` and convex-count limit from the single classical MacMahon cubic-box asymptotic
 - `GrowthRateIs16.lean`: ρ₂ = 16 exactly
+- `DivisibilityRenormalization.lean`: A394685 is scale-free — c_k(kp)·a(k-1) = c_k(kp-1)·a(k) for every k ≥ 1 and prime p ≥ k, where c_k counts divisibility-convex subsets of {k,...,n}; subsumes the prime-doubling theorem of `DivisibilityPoset.lean`/`PendantDoubling.lean` (the case k = 1). See docs/DivisibilityRenormalization.md
 - `SlabCharacterization.lean`: Every convex subset of [m]^{d+1} is a slab between antitone boundaries
 - `UniversalGap.lean`: Spectral gap Δ = 1, universal for all m ≥ 2
 - `PartitionDimensionBridge.lean`: Two independent equations both select d = 3
+
+### Boundary Geometry and Effective Dynamics (0 sorry)
+
+- `CAGBoundaryGeometry.lean`: intrinsic L¹ metric on antitone boundary surfaces and a symmetric mixed plaquette-curvature tensor
+- `CAGMedianGeometry.lean`: bounded distributive-lattice structure, exact valuation formula for the metric, unique three-boundary median, and global L¹ consensus minimization
+- `CAGTransitionGeometry.lean`: one-cell Hasse graph, exact graph-distance theorem, unique graph medians, and an explicit isometric embedding into the Boolean cell hypercube
+- `CAGFiniteCausalGeometry.lean`: the same metric/Hasse/median/partial-cube theorem stack for downsets of every finite causal poset and every finite `CAlg`, plus an intrinsic square-completion curvature kernel
+- `CAGCubicalComplex.lean`: event hyperplanes, isometric higher-dimensional causal cubes with face closure, cubical links, and the intrinsic link Laplacian
+- `CAGScalingLimit.lean`: finite-chain state graphs identified with path lattices, exact centered graph Laplacian, and a fixed-length family with certified quadratic continuum-consistency error
+- `CAGTwoDimensionalLimit.lean`: disjoint pairs of causal chains identified exactly with rectangular grid state spaces, the intrinsic five-point Laplacian, and a fixed-square family with certified quadratic continuum-consistency error
+- `CAGPlaquetteLimit.lean`: elementary rectangles realized as intrinsic two-event causal cubes whose link edge and alternating field sum recover the mixed continuum Hessian on coupled quartic surfaces
+- `CAGProductScalingLimit.lean`: arbitrary finite families of independent causal chains identified with higher-dimensional path products, exact Manhattan distance and `(2d+1)`-point Laplacian, and a dimension-uniform fixed-cube continuum limit
+- `CAGSmoothScalingLimit.lean`: Mathlib Taylor theory upgrades the product limit from polynomial calibration to arbitrary coupled coordinate-smooth fields, with the sharp uniform error bound `(sum M_i)h²/12` and fixed-domain convergence
+- `CAGNonproductScalingLimit.lean`: every finite causal poset gets an exact radial birth–death Laplacian determined by intrinsic upward/downward branching, plus a smooth drift–diffusion expansion, a branching-balance criterion, and bounded-branching continuum convergence
+- `CAGDirectionalGeometry.lean`: a complete intrinsic event-labeled frame on every finite causal-state graph, an exact directional decomposition of its Laplacian, the order-curvature identity saying mixed frontier sectional defect is precisely the indicator of causal precedence, and the full trace formula `K_dir=2·(# frontier causal incidences)`
+- `CAGDiscreteConnection.lean`: the canonical partial event-wall connection between variable-dimensional directional frames, with identity/inverse/composition laws, zero holonomy on its domain, a positive-definite fiber metric preserved by transport, and covariant finite differences
+- `CAGFunctorialGeometry.lean`: order-isomorphic causal posets have isometric state graphs and naturally equivalent tangent frames, with invariant tangent norm, connection, sectional kernel, and total directional curvature
+- `CAGCausalRefinement.lean`: past-closed embeddings into genuinely larger causal posets preserve old distances, transitions, tangent directions, metric, and connection, while the refined degree splits into old degree plus an exact count of newly created directions
+- `CAGRefinementTower.lean`: compatible infinite refinement sequences obey an exact cumulative tangent-dimension law, linear-growth and stabilization criteria, and a universal normalized directional-curvature bound in `[0,1]`
+- `CAGRefinementConvergence.lean`: every refinement tower has a convergent normalized-curvature subsequence; summable variation forces full curvature and persistent-old-frame field convergence with rigorous tail error bounds
+- `CAGBoundaryDynamics.lean`: exact Euler–Lagrange derivation of the discrete Poisson equation for an explicitly stated boundary Dirichlet effective action
+- `CAGFiniteCausalDynamics.lean`: exact graph-Laplacian Euler–Lagrange equation for that effective action on arbitrary finite causal-state graphs
+- `CAGBoundaryDynamics.lean`: exact lattice dispersion `ω²=(c/a)²4sin²(q/2)`, a conditional falsifiable signature once the effective action and lattice scale are independently fixed
+
+These are genuine finite causal-state geometric structures. They are not presented as a derived Lorentzian event-spacetime metric, Riemann tensor, or Einstein equation; [the status document](docs/CAGBoundaryGeometryStatus.md) separates proved results from effective hypotheses.
 
 ### Benincasa-Dowker Action (0 sorry)
 
