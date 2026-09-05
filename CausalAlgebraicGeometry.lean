@@ -62,3 +62,16 @@ import CausalAlgebraicGeometry.CAGFunctorialGeometry
 import CausalAlgebraicGeometry.CAGCausalRefinement
 import CausalAlgebraicGeometry.CAGRefinementTower
 import CausalAlgebraicGeometry.CAGRefinementConvergence
+
+-- Concrete algebraic-geometry and Galois bridges, plus the small audited
+-- verification surface used by CI and external checkers.
+import CausalAlgebraicGeometry.CSpecActualSheaf
+import CausalAlgebraicGeometry.CSpecRingSheaf
+import CausalAlgebraicGeometry.ChamberGaloisBridge
+import CausalAlgebraicGeometry.ChamberGaloisConjecture
+import CausalAlgebraicGeometry.ChamberGenericFamily
+import CausalAlgebraicGeometry.ChamberFrobenius
+import CausalAlgebraicGeometry.ChamberGaloisD4
+import CausalAlgebraicGeometry.CSpecChamberRoots
+import CausalAlgebraicGeometry.CSpecChamberRootsCounterexample
+import CausalAlgebraicGeometry.FinalCheck

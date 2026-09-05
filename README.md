@@ -4,7 +4,10 @@ Formal verification of the mathematical framework deriving the Standard Model fr
 
 ## Codebase
 
-**308 files, 60,783 lines.** Zero sorry. Zero custom axioms beyond Lean's core (propext, choice, quot.sound).
+**316 Lean source files, 62,387 lines.** The audited default library and
+`FinalCheck` endpoints contain no `sorry` and no project-defined axioms.
+`RHTarget.lean` is an explicitly excluded experimental file with four custom
+axioms; it is not imported by the default target. See [PROOF-PATH.md](PROOF-PATH.md).
 
 Build: `lake build` (Lean 4 v4.28.0, Mathlib v4.28.0).
 
@@ -29,6 +32,11 @@ The physics derivation (gauge group, Higgs mass, electroweak scale, Born rule, E
 - `VolterraBridge.lean`: Jacobi entries from Volterra singular value ratios
 - `VolterraConvergence.lean`: Explicit O(1/m²) error bound for SV ratio convergence
 - `SpectralData.lean`: Characteristic polynomial (5λ-3)(150λ²-50λ+3)=0, discriminant analysis
+- `ChamberGaloisBridge.lean`: rational chamber recurrence, exact base change to ℝ, structural deflation, and the genuine splitting-field Galois action
+- `ChamberGaloisConjecture.lean`: all-dimensional full-symmetric surjectivity stated on that concrete action (still a conjecture in general)
+- `ChamberGaloisD4.lean`: the first full-symmetry theorem, proving the canonical `d = 4` residual action is `S₂`
+- `ChamberGenericFamily.lean`: parameterized chamber recurrence, exact arithmetic specialization, and the generic polynomial over `ℚ(δ)`
+- `ChamberFrobenius.lean`: integral models and replayable finite-field factorization certificates, including the complete `d = 4`, mod-11 seed
 - `UvarovChebyshev.lean`: Chamber polynomials as boundary-perturbed Chebyshev (not a new OP family)
 - `IntegrationSpectrum.lean`: SM parameters from singular values of integration operator
 
@@ -41,7 +49,11 @@ The physics derivation (gauge group, Higgs mass, electroweak scale, Born rule, E
 ### Algebraic Foundations (0 sorry)
 
 - `ConvexityIFF.lean`: S convex ↔ restriction preserves multiplication (bridge theorem)
-- `CSpecSheaf.lean`: CSpec is the unique topology compatible with the structure sheaf
+- `CSpecSheaf.lean`: algebraic locality for causal corner sections
+- `CSpecActualSheaf.lean`: the generated CSpec topology and a genuine `TopCat.Sheaf (Type _)`, stored in `CausalSchemeData`
+- `CSpecRingSheaf.lean`: the corresponding genuine `RingCat` sheaf of noncommutative causal-corner rings
+- `CSpecChamberRoots.lean`: local residual chamber polynomials, their root-choice sheaf, faithful local Galois actions, and fixed-dimension constancy
+- `CSpecChamberRootsCounterexample.lean`: a two-point CSpec counterexample to unrestricted root-sheaf local constancy
 - `CSpecUniqueness.lean`: No enlargement possible — CSpec is forced by algebraic structure
 - `Separation.lean`: Noetherian ratio γ detects geometry beyond classical invariants
 - `HolonomyComposition.lean`: Junction law, functorial composition, gauge structure
@@ -126,7 +138,21 @@ These are genuine finite causal-state geometric structures. They are not present
 
 ## Axiom Audit
 
-All theorems depend only on standard Lean kernel axioms: `propext`, `Classical.choice`, `Quot.sound`, plus `Lean.ofReduceBool` and `Lean.trustCompiler` (from `native_decide`). No `sorryAx` anywhere.
+The endpoints in `CausalAlgebraicGeometry/FinalCheck.lean` have pinned
+`#print axioms` reports. They depend only on `propext`, `Classical.choice`,
+and `Quot.sound`; the exact-growth endpoint additionally uses
+`Lean.ofReduceBool` and `Lean.trustCompiler` through `native_decide`.
+`#guard_msgs` makes an unexpected dependency change fail the build.
+
+This audit is intentionally scoped to the default library. The experimental,
+non-imported `RHTarget.lean` contains four declared axioms and is not presented
+as a proved RH formalization.
+
+For the focused audit:
+
+```bash
+lake build CausalAlgebraicGeometry.FinalCheck
+```
 
 ## Building
 

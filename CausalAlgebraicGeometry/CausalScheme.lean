@@ -28,12 +28,16 @@ import Mathlib.Data.Fintype.Basic
 import CausalAlgebraicGeometry.CausalAlgebra
 import CausalAlgebraicGeometry.CausalPrimality
 import CausalAlgebraicGeometry.CSpecSheaf
+import CausalAlgebraicGeometry.CSpecActualSheaf
+import CausalAlgebraicGeometry.CSpecRingSheaf
 import CausalAlgebraicGeometry.OrderComplexCohomology
 import CausalAlgebraicGeometry.Uniqueness
 
 namespace CausalAlgebraicGeometry.CausalScheme
 
 open CausalAlgebra CausalPrimality CSpecSheaf Uniqueness
+
+universe u v
 
 /-! ### The crisp definition -/
 
@@ -48,13 +52,17 @@ open CausalAlgebra CausalPrimality CSpecSheaf Uniqueness
 
     ALL FIVE components are determined by the poset (Λ, ≤) and
     the field k. There are no additional choices. -/
-structure CausalSchemeData (k : Type*) [Field k] where
+structure CausalSchemeData (k : Type u) [Field k] where
   /-- The underlying causal algebra -/
-  algebra : CAlg k
+  algebra : CAlg.{u, v} k
   /-- The spectrum: causally prime ideals -/
   primes : Set (Set algebra.Λ)
   /-- The primes are exactly the causally prime ideals -/
   primes_eq : primes = {S | IsCausallyPrime algebra S}
+  /-- The actual sheaf of causal-corner fibres on the generated CSpec topology. -/
+  structureSheaf : TopCat.Sheaf (Type (max u v)) (CSpecActualSheaf.CSpecTop algebra)
+  /-- The same fibres with their genuine noncommutative ring structure retained. -/
+  ringStructureSheaf : TopCat.Sheaf RingCat.{max u v} (CSpecActualSheaf.CSpecTop algebra)
   /-- The structure sheaf assigns corner algebras to convex opens -/
   sheaf_locality : ∀ (S : Finset algebra.Λ) (M N : CornerElt algebra S),
     (∀ x ∈ S, ∀ y ∈ S, M.mat x y = N.mat x y) → M.mat = N.mat
@@ -66,18 +74,20 @@ structure CausalSchemeData (k : Type*) [Field k] where
 
 /-- Construct the causal scheme from a poset and a field.
     EVERYTHING is determined — no choices. -/
-noncomputable def causalScheme_of_poset {k : Type*} [Field k]
-    (Λ : Type*) [Fintype Λ] [DecidableEq Λ]
+noncomputable def causalScheme_of_poset {k : Type u} [Field k]
+    (Λ : Type v) [Fintype Λ] [DecidableEq Λ]
     (le : Λ → Λ → Prop) [DecidableRel le]
     (le_refl : ∀ a, le a a)
     (le_antisymm : ∀ a b, le a b → le b a → a = b)
     (le_trans : ∀ a b c, le a b → le b c → le a c) :
-    CausalSchemeData k :=
+    CausalSchemeData.{u, v} k :=
   let C := fromFinitePoset Λ le le_refl le_antisymm le_trans
   { algebra := C
     primes := {S | IsCausallyPrime C S}
     primes_eq := rfl
-    sheaf_locality := fun S M N h => locality C M N h
+    structureSheaf := CSpecActualSheaf.causalCornerSheaf C
+    ringStructureSheaf := CSpecRingSheaf.causalCornerRingSheaf C
+    sheaf_locality := fun _ M N h => locality C M N h
     gamma_num := (Finset.univ.powerset.filter
       (fun S : Finset Λ => ∀ a ∈ S, ∀ b ∈ S, ∀ c, le a c → le c b → c ∈ S)).card
     gamma_den := (Finset.univ.filter
